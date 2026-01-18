@@ -8,6 +8,7 @@ export interface Asset {
   change24h: number;
   icon?: string;
   isStaked?: boolean;
+  stakingProtocol?: string; // e.g., 'Lido', 'Marinade', 'Jito'
   stakingRewards?: number;
 }
 
@@ -37,7 +38,13 @@ export type Chain =
   | 'hyperliquid'
   | 'hyperevm'
   | 'polygon'
-  | 'base';
+  | 'base'
+  | 'xrp'
+  | 'dogecoin'
+  | 'zcash'
+  | 'cardano'
+  | 'litecoin'
+  | 'tron';
 
 export interface Wallet {
   id: string;
@@ -147,5 +154,47 @@ export const CHAIN_CONFIG: Record<Chain, ChainConfig> = {
     nativeToken: 'ETH',
     explorer: 'https://basescan.org',
     color: '#0052ff',
+  },
+  xrp: {
+    id: 'xrp',
+    name: 'XRP',
+    nativeToken: 'XRP',
+    explorer: 'https://xrpscan.com',
+    color: '#23292f',
+  },
+  dogecoin: {
+    id: 'dogecoin',
+    name: 'Dogecoin',
+    nativeToken: 'DOGE',
+    explorer: 'https://dogechain.info',
+    color: '#c2a633',
+  },
+  zcash: {
+    id: 'zcash',
+    name: 'Zcash',
+    nativeToken: 'ZEC',
+    explorer: 'https://zecblockexplorer.com',
+    color: '#f4b728',
+  },
+  cardano: {
+    id: 'cardano',
+    name: 'Cardano',
+    nativeToken: 'ADA',
+    explorer: 'https://cardanoscan.io',
+    color: '#0033ad',
+  },
+  litecoin: {
+    id: 'litecoin',
+    name: 'Litecoin',
+    nativeToken: 'LTC',
+    explorer: 'https://litecoinspace.org',
+    color: '#bfbbbb',
+  },
+  tron: {
+    id: 'tron',
+    name: 'Tron',
+    nativeToken: 'TRX',
+    explorer: 'https://tronscan.org',
+    color: '#ff0013',
   },
 };

@@ -90,8 +90,8 @@ export default function AssetRow({ asset, index }: AssetRowProps) {
                 {asset.symbol}
               </span>
               {asset.isStaked && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--accent-green)]/10 text-[var(--accent-green)]">
-                  STAKED
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--accent-green)]/10 text-[var(--accent-green)] font-medium">
+                  {asset.stakingProtocol ? `⚡ ${asset.stakingProtocol}` : '⚡ STAKED'}
                 </span>
               )}
             </div>

@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getHyperliquidHoldings } from '@/lib/chains/hyperliquid';
 import { getSolanaPortfolio } from '@/lib/chains/solana';
+import { getEthereumPortfolio } from '@/lib/chains/ethereum';
+import { getBitcoinHoldings } from '@/lib/chains/bitcoin';
+import { getXRPHoldings } from '@/lib/chains/xrp';
+import { getDogecoinHoldings } from '@/lib/chains/dogecoin';
+import { getZcashHoldings, isShieldedAddress } from '@/lib/chains/zcash';
+import { getCardanoHoldings } from '@/lib/chains/cardano';
+import { getLitecoinHoldings } from '@/lib/chains/litecoin';
+import { getTronPortfolio } from '@/lib/chains/tron';
 import type { Asset, Chain, NFT, Domain } from '@/types';
 
 // Token name mapping
@@ -21,6 +29,25 @@ const TOKEN_NAMES: { [key: string]: string } = {
   jitoSOL: 'Jito Staked SOL',
   mSOL: 'Marinade Staked SOL',
   bSOL: 'BlazeStake Staked SOL',
+  // Ethereum
+  ETH: 'Ethereum',
+  WETH: 'Wrapped Ether',
+  WBTC: 'Wrapped Bitcoin',
+  DAI: 'Dai Stablecoin',
+  UNI: 'Uniswap',
+  LINK: 'Chainlink',
+  AAVE: 'Aave',
+  stETH: 'Lido Staked Ether',
+  PEPE: 'Pepe',
+  SHIB: 'Shiba Inu',
+  ARB: 'Arbitrum',
+  LDO: 'Lido DAO',
+  MKR: 'Maker',
+  CRV: 'Curve DAO Token',
+  APE: 'ApeCoin',
+  MATIC: 'Polygon',
+  OP: 'Optimism',
+  ENS: 'Ethereum Name Service',
   // Common
   USDC: 'USD Coin',
   USDT: 'Tether',
@@ -160,11 +187,224 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // SOLANA - tokens, NFTs, and domains
+    // BITCOIN - BTC balance
+    if (chain === 'bitcoin') {
+      const holdings = await getBitcoinHoldings(address);
+      
+      if (holdings && holdings.balance > 0) {
+        assets.push({
+          symbol: 'BTC',
+          name: 'Bitcoin',
+          chain: 'bitcoin',
+          balance: holdings.balance,
+          price: holdings.price || 0,
+          value: holdings.value || 0,
+          change24h: 0,
+          icon: 'https://assets.coingecko.com/coins/images/1/standard/bitcoin.png',
+        });
+      }
+    }
+
+    // XRP - XRP Ledger balance
+    if (chain === 'xrp') {
+      const holdings = await getXRPHoldings(address);
+      
+      if (holdings && holdings.balance > 0) {
+        assets.push({
+          symbol: 'XRP',
+          name: 'XRP',
+          chain: 'xrp',
+          balance: holdings.balance,
+          price: holdings.price || 0,
+          value: holdings.value || 0,
+          change24h: 0,
+          icon: 'https://assets.coingecko.com/coins/images/44/standard/xrp-symbol-white-128.png',
+        });
+      }
+    }
+
+    // DOGECOIN - DOGE balance
+    if (chain === 'dogecoin') {
+      const holdings = await getDogecoinHoldings(address);
+      
+      if (holdings && holdings.balance > 0) {
+        assets.push({
+          symbol: 'DOGE',
+          name: 'Dogecoin',
+          chain: 'dogecoin',
+          balance: holdings.balance,
+          price: holdings.price || 0,
+          value: holdings.value || 0,
+          change24h: 0,
+          icon: 'https://assets.coingecko.com/coins/images/5/standard/dogecoin.png',
+        });
+      }
+    }
+
+    // ZCASH - ZEC balance (transparent + shielded)
+    if (chain === 'zcash') {
+      const viewingKey = searchParams.get('viewingKey') || undefined;
+      const holdings = await getZcashHoldings(address, viewingKey);
+      
+      if (holdings) {
+        // For shielded addresses without balance, still show as tracked
+        const isShielded = isShieldedAddress(address);
+        
+        if (holdings.balance > 0 || isShielded) {
+          assets.push({
+            symbol: 'ZEC',
+            name: isShielded ? 'Zcash (Shielded)' : 'Zcash',
+            chain: 'zcash',
+            balance: holdings.balance,
+            price: holdings.price || 0,
+            value: holdings.value || 0,
+            change24h: 0,
+            icon: 'https://assets.coingecko.com/coins/images/486/standard/circle-zcash-color.png',
+            // Mark shielded addresses
+            isStaked: isShielded, // Repurpose for "special" indicator
+            stakingProtocol: isShielded ? 'Shielded 🛡️' : undefined,
+          });
+        }
+      }
+    }
+
+    // CARDANO - ADA balance + staking
+    if (chain === 'cardano') {
+      const holdings = await getCardanoHoldings(address);
+      
+      if (holdings && holdings.balance > 0) {
+        assets.push({
+          symbol: 'ADA',
+          name: 'Cardano',
+          chain: 'cardano',
+          balance: holdings.balance,
+          price: holdings.price || 0,
+          value: holdings.value || 0,
+          change24h: 0,
+          icon: 'https://assets.coingecko.com/coins/images/975/standard/cardano.png',
+          isStaked: holdings.isStaked,
+          stakingProtocol: holdings.isStaked ? 'Delegated' : undefined,
+        });
+      }
+    }
+
+    // LITECOIN - LTC balance
+    if (chain === 'litecoin') {
+      const holdings = await getLitecoinHoldings(address);
+      
+      if (holdings && holdings.balance > 0) {
+        assets.push({
+          symbol: 'LTC',
+          name: 'Litecoin',
+          chain: 'litecoin',
+          balance: holdings.balance,
+          price: holdings.price || 0,
+          value: holdings.value || 0,
+          change24h: 0,
+          icon: 'https://assets.coingecko.com/coins/images/2/standard/litecoin.png',
+        });
+      }
+    }
+
+    // TRON - TRX + TRC-20 tokens + staking
+    if (chain === 'tron') {
+      const portfolio = await getTronPortfolio(address);
+      
+      if (portfolio) {
+        // Add TRX balance
+        if (portfolio.trxBalance > 0) {
+          assets.push({
+            symbol: 'TRX',
+            name: 'Tron',
+            chain: 'tron',
+            balance: portfolio.trxBalance,
+            price: portfolio.trxPrice,
+            value: portfolio.trxValue,
+            change24h: 0,
+            icon: 'https://assets.coingecko.com/coins/images/1094/standard/tron-logo.png',
+          });
+        }
+        
+        // Add staked/frozen TRX
+        if (portfolio.staking.totalFrozen > 0) {
+          assets.push({
+            symbol: 'TRX',
+            name: 'Tron (Staked)',
+            chain: 'tron',
+            balance: portfolio.staking.totalFrozen,
+            price: portfolio.trxPrice,
+            value: portfolio.staking.totalFrozen * portfolio.trxPrice,
+            change24h: 0,
+            icon: 'https://assets.coingecko.com/coins/images/1094/standard/tron-logo.png',
+            isStaked: true,
+            stakingProtocol: 'Frozen',
+          });
+        }
+        
+        // Add TRC-20 tokens
+        for (const token of portfolio.tokens) {
+          assets.push({
+            symbol: token.symbol,
+            name: token.name,
+            chain: 'tron',
+            balance: token.balance,
+            price: token.price || 0,
+            value: token.value || 0,
+            change24h: 0,
+            icon: token.icon,
+          });
+        }
+      }
+    }
+
+    // ETHEREUM - ETH + ERC-20 tokens + LSDs + NFTs + ENS
+    if (chain === 'ethereum') {
+      const portfolio = await getEthereumPortfolio(address);
+      
+      // Add tokens
+      for (const token of portfolio.tokens) {
+        assets.push({
+          symbol: token.symbol,
+          name: token.name,
+          chain: 'ethereum',
+          balance: token.balance,
+          price: token.price || 0,
+          value: token.value || 0,
+          change24h: 0,
+          icon: token.imageUrl,
+          isStaked: token.isStaked,
+          stakingProtocol: token.stakingProtocol,
+        });
+      }
+      
+      // Add NFTs
+      for (const nft of portfolio.nfts) {
+        nfts.push({
+          mint: `${nft.contract}:${nft.tokenId}`,
+          name: nft.name,
+          chain: 'ethereum',
+          collection: nft.collection,
+          imageUrl: nft.imageUrl,
+          floorPrice: nft.floorPrice,
+        });
+      }
+      
+      // Add ENS domains
+      for (const ens of portfolio.ensDomains) {
+        domains.push({
+          name: ens.name,
+          chain: 'ethereum',
+          mint: ens.name, // Use name as identifier
+          purchaseDate: ens.registrationDate,
+        });
+      }
+    }
+
+    // SOLANA - tokens, NFTs, domains, and staking
     if (chain === 'solana') {
       const portfolio = await getSolanaPortfolio(address);
       
-      // Add tokens
+      // Add tokens (including liquid staking and native staked SOL)
       for (const token of portfolio.tokens) {
         assets.push({
           symbol: token.symbol,
@@ -175,6 +415,8 @@ export async function GET(request: NextRequest) {
           value: token.value || 0,
           change24h: 0,
           icon: token.imageUrl,
+          isStaked: token.isStaked,
+          stakingProtocol: token.stakingProtocol,
         });
       }
       

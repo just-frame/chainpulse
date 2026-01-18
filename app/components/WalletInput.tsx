@@ -9,73 +9,140 @@ interface WalletInputProps {
 }
 
 // Chains that actually have API integration working
-const WORKING_CHAINS: Chain[] = ['hyperliquid', 'solana'];
-const COMING_SOON_CHAINS: Chain[] = ['ethereum', 'bitcoin'];
+const WORKING_CHAINS: Chain[] = [
+  'hyperliquid', 'solana', 'ethereum', 'bitcoin', 
+  'xrp', 'dogecoin', 'zcash', 'cardano', 'litecoin', 'tron'
+];
+const COMING_SOON_CHAINS: Chain[] = [];
 
-// Detect chain from address format
-function detectChain(address: string): Chain | null {
+// Detect possible chains from address format
+function detectChains(address: string): Chain[] {
   const trimmed = address.trim();
   
-  if (!trimmed) return null;
+  if (!trimmed) return [];
   
   // Ethereum/EVM addresses: 0x followed by 40 hex chars
+  // Could be Ethereum OR Hyperliquid
   if (/^0x[a-fA-F0-9]{40}$/.test(trimmed)) {
-    return 'hyperliquid'; // Default EVM to Hyperliquid for now
+    return ['ethereum', 'hyperliquid'];
   }
   
   // Solana addresses: Base58, 32-44 chars, no 0/O/I/l
   if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(trimmed)) {
-    return 'solana';
+    return ['solana'];
   }
   
   // Bitcoin addresses
   // Legacy (P2PKH): starts with 1
   if (/^1[a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(trimmed)) {
-    return 'bitcoin';
+    return ['bitcoin'];
   }
   // SegWit (P2SH): starts with 3
   if (/^3[a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(trimmed)) {
-    return 'bitcoin';
+    return ['bitcoin'];
   }
   // Native SegWit (Bech32): starts with bc1
   if (/^bc1[a-zA-HJ-NP-Z0-9]{39,59}$/.test(trimmed)) {
-    return 'bitcoin';
+    return ['bitcoin'];
   }
   
-  return null;
+  // XRP addresses: starts with 'r', 25-35 chars
+  if (/^r[1-9A-HJ-NP-Za-km-z]{24,34}$/.test(trimmed)) {
+    return ['xrp'];
+  }
+  
+  // Dogecoin addresses: starts with 'D' or 'A', 34 chars
+  if (/^[DA][1-9A-HJ-NP-Za-km-z]{33}$/.test(trimmed)) {
+    return ['dogecoin'];
+  }
+  
+  // Zcash transparent addresses: t1 or t3
+  if (/^t[13][a-zA-Z0-9]{33}$/.test(trimmed)) {
+    return ['zcash'];
+  }
+  
+  // Zcash shielded Sapling addresses: zs1
+  if (/^zs1[a-z0-9]{75,}$/.test(trimmed)) {
+    return ['zcash'];
+  }
+  
+  // Zcash unified addresses: u1
+  if (/^u1[a-z0-9]{100,}$/.test(trimmed)) {
+    return ['zcash'];
+  }
+  
+  // Cardano Shelley addresses: addr1
+  if (/^addr1[a-z0-9]{50,}$/.test(trimmed)) {
+    return ['cardano'];
+  }
+  
+  // Cardano stake addresses: stake1
+  if (/^stake1[a-z0-9]{50,}$/.test(trimmed)) {
+    return ['cardano'];
+  }
+  
+  // Litecoin addresses: L (P2PKH), M (P2SH), or ltc1 (SegWit)
+  if (/^[LM][a-km-zA-HJ-NP-Z1-9]{26,33}$/.test(trimmed)) {
+    return ['litecoin'];
+  }
+  if (/^ltc1[a-z0-9]{39,59}$/.test(trimmed)) {
+    return ['litecoin'];
+  }
+  
+  // Tron addresses: starts with T
+  if (/^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(trimmed)) {
+    return ['tron'];
+  }
+  
+  return [];
 }
 
 export default function WalletInput({ onAdd }: WalletInputProps) {
   const [address, setAddress] = useState('');
-  const [detectedChain, setDetectedChain] = useState<Chain | null>(null);
+  const [detectedChains, setDetectedChains] = useState<Chain[]>([]);
+  const [selectedChain, setSelectedChain] = useState<Chain | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Auto-detect chain when address changes
+  // Auto-detect chains when address changes
   useEffect(() => {
-    const detected = detectChain(address);
-    setDetectedChain(detected);
+    const chains = detectChains(address);
+    setDetectedChains(chains);
+    
+    // Auto-select if only one chain detected
+    if (chains.length === 1) {
+      setSelectedChain(chains[0]);
+    } else if (chains.length > 1) {
+      // Multiple chains - default to first working one or null
+      const workingChain = chains.find(c => WORKING_CHAINS.includes(c));
+      setSelectedChain(workingChain || null);
+    } else {
+      setSelectedChain(null);
+    }
+    
     setError(null);
   }, [address]);
 
-  const isChainSupported = detectedChain && WORKING_CHAINS.includes(detectedChain);
-  const isComingSoon = detectedChain && COMING_SOON_CHAINS.includes(detectedChain);
+  const isChainSupported = selectedChain && WORKING_CHAINS.includes(selectedChain);
+  const isComingSoon = selectedChain && COMING_SOON_CHAINS.includes(selectedChain);
+  const hasMultipleChains = detectedChains.length > 1;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!address.trim() || !detectedChain) return;
+    if (!address.trim() || !selectedChain) return;
 
     if (!isChainSupported) {
-      setError(`${CHAIN_CONFIG[detectedChain].name} support coming soon!`);
+      setError(`${CHAIN_CONFIG[selectedChain].name} support coming soon!`);
       return;
     }
 
     setIsLoading(true);
     setError(null);
     try {
-      await onAdd(address.trim(), detectedChain);
+      await onAdd(address.trim(), selectedChain);
       setAddress('');
-      setDetectedChain(null);
+      setDetectedChains([]);
+      setSelectedChain(null);
     } finally {
       setIsLoading(false);
     }
@@ -96,10 +163,10 @@ export default function WalletInput({ onAdd }: WalletInputProps) {
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="Paste any wallet address..."
-              className="input w-full font-mono text-sm pr-24"
+              className={`input w-full font-mono text-sm ${hasMultipleChains ? 'pr-4' : 'pr-24'}`}
             />
-            {/* Detected chain badge */}
-            {detectedChain && (
+            {/* Single chain badge (when not ambiguous) */}
+            {!hasMultipleChains && selectedChain && (
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
                 <span
                   className={`text-xs px-2 py-1 rounded-full ${
@@ -108,7 +175,7 @@ export default function WalletInput({ onAdd }: WalletInputProps) {
                       : 'bg-[var(--bg-tertiary)] text-[var(--text-muted)]'
                   }`}
                 >
-                  {CHAIN_CONFIG[detectedChain].name}
+                  {CHAIN_CONFIG[selectedChain].name}
                   {isComingSoon && ' ⏳'}
                 </span>
               </div>
@@ -118,7 +185,7 @@ export default function WalletInput({ onAdd }: WalletInputProps) {
           {/* Submit button */}
           <button
             type="submit"
-            disabled={!address.trim() || !detectedChain || isLoading}
+            disabled={!address.trim() || !selectedChain || isLoading}
             className="btn btn-primary whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
@@ -151,12 +218,44 @@ export default function WalletInput({ onAdd }: WalletInputProps) {
           </button>
         </div>
 
+        {/* Chain selector when address is ambiguous (0x = ETH or Hyperliquid) */}
+        {hasMultipleChains && (
+          <div className="flex gap-2 items-center">
+            <span className="text-xs text-[var(--text-muted)]">Select chain:</span>
+            <div className="flex gap-2">
+              {detectedChains.map((chain) => {
+                const supported = WORKING_CHAINS.includes(chain);
+                const isSelected = selectedChain === chain;
+                return (
+                  <button
+                    key={chain}
+                    type="button"
+                    onClick={() => setSelectedChain(chain)}
+                    className={`text-xs px-3 py-1.5 rounded-full transition-all ${
+                      isSelected
+                        ? supported
+                          ? 'bg-[var(--accent-green)] text-black font-medium'
+                          : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] ring-1 ring-[var(--text-muted)]'
+                        : supported
+                          ? 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--accent-green)]/20'
+                          : 'bg-[var(--bg-tertiary)] text-[var(--text-muted)]'
+                    }`}
+                  >
+                    {CHAIN_CONFIG[chain].name}
+                    {!supported && ' ⏳'}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Error/info message */}
         {error ? (
           <p className="text-xs text-[var(--accent-red)]">{error}</p>
         ) : (
           <p className="text-xs text-[var(--text-muted)]">
-            Auto-detects chain • Hyperliquid & Solana ready • ETH, BTC coming soon
+            Auto-detects chain • BTC, ETH, SOL, XRP, DOGE, ZEC & more
           </p>
         )}
       </div>

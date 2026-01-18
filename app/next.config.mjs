@@ -22,6 +22,16 @@ const nextConfig = {
         hostname: 'cdn.helius-rpc.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'static.alchemyapi.io',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'logos.covalenthq.com',
+        pathname: '/**',
+      },
     ],
   },
 };

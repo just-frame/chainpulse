@@ -30,6 +30,8 @@ export interface SolanaBalance {
   imageUrl?: string;
   price?: number;
   value?: number;
+  isStaked?: boolean;
+  stakingProtocol?: string;
 }
 
 export interface SolanaNFT {
@@ -55,6 +57,27 @@ export interface SolanaPortfolio {
   domains: SolanaDomain[];
 }
 
+// Liquid Staking Tokens on Solana
+const SOLANA_STAKING_TOKENS: Record<string, { protocol: string }> = {
+  'J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn': { protocol: 'Jito' }, // jitoSOL
+  'mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So': { protocol: 'Marinade' }, // mSOL
+  'bSo13r4TkiE4KumL71LsHTPpL2euBYLFx6h9HP3piy1': { protocol: 'BlazeStake' }, // bSOL
+  '7dHbWXmci3dT8UFYWYZweBLXgycu7Y3iL6trKn1Y7ARj': { protocol: 'Lido' }, // stSOL
+  'he1iusmfkpAdwvxLNGV8Y1iSbj4rUy6yMhEA3fotn9A': { protocol: 'Helius' }, // hSOL
+  '5oVNBeEEQvYi1cX3ir8Dx5n1P7pdxydbGF2X4TxVusJm': { protocol: 'Socean' }, // scnSOL
+  'LAinEtNLgpmCP9Rvsf5Hn8W6EhNiKLZQti1xfWMLy6X': { protocol: 'Laine' }, // laineSOL
+  'edge86g9cVz87xcpKpy3J77vbp4wYd9idEV562CCntt': { protocol: 'Edgevana' }, // edgeSOL
+  'jupSoLaHXQiZZTSfEWMTRRgpnyFm8f6sZdosWBjx93v': { protocol: 'Jupiter' }, // jupSOL
+  'vSoLxydx6akxyMD9XEcPvGYNGq6Nn66oqVb3UkGkei7': { protocol: 'The Vault' }, // vSOL
+  'BonK1YhkXEGLZzwtcvRTip3gAL9nCeQD7ppZBLXhtTs': { protocol: 'Bonk' }, // bonkSOL
+  'Comp4ssDzXcLeu2MnLuGNNFC4cmLPMng8qWHPvzAMU1h': { protocol: 'Sanctum' }, // compassSOL
+  'picobAEvs6w7QEknPce34wAE4gknZA9v5tTonnmHYdX': { protocol: 'Picasso' }, // picoSOL
+  'Dso1bDeDjCQxTrWHqUUi63oBvV7Mdm6WaobLbQ7gnPQ': { protocol: 'Drift' }, // dSOL
+  'pathdXw4He1Xk3eX84pDdDZnGKEme3GivBamGCVPZ5a': { protocol: 'Pathfinders' }, // pathSOL
+  'strng7mqqc1MBJJV6vMzYbEqnwVGvKKGKedeCvtktWA': { protocol: 'Stronghold' }, // strongSOL
+  'LnTRntk2kTfWEY6cVB8K9649pgJbt6dJLS1Ns1GZCWg': { protocol: 'Lantern' }, // lanternSOL
+};
+
 // Hardcoded icons for popular Solana tokens (reliable fallback)
 const SOLANA_TOKEN_ICONS: Record<string, string> = {
   'So11111111111111111111111111111111111111112': 'https://assets.coingecko.com/coins/images/4128/standard/solana.png',
@@ -67,9 +90,11 @@ const SOLANA_TOKEN_ICONS: Record<string, string> = {
   'rndrizKT3MK1iimdxRdWabcF7Zg7AR5T4nud4EkHBof': 'https://assets.coingecko.com/coins/images/11636/standard/rndr.png', // RENDER
   'J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn': 'https://assets.coingecko.com/coins/images/28046/standard/JitoSOL-200.png', // jitoSOL
   'mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So': 'https://assets.coingecko.com/coins/images/17752/standard/mSOL.png', // mSOL
+  'bSo13r4TkiE4KumL71LsHTPpL2euBYLFx6h9HP3piy1': 'https://assets.coingecko.com/coins/images/26636/standard/blazestake.png', // bSOL
   'J3NKxxXZcnNiMjKw9hYb2K4LUxgwB6t1FtPtQVsv3KFr': 'https://assets.coingecko.com/coins/images/31401/standard/centeredcoin_%281%29.png', // SPX6900
   '7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs': 'https://assets.coingecko.com/coins/images/22876/standard/ETH_wh_small.png', // WETH
   '7dHbWXmci3dT8UFYWYZweBLXgycu7Y3iL6trKn1Y7ARj': 'https://assets.coingecko.com/coins/images/37507/standard/stSol.png', // stSOL
+  'jupSoLaHXQiZZTSfEWMTRRgpnyFm8f6sZdosWBjx93v': 'https://assets.coingecko.com/coins/images/36432/standard/jupSOL-200.png', // jupSOL
 };
 
 /**
@@ -127,6 +152,67 @@ async function getSolanaPrices(mints: string[]): Promise<Map<string, number>> {
   }
 
   return prices;
+}
+
+/**
+ * Get native staked SOL (delegated to validators)
+ */
+async function getNativeStakedSol(address: string): Promise<{ balance: number; validators: number }> {
+  if (!HELIUS_API_KEY) {
+    return { balance: 0, validators: 0 };
+  }
+
+  try {
+    const response = await fetch(HELIUS_RPC, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 'stake-accounts',
+        method: 'getProgramAccounts',
+        params: [
+          'Stake11111111111111111111111111111111111111',
+          {
+            encoding: 'jsonParsed',
+            filters: [
+              {
+                memcmp: {
+                  offset: 12, // Staker authority offset
+                  bytes: address,
+                },
+              },
+            ],
+          },
+        ],
+      }),
+    });
+
+    const data = await response.json();
+    
+    if (data.result && Array.isArray(data.result)) {
+      let totalStaked = 0;
+      const validatorSet = new Set<string>();
+      
+      for (const account of data.result) {
+        const stakeInfo = account.account?.data?.parsed?.info;
+        if (stakeInfo?.stake?.delegation) {
+          const lamports = parseInt(stakeInfo.stake.delegation.stake || '0');
+          totalStaked += lamports;
+          validatorSet.add(stakeInfo.stake.delegation.voter);
+        }
+      }
+      
+      return {
+        balance: totalStaked / 1e9,
+        validators: validatorSet.size,
+      };
+    }
+    
+    return { balance: 0, validators: 0 };
+  } catch (error) {
+    console.error('Error fetching native staked SOL:', error);
+    return { balance: 0, validators: 0 };
+  }
 }
 
 /**
@@ -246,7 +332,7 @@ async function getTokensWithHelius(address: string): Promise<SolanaBalance[]> {
       mintsNeedingIcons.length > 0 ? getDexScreenerIcons(mintsNeedingIcons) : Promise.resolve(new Map<string, string>()),
     ]);
     
-    // Enrich balances with prices, icons, and filter dust
+    // Enrich balances with prices, icons, staking info, and filter dust
     const enrichedBalances: SolanaBalance[] = [];
     for (const balance of balances) {
       const price = prices.get(balance.mint) || 0;
@@ -257,11 +343,16 @@ async function getTokensWithHelius(address: string): Promise<SolanaBalance[]> {
         // Add DexScreener icon if we don't have one
         const imageUrl = balance.imageUrl || dexScreenerIcons.get(balance.mint);
         
+        // Check if it's a liquid staking token
+        const stakingInfo = SOLANA_STAKING_TOKENS[balance.mint];
+        
         enrichedBalances.push({
           ...balance,
           imageUrl,
           price,
           value,
+          isStaked: !!stakingInfo,
+          stakingProtocol: stakingInfo?.protocol,
         });
       }
     }
@@ -326,20 +417,46 @@ async function getTokensBasic(address: string): Promise<SolanaBalance[]> {
 
 /**
  * Get all Solana holdings for an address
- * Uses Helius DAS API for full token metadata
+ * Uses Helius DAS API for full token metadata + native staking
  */
 export async function getSolanaHoldings(address: string): Promise<SolanaBalance[]> {
-  // Try Helius DAS API first (includes native SOL)
-  const tokens = await getTokensWithHelius(address);
+  // Fetch tokens and native staking in parallel
+  const [tokens, nativeStaking] = await Promise.all([
+    getTokensWithHelius(address),
+    getNativeStakedSol(address),
+  ]);
   
-  // If we got tokens from DAS, return them
-  if (tokens.length > 0) {
-    return tokens;
+  const balances = [...tokens];
+  
+  // Add native staked SOL if any
+  if (nativeStaking.balance > 0.0001) {
+    // Get SOL price from existing tokens or fetch it
+    const solToken = balances.find(b => b.symbol === 'SOL');
+    const solPrice = solToken?.price || 0;
+    
+    balances.push({
+      mint: 'native-staked',
+      symbol: 'SOL',
+      name: `Staked SOL (${nativeStaking.validators} validator${nativeStaking.validators !== 1 ? 's' : ''})`,
+      balance: nativeStaking.balance,
+      decimals: 9,
+      imageUrl: 'https://assets.coingecko.com/coins/images/4128/standard/solana.png',
+      price: solPrice,
+      value: nativeStaking.balance * solPrice,
+      isStaked: true,
+      stakingProtocol: 'Native',
+    });
+  }
+  
+  // If we got tokens, return them
+  if (balances.length > 0) {
+    // Re-sort by value after adding staked SOL
+    balances.sort((a, b) => (b.value || 0) - (a.value || 0));
+    return balances;
   }
   
   // Fallback: fetch SOL balance separately
   const solBalance = await getSolBalance(address);
-  const balances: SolanaBalance[] = [];
 
   if (solBalance > 0.0001) {
     balances.push({

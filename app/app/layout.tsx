@@ -15,7 +15,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Portfolio Tracker",
+  title: "Chainpulse",
   description: "Track your crypto portfolio across all chains",
 };
 
