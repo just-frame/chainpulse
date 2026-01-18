@@ -42,6 +42,7 @@ export interface SolanaNFT {
   floorPrice?: number;
   purchasePrice?: number; // Price paid in SOL
   purchaseDate?: string;
+  acquisitionType?: 'minted' | 'purchased' | 'received' | 'unknown';
 }
 
 export interface SolanaDomain {
@@ -471,11 +472,19 @@ export async function getSolanaHoldings(address: string): Promise<SolanaBalance[
   return balances;
 }
 
+type AcquisitionType = 'minted' | 'purchased' | 'received' | 'unknown';
+
+interface NFTEnrichmentData {
+  price: number;
+  date: string;
+  acquisitionType: AcquisitionType;
+}
+
 /**
  * Fetch purchase/mint price for an NFT using Helius DAS + transaction parsing
- * Looks through full history to find original purchase (even from 2021)
+ * Also determines how the user acquired the NFT (minted, purchased, or received)
  */
-async function getNFTPurchasePrice(mint: string): Promise<{ price: number; date: string } | null> {
+async function getNFTPurchasePrice(mint: string, ownerAddress?: string): Promise<NFTEnrichmentData | null> {
   if (!HELIUS_API_KEY || !HELIUS_DAS_API) return null;
 
   try {
@@ -518,6 +527,21 @@ async function getNFTPurchasePrice(mint: string): Promise<{ price: number; date:
       if (!tx || !tx.timestamp) continue;
       
       const type = (tx.type || '').toUpperCase();
+      const feePayer = tx.feePayer;
+      
+      // Determine acquisition type based on transaction type and who paid fees
+      let acquisitionType: AcquisitionType = 'unknown';
+      
+      if (type.includes('NFT_MINT') || type.includes('COMPRESSED_NFT_MINT')) {
+        // User minted this NFT themselves if they paid the fees
+        acquisitionType = (ownerAddress && feePayer === ownerAddress) ? 'minted' : 'received';
+      } else if (type.includes('NFT_SALE') || type.includes('NFT_BUY') || type.includes('MARKETPLACE')) {
+        // Marketplace purchase
+        acquisitionType = 'purchased';
+      } else if (type.includes('TRANSFER') || type.includes('NFT_TRANSFER')) {
+        // Just a transfer - received as gift/airdrop
+        acquisitionType = 'received';
+      }
       
       // Check for mint, sale, or purchase transactions
       if (type.includes('MINT') || type.includes('SALE') || type.includes('BUY') || type.includes('NFT')) {
@@ -527,9 +551,14 @@ async function getNFTPurchasePrice(mint: string): Promise<{ price: number; date:
         );
         
         if (nativeTransfer) {
+          // If user paid SOL, they either minted or purchased
+          if (acquisitionType === 'unknown') {
+            acquisitionType = type.includes('MINT') ? 'minted' : 'purchased';
+          }
           return {
             price: nativeTransfer.amount / 1e9,
             date: new Date(tx.timestamp * 1000).toISOString(),
+            acquisitionType,
           };
         }
       }
@@ -538,9 +567,17 @@ async function getNFTPurchasePrice(mint: string): Promise<{ price: number; date:
     // If no price found, return the mint date at least
     const oldestTx = transactions.find((tx: { timestamp?: number }) => tx?.timestamp);
     if (oldestTx?.timestamp) {
+      const type = (oldestTx.type || '').toUpperCase();
+      let acquisitionType: AcquisitionType = 'received'; // Default: likely airdrop if no payment
+      
+      if (type.includes('MINT') && ownerAddress && oldestTx.feePayer === ownerAddress) {
+        acquisitionType = 'minted';
+      }
+      
       return {
-        price: 0, // Free mint
+        price: 0, // Free mint or airdrop
         date: new Date(oldestTx.timestamp * 1000).toISOString(),
+        acquisitionType,
       };
     }
     
@@ -554,22 +591,26 @@ async function getNFTPurchasePrice(mint: string): Promise<{ price: number; date:
 /**
  * Batch fetch purchase prices for NFTs (limit to avoid rate limits)
  */
-async function enrichNFTsWithPrices(nfts: SolanaNFT[], limit = 10): Promise<SolanaNFT[]> {
+async function enrichNFTsWithPrices(nfts: SolanaNFT[], ownerAddress: string, limit = 10): Promise<SolanaNFT[]> {
   // Only fetch prices for the first N NFTs to avoid rate limiting
   const nftsToEnrich = nfts.slice(0, limit);
-  const remainingNfts = nfts.slice(limit);
+  const remainingNfts = nfts.slice(limit).map(nft => ({
+    ...nft,
+    acquisitionType: 'unknown' as AcquisitionType,
+  }));
   
   const enrichedNfts = await Promise.all(
     nftsToEnrich.map(async (nft) => {
-      const priceData = await getNFTPurchasePrice(nft.mint);
+      const priceData = await getNFTPurchasePrice(nft.mint, ownerAddress);
       if (priceData) {
         return {
           ...nft,
           purchasePrice: priceData.price,
           purchaseDate: priceData.date,
+          acquisitionType: priceData.acquisitionType,
         };
       }
-      return nft;
+      return { ...nft, acquisitionType: 'unknown' as AcquisitionType };
     })
   );
   
@@ -702,13 +743,32 @@ async function getSolanaNFTs(address: string): Promise<SolanaNFT[]> {
         const metadata = content?.metadata;
         const name = metadata?.name || 'Unknown NFT';
         
-        // Skip spam/scam NFTs (common patterns)
+        // Skip spam/scam NFTs (comprehensive patterns)
+        const nameLower = name.toLowerCase();
         const isSpam = 
-          name.toLowerCase().includes('claim') ||
-          name.toLowerCase().includes('reward') ||
-          name.toLowerCase().includes('airdrop') ||
-          name.toLowerCase().includes('voucher') ||
-          name.toLowerCase().includes('promo');
+          // Scam keywords
+          nameLower.includes('claim') ||
+          nameLower.includes('reward') ||
+          nameLower.includes('airdrop') ||
+          nameLower.includes('voucher') ||
+          nameLower.includes('promo') ||
+          nameLower.includes('free mint') ||
+          nameLower.includes('giveaway') ||
+          nameLower.includes('winner') ||
+          nameLower.includes('bonus') ||
+          nameLower.includes('limited offer') ||
+          // URL patterns (scam links)
+          nameLower.includes('.com') ||
+          nameLower.includes('.io') ||
+          nameLower.includes('.xyz') ||
+          nameLower.includes('.gg') ||
+          nameLower.includes('http') ||
+          // Generic spam
+          nameLower.includes('visit') ||
+          nameLower.includes('redeem') ||
+          nameLower.includes('eligible') ||
+          // No image = likely spam
+          (!content?.links?.image && !content?.files?.[0]?.cdn_uri && !content?.files?.[0]?.uri);
         
         if (isSpam) continue;
         
@@ -743,8 +803,8 @@ export async function getSolanaPortfolio(address: string): Promise<SolanaPortfol
     getSolanaDomains(address),
   ]);
 
-  // Enrich NFTs with purchase prices (limit to first 10 to avoid rate limits)
-  const nfts = await enrichNFTsWithPrices(rawNfts, 10);
+  // Enrich NFTs with purchase prices and acquisition type (limit to first 20 to avoid rate limits)
+  const nfts = await enrichNFTsWithPrices(rawNfts, address, 20);
 
   return { tokens, nfts, domains };
 }

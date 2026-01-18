@@ -12,6 +12,12 @@ export interface Asset {
   stakingRewards?: number;
 }
 
+export type NFTAcquisitionType = 
+  | 'minted'      // User signed a mint transaction
+  | 'purchased'   // User bought it (signed purchase tx)
+  | 'received'    // Sent to user - could be gift or spam
+  | 'unknown';    // Can't determine
+
 export interface NFT {
   mint: string;
   name: string;
@@ -21,6 +27,9 @@ export interface NFT {
   floorPrice?: number;
   purchasePrice?: number;
   purchaseDate?: string;
+  acquisitionType?: NFTAcquisitionType;
+  isVerifiedCollection?: boolean;
+  isSpam?: boolean; // Flagged as likely spam
 }
 
 export interface Domain {

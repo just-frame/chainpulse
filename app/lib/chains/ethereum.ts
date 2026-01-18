@@ -554,18 +554,34 @@ export async function getEthereumNFTs(address: string): Promise<EthereumNFT[]> {
       for (const nft of data.ownedNfts) {
         const name = nft.name || nft.title || `#${nft.tokenId}`;
         
-        // Skip spam NFTs
+        // Skip spam NFTs (Alchemy's built-in detection)
         if (nft.spamInfo?.isSpam) continue;
         
-        // Skip if name looks spammy
+        // Skip if name looks spammy (comprehensive patterns)
         const nameLower = name.toLowerCase();
-        if (
+        const isSpam = 
           nameLower.includes('claim') ||
           nameLower.includes('airdrop') ||
           nameLower.includes('reward') ||
           nameLower.includes('visit') ||
-          nameLower.includes('.com')
-        ) continue;
+          nameLower.includes('voucher') ||
+          nameLower.includes('promo') ||
+          nameLower.includes('free mint') ||
+          nameLower.includes('giveaway') ||
+          nameLower.includes('winner') ||
+          nameLower.includes('bonus') ||
+          nameLower.includes('eligible') ||
+          nameLower.includes('redeem') ||
+          // URL patterns
+          nameLower.includes('.com') ||
+          nameLower.includes('.io') ||
+          nameLower.includes('.xyz') ||
+          nameLower.includes('.gg') ||
+          nameLower.includes('http') ||
+          // No image
+          (!nft.image?.cachedUrl && !nft.image?.thumbnailUrl && !nft.image?.originalUrl);
+        
+        if (isSpam) continue;
 
         nfts.push({
           contract: nft.contract?.address || '',

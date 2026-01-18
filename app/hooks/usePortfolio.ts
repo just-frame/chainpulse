@@ -2,19 +2,17 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import type { Asset, Chain, NFT, Domain } from '@/types';
+import { useAuth } from './useAuth';
+import { useWallets } from './useWallets';
 
-interface PortfolioData {
-  address: string;
-  chain: Chain;
+interface WalletData {
   assets: Asset[];
   nfts: NFT[];
   domains: Domain[];
-  totalValue: number;
-  nftCount: number;
-  timestamp: number;
 }
 
 interface TrackedWallet {
+  id?: string;
   address: string;
   chain: Chain;
 }
@@ -27,100 +25,157 @@ interface UsePortfolioReturn {
   isLoading: boolean;
   error: string | null;
   lastUpdated: Date | null;
-  fetchPortfolio: (address: string, chain: Chain) => Promise<void>;
+  isAuthenticated: boolean;
+  addWallet: (address: string, chain: Chain) => Promise<void>;
+  removeWallet: (address: string, chain: Chain) => Promise<void>;
   refreshAll: () => Promise<void>;
-  removeWallet: (address: string, chain: Chain) => void;
-  clearPortfolio: () => void;
 }
 
 export function usePortfolio(): UsePortfolioReturn {
-  const [assets, setAssets] = useState<Asset[]>([]);
-  const [nfts, setNfts] = useState<NFT[]>([]);
-  const [domains, setDomains] = useState<Domain[]>([]);
-  const [wallets, setWallets] = useState<TrackedWallet[]>([]);
+  const { user } = useAuth();
+  const { 
+    wallets: savedWallets, 
+    loading: walletsLoading, 
+    addWallet: dbAddWallet, 
+    removeWallet: dbRemoveWallet 
+  } = useWallets();
+  
+  // Store data per wallet to avoid race conditions
+  const [walletDataMap, setWalletDataMap] = useState<Map<string, WalletData>>(new Map());
+  const [localWallets, setLocalWallets] = useState<TrackedWallet[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const hasLoadedSavedWallets = useRef(false);
 
-  // Fetch data for a single wallet
-  const fetchWalletData = useCallback(async (address: string, chain: Chain): Promise<PortfolioData> => {
+  // Get current wallet list
+  const wallets: TrackedWallet[] = user 
+    ? savedWallets.map(w => ({ id: w.id, address: w.address, chain: w.chain as Chain }))
+    : localWallets;
+
+  // Aggregate data from all wallets
+  const aggregatedData = useCallback(() => {
+    const assetMap = new Map<string, Asset>();
+    const allNfts: NFT[] = [];
+    const allDomains: Domain[] = [];
+    
+    walletDataMap.forEach((data) => {
+      // Merge assets
+      for (const asset of data.assets) {
+        const key = `${asset.symbol}-${asset.chain}-${asset.isStaked || false}`;
+        const existing = assetMap.get(key);
+        if (existing) {
+          existing.balance += asset.balance;
+          existing.value += asset.value;
+        } else {
+          assetMap.set(key, { ...asset });
+        }
+      }
+      // Collect NFTs & domains
+      allNfts.push(...data.nfts);
+      allDomains.push(...data.domains);
+    });
+    
+    return {
+      assets: Array.from(assetMap.values()).sort((a, b) => b.value - a.value),
+      nfts: allNfts,
+      domains: allDomains,
+    };
+  }, [walletDataMap]);
+
+  const { assets, nfts, domains } = aggregatedData();
+
+  // Fetch portfolio data for a single wallet
+  const fetchWalletData = async (address: string, chain: Chain): Promise<WalletData> => {
     const response = await fetch(
       `/api/portfolio?address=${encodeURIComponent(address)}&chain=${chain}`
     );
-
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to fetch portfolio');
+      throw new Error('Failed to fetch portfolio');
+    }
+    const data = await response.json();
+    return {
+      assets: data.assets || [],
+      nfts: data.nfts || [],
+      domains: data.domains || [],
+    };
+  };
+
+  // Add a new wallet
+  const addWallet = useCallback(async (address: string, chain: Chain) => {
+    const walletKey = `${address.toLowerCase()}-${chain}`;
+    
+    // Check if already exists
+    if (walletDataMap.has(walletKey)) {
+      console.log('[usePortfolio] Wallet already exists:', walletKey);
+      return;
     }
 
-    return response.json();
-  }, []);
-
-  // Fetch and add a new wallet
-  const fetchPortfolio = useCallback(async (address: string, chain: Chain) => {
-    // Check if already tracking
-    const exists = wallets.some(
-      w => w.address.toLowerCase() === address.toLowerCase() && w.chain === chain
-    );
-    if (exists) return;
-
+    console.log('[usePortfolio] Adding wallet:', { address, chain, isAuthenticated: !!user });
     setIsLoading(true);
     setError(null);
 
     try {
+      // Fetch data first
       const data = await fetchWalletData(address, chain);
+      console.log('[usePortfolio] Fetched data:', { assets: data.assets.length, nfts: data.nfts.length });
       
-      // Add wallet to tracked list
-      setWallets(prev => [...prev, { address, chain }]);
-      
-      // Merge assets
-      setAssets(prev => {
-        const assetMap = new Map<string, Asset>();
-        
-        for (const asset of prev) {
-          const key = `${asset.symbol}-${asset.chain}-${asset.isStaked || false}`;
-          assetMap.set(key, { ...asset });
-        }
-        
-        for (const newAsset of data.assets) {
-          const key = `${newAsset.symbol}-${newAsset.chain}-${newAsset.isStaked || false}`;
-          const existing = assetMap.get(key);
-          
-          if (existing) {
-            existing.balance += newAsset.balance;
-            existing.value += newAsset.value;
-            if (newAsset.price > 0) {
-              existing.price = newAsset.price;
-              existing.change24h = newAsset.change24h;
-            }
-          } else {
-            assetMap.set(key, { ...newAsset });
-          }
-        }
-        
-        return Array.from(assetMap.values()).sort((a, b) => b.value - a.value);
+      // Store the data BEFORE adding to DB (so it persists regardless of DB result)
+      setWalletDataMap(prev => {
+        const newMap = new Map(prev);
+        newMap.set(walletKey, data);
+        console.log('[usePortfolio] Data map updated, size:', newMap.size);
+        return newMap;
       });
       
-      // Add NFTs (don't merge, just append - each NFT is unique)
-      if (data.nfts?.length > 0) {
-        setNfts(prev => [...prev, ...data.nfts]);
-      }
-      
-      // Add domains
-      if (data.domains?.length > 0) {
-        setDomains(prev => [...prev, ...data.domains]);
+      // Add to wallet list (DB or local)
+      if (user) {
+        const { error: dbError } = await dbAddWallet(address, chain);
+        if (dbError) {
+          console.error('[usePortfolio] DB error (data still kept locally):', dbError);
+        }
+      } else {
+        setLocalWallets(prev => [...prev, { address, chain }]);
       }
       
       setLastUpdated(new Date());
     } catch (err) {
+      console.error('[usePortfolio] Error adding wallet:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setIsLoading(false);
     }
-  }, [wallets, fetchWalletData]);
+  }, [walletDataMap, user, dbAddWallet]);
 
-  // Refresh all tracked wallets
+  // Remove a wallet
+  const removeWallet = useCallback(async (address: string, chain: Chain) => {
+    const walletKey = `${address.toLowerCase()}-${chain}`;
+    const wallet = wallets.find(
+      w => w.address.toLowerCase() === address.toLowerCase() && w.chain === chain
+    );
+    
+    // Remove from data map
+    setWalletDataMap(prev => {
+      const newMap = new Map(prev);
+      newMap.delete(walletKey);
+      return newMap;
+    });
+    
+    // Remove from wallet list
+    if (user && wallet?.id) {
+      await dbRemoveWallet(wallet.id);
+    } else {
+      setLocalWallets(prev => prev.filter(
+        w => !(w.address.toLowerCase() === address.toLowerCase() && w.chain === chain)
+      ));
+    }
+    
+    setLastUpdated(new Date());
+  }, [wallets, user, dbRemoveWallet]);
+
+  // Refresh all wallets
   const refreshAll = useCallback(async () => {
     if (wallets.length === 0) return;
     
@@ -128,83 +183,85 @@ export function usePortfolio(): UsePortfolioReturn {
     setError(null);
 
     try {
-      // Fetch all wallets in parallel
-      const allData = await Promise.all(
-        wallets.map(w => fetchWalletData(w.address, w.chain))
+      const newDataMap = new Map<string, WalletData>();
+      
+      await Promise.all(
+        wallets.map(async (w) => {
+          const walletKey = `${w.address.toLowerCase()}-${w.chain}`;
+          const data = await fetchWalletData(w.address, w.chain);
+          newDataMap.set(walletKey, data);
+        })
       );
       
-      // Aggregate all assets
-      const assetMap = new Map<string, Asset>();
-      const allNfts: NFT[] = [];
-      const allDomains: Domain[] = [];
-      
-      for (const data of allData) {
-        // Assets
-        for (const asset of data.assets) {
-          const key = `${asset.symbol}-${asset.chain}-${asset.isStaked || false}`;
-          const existing = assetMap.get(key);
-          
-          if (existing) {
-            existing.balance += asset.balance;
-            existing.value += asset.value;
-            if (asset.price > 0) {
-              existing.price = asset.price;
-              existing.change24h = asset.change24h;
-            }
-          } else {
-            assetMap.set(key, { ...asset });
-          }
-        }
-        
-        // NFTs
-        if (data.nfts?.length > 0) {
-          allNfts.push(...data.nfts);
-        }
-        
-        // Domains
-        if (data.domains?.length > 0) {
-          allDomains.push(...data.domains);
-        }
-      }
-      
-      setAssets(Array.from(assetMap.values()).sort((a, b) => b.value - a.value));
-      setNfts(allNfts);
-      setDomains(allDomains);
+      setWalletDataMap(newDataMap);
       setLastUpdated(new Date());
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setIsLoading(false);
     }
-  }, [wallets, fetchWalletData]);
+  }, [wallets]);
 
-  // Remove a wallet
-  const removeWallet = useCallback((address: string, chain: Chain) => {
-    setWallets(prev => prev.filter(
-      w => !(w.address.toLowerCase() === address.toLowerCase() && w.chain === chain)
-    ));
-    // Trigger refresh to recalculate
-    setTimeout(() => refreshAll(), 100);
-  }, [refreshAll]);
+  // Load saved wallets on login (only once)
+  useEffect(() => {
+    console.log('[usePortfolio] Effect check:', { 
+      user: !!user, 
+      savedWalletsCount: savedWallets.length, 
+      walletsLoading, 
+      hasLoaded: hasLoadedSavedWallets.current 
+    });
+    
+    if (user && savedWallets.length > 0 && !walletsLoading && !hasLoadedSavedWallets.current) {
+      hasLoadedSavedWallets.current = true;
+      console.log('[usePortfolio] Loading saved wallets from Supabase...');
+      
+      const loadAll = async () => {
+        setIsLoading(true);
+        try {
+          const newDataMap = new Map<string, WalletData>();
+          
+          await Promise.all(
+            savedWallets.map(async (w) => {
+              const walletKey = `${w.address.toLowerCase()}-${w.chain}`;
+              console.log('[usePortfolio] Fetching saved wallet:', walletKey);
+              const data = await fetchWalletData(w.address, w.chain as Chain);
+              newDataMap.set(walletKey, data);
+            })
+          );
+          
+          console.log('[usePortfolio] Loaded all saved wallets, count:', newDataMap.size);
+          setWalletDataMap(prev => {
+            // Merge with any existing data (from manual adds during loading)
+            const merged = new Map(prev);
+            newDataMap.forEach((v, k) => merged.set(k, v));
+            return merged;
+          });
+          setLastUpdated(new Date());
+        } catch (err) {
+          console.error('[usePortfolio] Error loading saved wallets:', err);
+          setError(err instanceof Error ? err.message : 'Unknown error');
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      loadAll();
+    }
+  }, [user, savedWallets, walletsLoading]);
 
-  // Clear everything
-  const clearPortfolio = useCallback(() => {
-    setAssets([]);
-    setNfts([]);
-    setDomains([]);
-    setWallets([]);
-    setError(null);
-    setLastUpdated(null);
-  }, []);
+  // Reset flag on logout
+  useEffect(() => {
+    if (!user) {
+      hasLoadedSavedWallets.current = false;
+      setWalletDataMap(new Map());
+    }
+  }, [user]);
 
   // Auto-refresh every 30 seconds
   useEffect(() => {
     if (wallets.length > 0) {
-      refreshIntervalRef.current = setInterval(() => {
-        refreshAll();
-      }, 30000); // 30 seconds
+      refreshIntervalRef.current = setInterval(refreshAll, 30000);
     }
-
     return () => {
       if (refreshIntervalRef.current) {
         clearInterval(refreshIntervalRef.current);
@@ -217,12 +274,12 @@ export function usePortfolio(): UsePortfolioReturn {
     nfts,
     domains,
     wallets,
-    isLoading,
+    isLoading: isLoading || walletsLoading,
     error,
     lastUpdated,
-    fetchPortfolio,
-    refreshAll,
+    isAuthenticated: !!user,
+    addWallet,
     removeWallet,
-    clearPortfolio,
+    refreshAll,
   };
 }
