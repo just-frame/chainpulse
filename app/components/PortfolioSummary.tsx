@@ -4,12 +4,14 @@ interface PortfolioSummaryProps {
   totalValue: number;
   change24h: number;
   change24hPercent: number;
+  isLoading?: boolean;
 }
 
 export default function PortfolioSummary({
   totalValue,
   change24h,
   change24hPercent,
+  isLoading = false,
 }: PortfolioSummaryProps) {
   const isPositive = change24h >= 0;
 
@@ -26,6 +28,21 @@ export default function PortfolioSummary({
     const prefix = value >= 0 ? '+' : '';
     return `${prefix}${value.toFixed(2)}%`;
   };
+
+  // Show skeleton while loading
+  if (isLoading && totalValue === 0) {
+    return (
+      <div className="card">
+        <div className="flex flex-col items-center gap-2 py-4">
+          <span className="text-[var(--text-muted)] text-sm uppercase tracking-wider">
+            Total Portfolio Value
+          </span>
+          <div className="h-12 w-48 bg-[var(--bg-tertiary)] rounded-lg animate-pulse" />
+          <div className="h-6 w-32 bg-[var(--bg-tertiary)] rounded animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="card">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase';
 import { useAuth } from './useAuth';
 
@@ -16,7 +16,7 @@ export function useWallets() {
   const { user } = useAuth();
   const [wallets, setWallets] = useState<SavedWallet[]>([]);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const fetchIdRef = useRef(0);
 
   const fetchWallets = useCallback(async () => {
     if (!user) {
@@ -25,15 +25,25 @@ export function useWallets() {
       return;
     }
 
+    const fetchId = ++fetchIdRef.current;
     setLoading(true);
+    
+    const supabase = createClient();
     const { data, error } = await supabase
       .from('wallets')
       .select('*')
       .order('created_at', { ascending: true });
 
+    // Only update if this is the latest fetch
+    if (fetchId !== fetchIdRef.current) {
+      console.log('[useWallets] Stale fetch ignored');
+      return;
+    }
+
     if (error) {
-      console.error('Error fetching wallets:', error);
+      console.error('[useWallets] Error fetching wallets:', error);
     } else {
+      console.log('[useWallets] Fetched wallets:', data?.length || 0);
       setWallets(data || []);
     }
     setLoading(false);
@@ -43,16 +53,29 @@ export function useWallets() {
     fetchWallets();
   }, [fetchWallets]);
 
-  const addWallet = async (address: string, chain: string, label?: string) => {
+  const addWallet = useCallback(async (address: string, chain: string, label?: string) => {
     if (!user) return { error: new Error('Not authenticated'), data: null };
 
-    console.log('[useWallets] Adding wallet:', { address, chain, userId: user.id });
+    // DON'T lowercase - Solana/crypto addresses are case-sensitive!
+    const trimmedAddress = address.trim();
+    
+    // Check if wallet already exists in local state (case-insensitive check for duplicates)
+    const existing = wallets.find(
+      w => w.address.toLowerCase() === trimmedAddress.toLowerCase() && w.chain === chain
+    );
+    if (existing) {
+      console.log('[useWallets] Wallet already exists locally:', existing.id);
+      return { data: existing, error: null };
+    }
 
+    console.log('[useWallets] Adding wallet:', { address: trimmedAddress, chain, userId: user.id });
+
+    const supabase = createClient();
     const { data, error } = await supabase
       .from('wallets')
       .insert({
         user_id: user.id,
-        address: address.toLowerCase(),
+        address: trimmedAddress, // Keep original case!
         chain,
         label: label || null,
       })
@@ -60,16 +83,38 @@ export function useWallets() {
       .single();
 
     if (error) {
+      // Handle duplicate (409 Conflict) - fetch existing wallet instead
+      if (error.code === '23505' || error.message?.includes('duplicate')) {
+        console.log('[useWallets] Wallet already exists in DB, fetching...');
+        const { data: existingData } = await supabase
+          .from('wallets')
+          .select('*')
+          .ilike('address', trimmedAddress) // Case-insensitive search
+          .eq('chain', chain)
+          .single();
+        
+        if (existingData) {
+          setWallets((prev) => {
+            if (prev.some(w => w.id === existingData.id)) return prev;
+            return [...prev, existingData];
+          });
+          return { data: existingData, error: null };
+        }
+      }
       console.error('[useWallets] Error adding wallet:', error);
     } else if (data) {
       console.log('[useWallets] Wallet added successfully:', data);
-      setWallets((prev) => [...prev, data]);
+      setWallets((prev) => {
+        if (prev.some(w => w.id === data.id)) return prev;
+        return [...prev, data];
+      });
     }
 
     return { data, error };
-  };
+  }, [user, wallets]);
 
-  const removeWallet = async (id: string) => {
+  const removeWallet = useCallback(async (id: string) => {
+    const supabase = createClient();
     const { error } = await supabase
       .from('wallets')
       .delete()
@@ -80,7 +125,7 @@ export function useWallets() {
     }
 
     return { error };
-  };
+  }, []);
 
   return {
     wallets,

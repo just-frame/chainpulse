@@ -27,6 +27,7 @@ export default function Dashboard() {
     removeWallet,
   } = usePortfolio();
 
+
   // Calculate portfolio totals
   const totalValue = assets.reduce((sum, asset) => sum + asset.value, 0);
   const weightedChange = totalValue > 0
@@ -61,6 +62,7 @@ export default function Dashboard() {
             totalValue={totalValue}
             change24h={change24hValue}
             change24hPercent={weightedChange}
+            isLoading={isLoading}
           />
 
           {/* Add Wallet */}

@@ -711,7 +711,7 @@ async function getSolanaDomains(address: string): Promise<SolanaDomain[]> {
 /**
  * Get NFTs using Helius DAS API
  */
-async function getSolanaNFTs(address: string): Promise<SolanaNFT[]> {
+async function getSolanaNFTs(address: string, limit = 100): Promise<SolanaNFT[]> {
   if (!HELIUS_DAS_API) {
     return [];
   }
@@ -727,6 +727,7 @@ async function getSolanaNFTs(address: string): Promise<SolanaNFT[]> {
         params: {
           ownerAddress: address,
           tokenType: 'nonFungible',
+          limit, // Limit NFTs fetched for performance
           displayOptions: {
             showCollectionMetadata: true,
           },
@@ -796,15 +797,38 @@ async function getSolanaNFTs(address: string): Promise<SolanaNFT[]> {
  * Get complete Solana portfolio: tokens, NFTs, and domains
  */
 export async function getSolanaPortfolio(address: string): Promise<SolanaPortfolio> {
+  console.time(`[Solana] Total fetch for ${address.slice(0, 8)}`);
+  
   // Fetch tokens, NFTs, and domains in parallel
   const [tokens, rawNfts, domains] = await Promise.all([
-    getSolanaHoldings(address),
-    getSolanaNFTs(address),
-    getSolanaDomains(address),
+    (async () => {
+      console.time('[Solana] Tokens');
+      const result = await getSolanaHoldings(address);
+      console.timeEnd('[Solana] Tokens');
+      return result;
+    })(),
+    (async () => {
+      console.time('[Solana] NFTs');
+      const result = await getSolanaNFTs(address, 50); // Limit to 50 for faster loading
+      console.timeEnd('[Solana] NFTs');
+      return result;
+    })(),
+    (async () => {
+      console.time('[Solana] Domains');
+      const result = await getSolanaDomains(address);
+      console.timeEnd('[Solana] Domains');
+      return result;
+    })(),
   ]);
 
-  // Enrich NFTs with purchase prices and acquisition type (limit to first 20 to avoid rate limits)
-  const nfts = await enrichNFTsWithPrices(rawNfts, address, 20);
+  console.timeEnd(`[Solana] Total fetch for ${address.slice(0, 8)}`);
+  console.log(`[Solana] Found ${tokens.length} tokens, ${rawNfts.length} NFTs, ${domains.length} domains`);
+  
+  // NFTs without price enrichment (too slow - TODO: lazy load prices on demand)
+  const nfts = rawNfts.map(nft => ({
+    ...nft,
+    acquisitionType: 'unknown' as const,
+  }));
 
   return { tokens, nfts, domains };
 }

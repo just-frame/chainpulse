@@ -430,6 +430,7 @@ export async function GET(request: NextRequest) {
         floorPrice: nft.floorPrice,
         purchasePrice: nft.purchasePrice,
         purchaseDate: nft.purchaseDate,
+        acquisitionType: nft.acquisitionType,
       }));
       
       // Add domains

@@ -14,9 +14,11 @@ CREATE TABLE IF NOT EXISTS wallets (
 -- Index for fast lookups
 CREATE INDEX IF NOT EXISTS wallets_user_id_idx ON wallets(user_id);
 
--- Unique constraint: same user can't add same address+chain twice
+-- Unique constraint: same user can't add same address+chain twice (case-insensitive)
+-- We use LOWER(address) so 'ABC' and 'abc' are treated as duplicates
+-- but we still store the original case for API calls
 CREATE UNIQUE INDEX IF NOT EXISTS wallets_user_address_chain_idx 
-  ON wallets(user_id, address, chain);
+  ON wallets(user_id, LOWER(address), chain);
 
 -- Row Level Security (RLS) - users can only see their own wallets
 ALTER TABLE wallets ENABLE ROW LEVEL SECURITY;
