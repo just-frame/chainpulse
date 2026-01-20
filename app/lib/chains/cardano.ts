@@ -146,7 +146,7 @@ export async function getCardanoHoldings(address: string): Promise<CardanoBalanc
   if (!addressInfo) return null;
   
   // Check staking status if we have a stake address
-  let stakeInfo = { isStaked: false, poolId: undefined as string | undefined };
+  let stakeInfo: { isStaked: boolean; poolId?: string } = { isStaked: false };
   if (addressInfo.stakeAddress) {
     const info = await getStakeInfo(addressInfo.stakeAddress);
     if (info) stakeInfo = info;

@@ -63,6 +63,7 @@ export default function Dashboard() {
             change24h={change24hValue}
             change24hPercent={weightedChange}
             isLoading={isLoading}
+            isAuthenticated={isAuthenticated}
           />
 
           {/* Add Wallet */}
