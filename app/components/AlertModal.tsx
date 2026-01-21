@@ -109,64 +109,76 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
       />
       
       {/* Modal */}
-      <div className="relative w-full max-w-md bg-[var(--bg-secondary)] border border-[var(--border)] rounded-xl shadow-2xl animate-fadeIn">
+      <div className="relative w-full max-w-lg bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl shadow-2xl animate-fadeIn">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
-          <h2 className="text-lg font-semibold">
-            {editingAlert ? 'Edit Alert' : 'Create Alert'}
+          <h2 className="text-xl font-semibold">
+            {editingAlert ? 'Edit Alert' : 'Create Price Alert'}
           </h2>
           <button
             onClick={onClose}
             className="p-2 rounded-lg hover:bg-[var(--bg-hover)] transition-colors"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          {/* Alert Type */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Alert Type - Large Segmented Control */}
           <div>
-            <label className="block text-sm text-[var(--text-secondary)] mb-2">
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-3">
               Alert Type
             </label>
-            <div className="flex gap-2">
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setType('price')}
-                className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
-                  type === 'price'
-                    ? 'bg-[var(--accent-blue)] text-white'
-                    : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
-                }`}
+                className={`
+                  flex flex-col items-center justify-center gap-2 p-4 rounded-xl text-base font-medium transition-all border-2
+                  ${type === 'price'
+                    ? 'bg-[var(--accent-blue)]/10 border-[var(--accent-blue)] text-[var(--accent-blue)]'
+                    : 'bg-[var(--bg-tertiary)] border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
+                  }
+                `}
               >
-                Price Alert
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Price Alert</span>
+                <span className="text-xs opacity-70">When price hits target</span>
               </button>
               <button
                 type="button"
                 onClick={() => setType('percent_change')}
-                className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
-                  type === 'percent_change'
-                    ? 'bg-[var(--accent-blue)] text-white'
-                    : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
-                }`}
+                className={`
+                  flex flex-col items-center justify-center gap-2 p-4 rounded-xl text-base font-medium transition-all border-2
+                  ${type === 'percent_change'
+                    ? 'bg-[var(--accent-blue)]/10 border-[var(--accent-blue)] text-[var(--accent-blue)]'
+                    : 'bg-[var(--bg-tertiary)] border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
+                  }
+                `}
               >
-                % Change
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+                </svg>
+                <span>% Change</span>
+                <span className="text-xs opacity-70">When price moves X%</span>
               </button>
             </div>
           </div>
 
           {/* Asset Selection */}
           <div>
-            <label className="block text-sm text-[var(--text-secondary)] mb-2">
-              Asset
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-3">
+              Select Asset
             </label>
             <select
               value={selectedAsset}
               onChange={(e) => setSelectedAsset(e.target.value)}
-              className="w-full p-3 bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] focus:border-[var(--accent-blue)] focus:outline-none transition-colors"
+              className="w-full p-4 bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] text-base focus:border-[var(--accent-blue)] focus:outline-none transition-colors cursor-pointer"
             >
               {uniqueAssets.length === 0 ? (
                 <option value="">Add a wallet first</option>
@@ -179,50 +191,61 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
               )}
             </select>
             {selectedAssetData && (
-              <p className="text-xs text-[var(--text-muted)] mt-1.5">
-                Current price: ${currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
+              <p className="text-sm text-[var(--text-muted)] mt-2 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[var(--accent-green)] animate-pulse" />
+                Current price: <span className="font-mono font-medium text-[var(--text-primary)]">${currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}</span>
               </p>
             )}
           </div>
 
-          {/* Condition */}
+          {/* Condition - Large Buttons */}
           <div>
-            <label className="block text-sm text-[var(--text-secondary)] mb-2">
-              Condition
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-3">
+              Alert Condition
             </label>
-            <div className="flex gap-2">
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setCondition('above')}
-                className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
-                  condition === 'above'
-                    ? 'bg-[var(--accent-green)]/20 text-[var(--accent-green)] border border-[var(--accent-green)]/30'
-                    : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
-                }`}
+                className={`
+                  flex items-center justify-center gap-3 p-4 rounded-xl text-base font-semibold transition-all border-2
+                  ${condition === 'above'
+                    ? 'bg-[var(--accent-green)]/15 border-[var(--accent-green)] text-[var(--accent-green)]'
+                    : 'bg-[var(--bg-tertiary)] border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
+                  }
+                `}
               >
-                {type === 'price' ? '↑ Goes Above' : '↑ Rises By'}
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                </svg>
+                {type === 'price' ? 'Goes Above' : 'Rises By'}
               </button>
               <button
                 type="button"
                 onClick={() => setCondition('below')}
-                className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
-                  condition === 'below'
-                    ? 'bg-[var(--accent-red)]/20 text-[var(--accent-red)] border border-[var(--accent-red)]/30'
-                    : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
-                }`}
+                className={`
+                  flex items-center justify-center gap-3 p-4 rounded-xl text-base font-semibold transition-all border-2
+                  ${condition === 'below'
+                    ? 'bg-[var(--accent-red)]/15 border-[var(--accent-red)] text-[var(--accent-red)]'
+                    : 'bg-[var(--bg-tertiary)] border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'
+                  }
+                `}
               >
-                {type === 'price' ? '↓ Goes Below' : '↓ Drops By'}
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+                {type === 'price' ? 'Goes Below' : 'Drops By'}
               </button>
             </div>
           </div>
 
           {/* Threshold */}
           <div>
-            <label className="block text-sm text-[var(--text-secondary)] mb-2">
-              {type === 'price' ? 'Price (USD)' : 'Percentage (%)'}
+            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-3">
+              {type === 'price' ? 'Target Price (USD)' : 'Percentage Change (%)'}
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] text-lg font-mono">
                 {type === 'price' ? '$' : '%'}
               </span>
               <input
@@ -230,31 +253,40 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
                 step="any"
                 value={threshold}
                 onChange={(e) => setThreshold(e.target.value)}
-                placeholder={type === 'price' ? '100.00' : '10'}
-                className="w-full p-3 pl-8 bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] font-mono focus:border-[var(--accent-blue)] focus:outline-none transition-colors"
+                placeholder={type === 'price' ? '150.00' : '10'}
+                className="w-full p-4 pl-10 bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] text-lg font-mono focus:border-[var(--accent-blue)] focus:outline-none transition-colors"
               />
             </div>
-            {type === 'price' && currentPrice > 0 && threshold && (
-              <p className="text-xs text-[var(--text-muted)] mt-1.5">
-                {condition === 'above' ? 'Alert when' : 'Alert when'} {selectedAsset}{' '}
-                {condition === 'above' ? 'rises above' : 'drops below'} ${parseFloat(threshold).toLocaleString()}
-                {' '}({((parseFloat(threshold) / currentPrice - 1) * 100).toFixed(1)}% from current)
+            {type === 'price' && currentPrice > 0 && threshold && parseFloat(threshold) > 0 && (
+              <p className="text-sm text-[var(--text-muted)] mt-2">
+                Alert when <span className="text-[var(--text-primary)] font-medium">{selectedAsset}</span>
+                {condition === 'above' ? ' rises above ' : ' drops below '}
+                <span className="text-[var(--text-primary)] font-mono">${parseFloat(threshold).toLocaleString()}</span>
+                {' '}
+                <span className={`font-medium ${condition === 'above' ? 'text-[var(--accent-green)]' : 'text-[var(--accent-red)]'}`}>
+                  ({condition === 'above' ? '+' : ''}{((parseFloat(threshold) / currentPrice - 1) * 100).toFixed(1)}% from current)
+                </span>
               </p>
             )}
           </div>
 
           {/* Error */}
           {error && (
-            <p className="text-sm text-[var(--accent-red)]">{error}</p>
+            <div className="flex items-center gap-2 p-3 bg-[var(--accent-red)]/10 border border-[var(--accent-red)]/20 rounded-lg">
+              <svg className="w-5 h-5 text-[var(--accent-red)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-sm text-[var(--accent-red)]">{error}</p>
+            </div>
           )}
 
           {/* Submit */}
           <button
             type="submit"
             disabled={isSubmitting || uniqueAssets.length === 0}
-            className="w-full py-3 px-4 bg-white text-black rounded-lg font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-4 px-6 bg-white text-black rounded-xl text-lg font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? 'Saving...' : editingAlert ? 'Update Alert' : 'Create Alert'}
+            {isSubmitting ? 'Creating...' : editingAlert ? 'Update Alert' : '🔔 Create Alert'}
           </button>
         </form>
       </div>

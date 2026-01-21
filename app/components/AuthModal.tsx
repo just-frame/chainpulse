@@ -30,22 +30,67 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
 
   if (!isOpen) return null;
 
+  // Format error messages to be more user-friendly
+  const formatError = (errorMessage: string): string => {
+    if (errorMessage.includes('User already registered')) {
+      return 'An account with this email already exists. Please sign in instead.';
+    }
+    if (errorMessage.includes('Invalid login credentials')) {
+      return 'Invalid email or password. Please try again.';
+    }
+    if (errorMessage.includes('Email not confirmed')) {
+      return 'Please check your email and click the confirmation link first.';
+    }
+    if (errorMessage.includes('Password should be at least')) {
+      return 'Password must be at least 6 characters long.';
+    }
+    return errorMessage;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setMessage(null);
     setLoading(true);
 
-    const { error } = mode === 'signin'
+    // Basic validation
+    if (!email.includes('@')) {
+      setError('Please enter a valid email address.');
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      setLoading(false);
+      return;
+    }
+
+    const { error, data } = mode === 'signin'
       ? await signInWithEmail(email, password)
       : await signUpWithEmail(email, password);
 
     setLoading(false);
 
     if (error) {
-      setError(error.message);
+      setError(formatError(error.message));
+      
+      // If user already exists during signup, suggest signing in
+      if (error.message.includes('User already registered')) {
+        setTimeout(() => {
+          setMode('signin');
+          setError('Account exists. Please sign in with your password.');
+        }, 2000);
+      }
     } else if (mode === 'signup') {
-      setMessage('Check your email for a confirmation link!');
+      // Check if user was actually created or just got another confirmation email
+      if (data?.user?.identities?.length === 0) {
+        // This means user already exists
+        setError('An account with this email already exists. Please sign in instead.');
+        setMode('signin');
+      } else {
+        setMessage('Check your email for a confirmation link!');
+      }
     } else {
       onClose();
     }
@@ -54,11 +99,11 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
   const handleGoogleSignIn = async () => {
     setError(null);
     const { error } = await signInWithGoogle();
-    if (error) setError(error.message);
+    if (error) setError(formatError(error.message));
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/80 backdrop-blur-sm"
@@ -66,10 +111,10 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
       />
 
       {/* Modal */}
-      <div className="relative bg-[var(--bg-secondary)] border border-[var(--border)] rounded-xl p-8 w-full max-w-md mx-4">
+      <div className="relative bg-[var(--bg-secondary)] border border-[var(--border)] rounded-xl p-6 sm:p-8 w-full max-w-md animate-fadeIn">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="absolute top-4 right-4 p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded-lg transition-colors"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M18 6L6 18M6 6l12 12" />
@@ -83,7 +128,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
         {/* Google Sign In */}
         <button
           onClick={handleGoogleSignIn}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white text-black rounded-lg font-medium hover:bg-gray-100 transition-colors mb-6"
+          className="w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-white text-black rounded-lg font-medium hover:bg-gray-100 transition-colors mb-6"
         >
           <svg width="18" height="18" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -110,34 +155,44 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)]"
+              className="w-full px-4 py-3.5 bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
               required
             />
           </div>
           <div>
             <input
               type="password"
-              placeholder="Password"
+              placeholder="Password (min 6 characters)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--text-secondary)]"
+              className="w-full px-4 py-3.5 bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
               required
               minLength={6}
             />
           </div>
 
           {error && (
-            <p className="text-[var(--accent-red)] text-sm">{error}</p>
+            <div className="flex items-start gap-2 p-3 bg-[var(--accent-red)]/10 border border-[var(--accent-red)]/20 rounded-lg">
+              <svg className="w-5 h-5 text-[var(--accent-red)] shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-[var(--accent-red)] text-sm">{error}</p>
+            </div>
           )}
 
           {message && (
-            <p className="text-[var(--accent-green)] text-sm">{message}</p>
+            <div className="flex items-start gap-2 p-3 bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/20 rounded-lg">
+              <svg className="w-5 h-5 text-[var(--accent-green)] shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <p className="text-[var(--accent-green)] text-sm">{message}</p>
+            </div>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full px-4 py-3 bg-white text-black rounded-lg font-medium hover:bg-gray-100 transition-colors disabled:opacity-50"
+            className="w-full px-4 py-3.5 bg-white text-black rounded-lg font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50"
           >
             {loading ? 'Loading...' : mode === 'signin' ? 'Sign in' : 'Sign up'}
           </button>
@@ -151,7 +206,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
               setError(null);
               setMessage(null);
             }}
-            className="text-[var(--text-primary)] hover:underline"
+            className="text-[var(--accent-blue)] hover:underline font-medium"
           >
             {mode === 'signin' ? 'Sign up' : 'Sign in'}
           </button>
