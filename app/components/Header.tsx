@@ -4,7 +4,12 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import AuthModal from './AuthModal';
 
-export default function Header() {
+interface HeaderProps {
+  onAlertsClick?: () => void;
+  alertsCount?: number;
+}
+
+export default function Header({ onAlertsClick, alertsCount = 0 }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
@@ -16,7 +21,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="border-b border-[var(--border)] bg-[var(--bg-primary)]">
+      <header className="border-b border-[var(--border)] bg-[var(--bg-primary)] sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -37,12 +42,17 @@ export default function Header() {
               >
                 Dashboard
               </a>
-              <a
-                href="#"
-                className="text-[var(--text-secondary)] text-sm font-medium hover:text-[var(--text-primary)] transition-colors"
+              <button
+                onClick={onAlertsClick}
+                className="relative text-[var(--text-secondary)] text-sm font-medium hover:text-[var(--text-primary)] transition-colors flex items-center gap-1"
               >
                 Alerts
-              </a>
+                {alertsCount > 0 && (
+                  <span className="absolute -top-1 -right-3 w-4 h-4 text-[10px] font-bold bg-[var(--accent-blue)] text-white rounded-full flex items-center justify-center">
+                    {alertsCount > 9 ? '9+' : alertsCount}
+                  </span>
+                )}
+              </button>
               <a
                 href="#"
                 className="text-[var(--text-secondary)] text-sm font-medium hover:text-[var(--text-primary)] transition-colors"
@@ -122,12 +132,20 @@ export default function Header() {
                 >
                   Dashboard
                 </a>
-                <a
-                  href="#"
-                  className="text-[var(--text-secondary)] text-sm font-medium hover:text-[var(--text-primary)]"
+                <button
+                  onClick={() => {
+                    onAlertsClick?.();
+                    setIsMenuOpen(false);
+                  }}
+                  className="text-left text-[var(--text-secondary)] text-sm font-medium hover:text-[var(--text-primary)] flex items-center gap-2"
                 >
                   Alerts
-                </a>
+                  {alertsCount > 0 && (
+                    <span className="w-5 h-5 text-[10px] font-bold bg-[var(--accent-blue)] text-white rounded-full flex items-center justify-center">
+                      {alertsCount > 9 ? '9+' : alertsCount}
+                    </span>
+                  )}
+                </button>
                 <a
                   href="#"
                   className="text-[var(--text-secondary)] text-sm font-medium hover:text-[var(--text-primary)]"

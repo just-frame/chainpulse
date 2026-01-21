@@ -42,7 +42,6 @@ export default function PortfolioSummary({
   // Fetch history when range changes
   const fetchHistory = useCallback(async () => {
     if (!isAuthenticated) {
-      // For anonymous users, no historical data
       setHistory(null);
       return;
     }
@@ -118,21 +117,41 @@ export default function PortfolioSummary({
         </span>
         
         {/* Main value */}
-        <span className="text-5xl font-semibold font-mono tracking-tight">
+        <span className="text-4xl sm:text-5xl font-semibold font-mono tracking-tight">
           {formatCurrency(totalValue)}
         </span>
         
-        {/* Change indicator */}
-        <div className="flex items-center gap-3">
+        {/* Enhanced change indicator */}
+        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+          {/* Percentage pill with arrow */}
           <span
-            className={`text-lg font-mono ${
-              isPositive ? 'price-up' : 'price-down'
-            }`}
+            className={`
+              inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-base sm:text-lg font-mono font-semibold
+              ${isPositive 
+                ? 'bg-[var(--accent-green)]/15 text-[var(--accent-green)]' 
+                : 'bg-[var(--accent-red)]/15 text-[var(--accent-red)]'
+              }
+            `}
           >
+            <svg 
+              className="w-4 h-4" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+              strokeWidth={2.5}
+            >
+              {isPositive ? (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              )}
+            </svg>
             {formatPercent(displayChangePercent)}
           </span>
+          
+          {/* Dollar change */}
           <span className="text-[var(--text-muted)] text-sm">
-            ({isPositive ? '+' : ''}{formatCurrency(displayChange)}) {timeLabel}
+            {isPositive ? '+' : ''}{formatCurrency(displayChange)} {timeLabel}
           </span>
         </div>
 

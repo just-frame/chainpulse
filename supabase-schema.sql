@@ -36,14 +36,18 @@ CREATE POLICY "Users can delete own wallets" ON wallets
 CREATE TABLE IF NOT EXISTS alerts (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-  type TEXT NOT NULL, -- 'price', 'portfolio_value', 'percent_change'
-  asset TEXT,
+  type TEXT NOT NULL, -- 'price', 'percent_change'
+  asset TEXT NOT NULL, -- Asset symbol (e.g., 'BTC', 'ETH')
+  asset_name TEXT, -- Human-readable name (e.g., 'Bitcoin')
   condition TEXT NOT NULL, -- 'above', 'below'
   threshold NUMERIC NOT NULL,
   enabled BOOLEAN DEFAULT true,
   last_triggered TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Migration: Add asset_name column if upgrading from older schema
+-- ALTER TABLE alerts ADD COLUMN IF NOT EXISTS asset_name TEXT;
 
 CREATE INDEX IF NOT EXISTS alerts_user_id_idx ON alerts(user_id);
 
