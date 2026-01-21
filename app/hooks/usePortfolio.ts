@@ -391,20 +391,35 @@ export function usePortfolio(): UsePortfolioReturn {
     }
   }, [hasMounted, authLoading, user, localWallets, fetchWalletData]);
 
-  // Reset on logout (only when auth is done loading and user is definitely null)
+  // Track previous user to detect sign out
+  const prevUserRef = useRef<typeof user>(undefined);
+  
+  // Reset on logout - clear portfolio when user signs out
   useEffect(() => {
-    if (!authLoading && !user) {
-      hasLoadedSavedWallets.current = false;
-      // Don't clear walletData for anonymous users - they might have local wallets
+    if (!authLoading) {
+      // Detect sign out: was logged in, now not
+      if (prevUserRef.current && !user) {
+        console.log('[usePortfolio] User signed out, clearing data');
+        setWalletData({});
+        setLastUpdated(null);
+        setError(null);
+        hasLoadedSavedWallets.current = false;
+        // Clear the interval too
+        if (refreshIntervalRef.current) {
+          clearInterval(refreshIntervalRef.current);
+          refreshIntervalRef.current = null;
+        }
+      }
+      // Detect sign in: wasn't logged in, now is
+      if (!prevUserRef.current && user) {
+        console.log('[usePortfolio] User signed in, resetting local wallet flag');
+        hasLoadedLocalWallets.current = false;
+        // Clear anonymous wallet data - will reload from Supabase
+        setWalletData({});
+      }
+      prevUserRef.current = user;
     }
   }, [user, authLoading]);
-  
-  // Reset local wallet flag when user logs in (they'll use Supabase instead)
-  useEffect(() => {
-    if (user) {
-      hasLoadedLocalWallets.current = false;
-    }
-  }, [user]);
 
   // Auto-refresh every 30 seconds
   useEffect(() => {
