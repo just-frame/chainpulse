@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import type { Asset } from '@/types';
 import type { Alert } from '@/hooks/useAlerts';
 
@@ -29,18 +29,24 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
   const [threshold, setThreshold] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  
+  // Track if we've initialized for this modal open
+  const hasInitialized = useRef(false);
 
-  // Get unique assets by symbol
-  const uniqueAssets = assets.reduce((acc, asset) => {
-    if (!acc.find(a => a.symbol === asset.symbol)) {
-      acc.push(asset);
-    }
-    return acc;
-  }, [] as Asset[]);
+  // Memoize unique assets to prevent unnecessary re-renders
+  const uniqueAssets = useMemo(() => {
+    return assets.reduce((acc, asset) => {
+      if (!acc.find(a => a.symbol === asset.symbol)) {
+        acc.push(asset);
+      }
+      return acc;
+    }, [] as Asset[]);
+  }, [assets]);
 
-  // Reset form when modal opens/closes or editing alert changes
+  // Reset form ONLY when modal opens (not on every uniqueAssets change)
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !hasInitialized.current) {
+      hasInitialized.current = true;
       if (editingAlert) {
         setType(editingAlert.type);
         setSelectedAsset(editingAlert.asset);
@@ -53,6 +59,8 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
         setThreshold('');
       }
       setError('');
+    } else if (!isOpen) {
+      hasInitialized.current = false;
     }
   }, [isOpen, editingAlert, uniqueAssets]);
 
