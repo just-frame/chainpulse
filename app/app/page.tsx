@@ -8,10 +8,10 @@ import WalletInput from '@/components/WalletInput';
 import NFTGrid from '@/components/NFTGrid';
 import DomainList from '@/components/DomainList';
 import TabNav from '@/components/TabNav';
-import AlertModal from '@/components/AlertModal';
+import AlertModal, { CreateAlertData } from '@/components/AlertModal';
 import AlertsList from '@/components/AlertsList';
 import { usePortfolio } from '@/hooks/usePortfolio';
-import { useAlerts, Alert } from '@/hooks/useAlerts';
+import { useAlerts, type Alert } from '@/hooks/useAlerts';
 import type { Chain } from '@/types';
 
 export default function Dashboard() {
@@ -53,14 +53,7 @@ export default function Dashboard() {
     await addWallet(address, chain);
   };
 
-  const handleSaveAlert = async (alertData: {
-    type: 'price' | 'percent_change';
-    asset: string;
-    assetName: string;
-    condition: 'above' | 'below';
-    threshold: number;
-    enabled: boolean;
-  }) => {
+  const handleSaveAlert = async (alertData: CreateAlertData) => {
     await createAlert(alertData);
   };
 

@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import type { Asset } from '@/types';
+import type { Alert } from '@/hooks/useAlerts';
 
-interface Alert {
-  id?: string;
+// Data for creating a new alert (uses camelCase for API)
+export interface CreateAlertData {
   type: 'price' | 'percent_change';
   asset: string;
   assetName: string;
@@ -16,7 +17,7 @@ interface Alert {
 interface AlertModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (alert: Omit<Alert, 'id'>) => Promise<void>;
+  onSave: (alert: CreateAlertData) => Promise<void>;
   assets: Asset[];
   editingAlert?: Alert | null;
 }
