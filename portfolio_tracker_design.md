@@ -4,7 +4,7 @@
 
 ---
 
-## Current Status: v0.1.0-alpha (LIVE)
+## Current Status: v0.2.0-alpha (LIVE)
 
 **Production URL:** https://chainpulsetest1.vercel.app
 
@@ -46,7 +46,16 @@
 - [x] Wallet persistence (signed-in users)
 - [x] LocalStorage fallback (anonymous users)
 - [x] Row Level Security (RLS) — users can't see each other's data
+- [x] Portfolio clears on sign-out (privacy)
 - [x] Portfolio snapshots schema (ready for sparklines)
+
+### Price Alerts (Phase 1.5 — COMPLETE)
+- [x] Alert creation modal UI
+- [x] Alert types: price above/below, % change
+- [x] Alert list with toggle/edit/delete
+- [x] Duplicate alert prevention
+- [x] Per-asset alerts stored in Supabase
+- [x] RLS security on alerts table
 
 ### Deployment
 - [x] Vercel (Hobby tier)
@@ -55,18 +64,12 @@
 
 ---
 
-## 🚧 In Progress (Phase 1.5)
+## 🚧 Remaining (Phase 1.5)
 
-### Price Alerts
-- [ ] Alert creation UI
-- [ ] Alert types: price above/below, % change
-- [ ] In-app notification display
-- [ ] Email notifications (Resend integration)
-
-### Better 24h Display
-- [ ] Per-asset 24h % change from CoinGecko
-- [ ] Portfolio-level daily change
-- [ ] Visual indicators on asset rows
+### Email Notifications
+- [ ] Resend integration for alert emails
+- [ ] Background job to check alert conditions
+- [ ] Email templates for price alerts
 
 ---
 
@@ -75,13 +78,14 @@
 - [ ] Sparkline charts (requires cron job — Pro tier or external cron)
 - [ ] Historical portfolio value chart
 - [ ] OAuth (Google)
-- [ ] Web3 sign-in
+- [ ] Web3 sign-in (wallet connect)
 - [ ] Hyperliquid perps/positions
 - [ ] LP positions + DeFi protocols
 - [ ] Telegram/Discord notifications
 - [ ] Whale movement alerts
 - [ ] Multiple themes
 - [ ] PWA / Mobile app
+- [ ] Portfolio sharing (public links)
 
 ---
 
@@ -126,8 +130,9 @@ wallets (
 alerts (
   id uuid PRIMARY KEY,
   user_id uuid REFERENCES auth.users,
-  type text, -- 'price', 'portfolio_value', 'percent_change'
+  type text, -- 'price', 'percent_change'
   asset text,
+  asset_name text,
   condition text, -- 'above', 'below'
   threshold numeric,
   enabled boolean DEFAULT true,
@@ -165,6 +170,7 @@ portfolio_daily (
 - ✅ User data isolated by RLS (auth.uid() = user_id)
 - ✅ API keys stored in environment variables
 - ✅ No sensitive data in client bundle
+- ✅ Alerts can only be viewed/modified by owner
 - See `chainpulse_security.md` for full audit
 
 ---
@@ -182,6 +188,7 @@ portfolio-tracker/
 │   │       ├── portfolio/
 │   │       │   ├── route.ts
 │   │       │   └── history/route.ts
+│   │       ├── alerts/route.ts
 │   │       └── cron/snapshot/route.ts
 │   ├── components/
 │   │   ├── ui/
@@ -196,11 +203,14 @@ portfolio-tracker/
 │   │   ├── TabNav.tsx
 │   │   ├── WalletInput.tsx
 │   │   ├── AuthModal.tsx
+│   │   ├── AlertModal.tsx
+│   │   ├── AlertsList.tsx
 │   │   └── Providers.tsx
 │   ├── hooks/
 │   │   ├── usePortfolio.ts
 │   │   ├── useAuth.ts
 │   │   ├── useWallets.ts
+│   │   ├── useAlerts.ts
 │   │   └── usePortfolioHistory.ts
 │   ├── lib/
 │   │   ├── supabase.ts
