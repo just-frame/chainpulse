@@ -220,8 +220,8 @@ export default function Dashboard() {
 
             <p className="text-center text-[var(--text-muted)] text-xs px-4">
               Auto-refreshes every 30s • Data from CoinGecko, DeFiLlama & Helius
-          </p>
-        </div>
+            </p>
+          </div>
 
           {/* Alerts Panel (Desktop sidebar / Mobile slide-up) */}
           {showAlertsPanel && (
@@ -290,7 +290,6 @@ export default function Dashboard() {
         onSave={handleSaveAlert}
         assets={assets}
         editingAlert={editingAlert}
-        existingAlerts={alerts}
       />
     </div>
   );

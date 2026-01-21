@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import type { Asset } from '@/types';
 import type { Alert } from '@/hooks/useAlerts';
 
@@ -20,10 +20,9 @@ interface AlertModalProps {
   onSave: (alert: CreateAlertData) => Promise<void>;
   assets: Asset[];
   editingAlert?: Alert | null;
-  existingAlerts?: Alert[];
 }
 
-export default function AlertModal({ isOpen, onClose, onSave, assets, editingAlert, existingAlerts = [] }: AlertModalProps) {
+export default function AlertModal({ isOpen, onClose, onSave, assets, editingAlert }: AlertModalProps) {
   const [type, setType] = useState<'price' | 'percent_change'>('price');
   const [selectedAsset, setSelectedAsset] = useState('');
   const [condition, setCondition] = useState<'above' | 'below'>('above');
@@ -31,17 +30,15 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // Get unique assets by symbol - memoize to prevent infinite loops
-  const uniqueAssets = useMemo(() => {
-    return assets.reduce((acc, asset) => {
-      if (!acc.find(a => a.symbol === asset.symbol)) {
-        acc.push(asset);
-      }
-      return acc;
-    }, [] as Asset[]);
-  }, [assets]);
+  // Get unique assets by symbol
+  const uniqueAssets = assets.reduce((acc, asset) => {
+    if (!acc.find(a => a.symbol === asset.symbol)) {
+      acc.push(asset);
+    }
+    return acc;
+  }, [] as Asset[]);
 
-  // Reset form when modal opens
+  // Reset form when modal opens/closes or editing alert changes
   useEffect(() => {
     if (isOpen) {
       if (editingAlert) {
@@ -61,9 +58,10 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setError('');
 
-    console.log('[AlertModal] Submit clicked, threshold:', threshold);
+    console.log('[AlertModal] Form submitted', { selectedAsset, threshold, type, condition });
 
     if (!selectedAsset) {
       setError('Please select an asset');
@@ -71,8 +69,10 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
     }
 
     const thresholdNum = parseFloat(threshold);
+    console.log('[AlertModal] Parsed threshold:', thresholdNum);
+    
     if (isNaN(thresholdNum) || thresholdNum <= 0) {
-      setError('Please enter a valid target price');
+      setError('Please enter a valid price (e.g. 150)');
       return;
     }
 
@@ -82,23 +82,10 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
       return;
     }
 
-    // Check for duplicate alert (same asset, type, condition, threshold)
-    if (!editingAlert) {
-      const isDuplicate = existingAlerts.some(
-        a => a.asset === selectedAsset && 
-             a.type === type && 
-             a.condition === condition && 
-             a.threshold === thresholdNum
-      );
-      if (isDuplicate) {
-        setError('You already have an identical alert for this asset');
-        return;
-      }
-    }
-
     setIsSubmitting(true);
+    console.log('[AlertModal] Calling onSave...');
+    
     try {
-      console.log('[AlertModal] Saving alert...');
       await onSave({
         type,
         asset: selectedAsset,
@@ -107,7 +94,7 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
         threshold: thresholdNum,
         enabled: true,
       });
-      console.log('[AlertModal] Alert saved successfully');
+      console.log('[AlertModal] onSave succeeded');
       onClose();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to save alert';
@@ -264,32 +251,26 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
 
           {/* Threshold */}
           <div>
-            <label htmlFor="alert-threshold" className="block text-sm font-medium text-[var(--text-secondary)] mb-3">
+            <label htmlFor="threshold-input" className="block text-sm font-medium text-[var(--text-secondary)] mb-3">
               {type === 'price' ? 'Target Price (USD)' : 'Percentage Change (%)'}
             </label>
-            <div className="flex items-center gap-2">
-              <span className="text-[var(--text-muted)] text-lg font-mono">
+            <div className="flex items-center gap-3">
+              <span className="text-[var(--text-muted)] text-xl font-mono shrink-0">
                 {type === 'price' ? '$' : ''}
               </span>
               <input
-                id="alert-threshold"
-                name="threshold"
+                id="threshold-input"
                 type="number"
+                step="any"
                 min="0"
-                step="0.01"
                 value={threshold}
-                onChange={(e) => {
-                  console.log('[AlertModal] Input changed:', e.target.value);
-                  setThreshold(e.target.value);
-                }}
-                onKeyDown={(e) => {
-                  console.log('[AlertModal] Key pressed:', e.key);
-                }}
+                onChange={(e) => setThreshold(e.target.value)}
                 placeholder={type === 'price' ? '150.00' : '10'}
-                className="flex-1 p-4 bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] text-lg font-mono focus:border-[var(--accent-blue)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-blue)]/20 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-full p-4 bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] text-lg font-mono focus:border-[var(--accent-blue)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-blue)]/20"
+                style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
               />
               {type === 'percent_change' && (
-                <span className="text-[var(--text-muted)] text-lg font-mono">%</span>
+                <span className="text-[var(--text-muted)] text-xl font-mono shrink-0">%</span>
               )}
             </div>
             {type === 'price' && currentPrice > 0 && threshold && parseFloat(threshold) > 0 && (
