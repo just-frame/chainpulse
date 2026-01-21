@@ -54,6 +54,9 @@ export default function Dashboard() {
   };
 
   const handleSaveAlert = async (alertData: CreateAlertData) => {
+    if (!isAuthenticated) {
+      throw new Error('Please sign in to create alerts');
+    }
     await createAlert(alertData);
   };
 

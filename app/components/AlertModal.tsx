@@ -89,7 +89,9 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
       });
       onClose();
     } catch (err) {
-      setError('Failed to save alert');
+      const message = err instanceof Error ? err.message : 'Failed to save alert';
+      setError(message);
+      console.error('[AlertModal] Error saving alert:', err);
     } finally {
       setIsSubmitting(false);
     }
@@ -104,12 +106,12 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm z-0"
         onClick={onClose}
       />
       
-      {/* Modal */}
-      <div className="relative w-full max-w-lg bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl shadow-2xl animate-fadeIn">
+      {/* Modal - z-10 ensures it's above backdrop */}
+      <div className="relative z-10 w-full max-w-lg bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl shadow-2xl animate-fadeIn">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
           <h2 className="text-xl font-semibold">
@@ -245,16 +247,24 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
               {type === 'price' ? 'Target Price (USD)' : 'Percentage Change (%)'}
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] text-lg font-mono">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] text-lg font-mono pointer-events-none">
                 {type === 'price' ? '$' : '%'}
               </span>
               <input
-                type="number"
-                step="any"
+                type="text"
+                inputMode="decimal"
+                pattern="[0-9]*\.?[0-9]*"
+                autoComplete="off"
                 value={threshold}
-                onChange={(e) => setThreshold(e.target.value)}
+                onChange={(e) => {
+                  // Only allow numbers and decimal point
+                  const val = e.target.value;
+                  if (val === '' || /^\d*\.?\d*$/.test(val)) {
+                    setThreshold(val);
+                  }
+                }}
                 placeholder={type === 'price' ? '150.00' : '10'}
-                className="w-full p-4 pl-10 bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] text-lg font-mono focus:border-[var(--accent-blue)] focus:outline-none transition-colors"
+                className="w-full p-4 pl-10 bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] text-lg font-mono focus:border-[var(--accent-blue)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-blue)]/20 transition-colors"
               />
             </div>
             {type === 'price' && currentPrice > 0 && threshold && parseFloat(threshold) > 0 && (
