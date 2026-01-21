@@ -66,10 +66,7 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    e.stopPropagation();
     setError('');
-
-    console.log('[AlertModal] Form submitted', { selectedAsset, threshold, type, condition });
 
     if (!selectedAsset) {
       setError('Please select an asset');
@@ -77,10 +74,8 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
     }
 
     const thresholdNum = parseFloat(threshold);
-    console.log('[AlertModal] Parsed threshold:', thresholdNum);
-    
     if (isNaN(thresholdNum) || thresholdNum <= 0) {
-      setError('Please enter a valid price (e.g. 150)');
+      setError('Please enter a valid price');
       return;
     }
 
@@ -91,8 +86,6 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
     }
 
     setIsSubmitting(true);
-    console.log('[AlertModal] Calling onSave...');
-    
     try {
       await onSave({
         type,
@@ -102,12 +95,10 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
         threshold: thresholdNum,
         enabled: true,
       });
-      console.log('[AlertModal] onSave succeeded');
       onClose();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to save alert';
       setError(message);
-      console.error('[AlertModal] Error saving alert:', err);
     } finally {
       setIsSubmitting(false);
     }

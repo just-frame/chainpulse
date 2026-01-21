@@ -23,7 +23,7 @@ export default function AlertsList({ alerts, onToggle, onDelete, onEdit }: Alert
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {alerts.map((alert) => (
         <AlertItem 
           key={alert.id} 
@@ -52,106 +52,101 @@ function AlertItem({
     if (type === 'percent_change') {
       return `${value}%`;
     }
-    return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}`;
-  };
-
-  const getConditionText = () => {
-    if (alert.type === 'price') {
-      return alert.condition === 'above' ? 'goes above' : 'drops below';
-    }
-    return alert.condition === 'above' ? 'rises by' : 'drops by';
+    return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   return (
     <div 
       className={`
-        flex items-center justify-between p-4 rounded-lg border transition-all
+        p-4 rounded-xl border transition-all
         ${alert.enabled 
           ? 'bg-[var(--bg-secondary)] border-[var(--border)]' 
           : 'bg-[var(--bg-tertiary)]/50 border-[var(--border)]/50 opacity-60'
         }
       `}
     >
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        {/* Icon based on condition */}
-        <div className={`
-          w-8 h-8 rounded-full flex items-center justify-center shrink-0
-          ${alert.condition === 'above' 
-            ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)]' 
-            : 'bg-[var(--accent-red)]/10 text-[var(--accent-red)]'
-          }
-        `}>
-          {alert.condition === 'above' ? (
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-            </svg>
-          ) : (
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          )}
-        </div>
-
-        {/* Alert details */}
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium truncate">
-            <span className="text-[var(--text-primary)]">{alert.asset_name || alert.asset}</span>
-            <span className="text-[var(--text-muted)]"> {getConditionText()} </span>
-            <span className={alert.condition === 'above' ? 'text-[var(--accent-green)]' : 'text-[var(--accent-red)]'}>
-              {formatThreshold(alert.threshold, alert.type)}
-            </span>
-          </p>
-          <p className="text-xs text-[var(--text-muted)]">
-            {alert.type === 'price' ? 'Price alert' : '% change alert'}
-            {alert.last_triggered && (
-              <span> • Last triggered {new Date(alert.last_triggered).toLocaleDateString()}</span>
+      {/* Top row: Asset name + Toggle */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <div className={`
+            w-7 h-7 rounded-full flex items-center justify-center
+            ${alert.condition === 'above' 
+              ? 'bg-[var(--accent-green)]/15 text-[var(--accent-green)]' 
+              : 'bg-[var(--accent-red)]/15 text-[var(--accent-red)]'
+            }
+          `}>
+            {alert.condition === 'above' ? (
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+              </svg>
+            ) : (
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
             )}
-          </p>
+          </div>
+          <span className="font-semibold text-[var(--text-primary)]">
+            {alert.asset_name || alert.asset}
+          </span>
         </div>
-      </div>
-
-      {/* Actions */}
-      <div className="flex items-center gap-2 ml-3">
+        
         {/* Toggle switch */}
         <button
           onClick={onToggle}
           className={`
-            relative w-10 h-5 rounded-full transition-colors
+            relative w-11 h-6 rounded-full transition-colors
             ${alert.enabled ? 'bg-[var(--accent-green)]' : 'bg-[var(--bg-tertiary)]'}
           `}
           title={alert.enabled ? 'Disable alert' : 'Enable alert'}
         >
           <span 
             className={`
-              absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform
-              ${alert.enabled ? 'left-5' : 'left-0.5'}
+              absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform
+              ${alert.enabled ? 'left-6' : 'left-1'}
             `}
           />
         </button>
+      </div>
 
-        {/* Edit button */}
-        {onEdit && (
+      {/* Middle: Alert condition */}
+      <p className="text-sm text-[var(--text-secondary)] mb-3">
+        {alert.type === 'price' ? 'Alert when price' : 'Alert when change'}{' '}
+        <span className={`font-medium ${alert.condition === 'above' ? 'text-[var(--accent-green)]' : 'text-[var(--accent-red)]'}`}>
+          {alert.condition === 'above' ? '↑ goes above' : '↓ drops below'}
+        </span>{' '}
+        <span className="font-mono font-semibold text-[var(--text-primary)]">
+          {formatThreshold(alert.threshold, alert.type)}
+        </span>
+      </p>
+
+      {/* Bottom row: Type badge + Actions */}
+      <div className="flex items-center justify-between">
+        <span className="text-xs px-2 py-1 rounded-full bg-[var(--bg-tertiary)] text-[var(--text-muted)]">
+          {alert.type === 'price' ? '💰 Price' : '📊 % Change'}
+        </span>
+        
+        <div className="flex items-center gap-1">
+          {onEdit && (
+            <button
+              onClick={onEdit}
+              className="p-2 rounded-lg hover:bg-[var(--bg-hover)] transition-colors text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              title="Edit alert"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+          )}
           <button
-            onClick={onEdit}
-            className="p-1.5 rounded-lg hover:bg-[var(--bg-hover)] transition-colors text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-            title="Edit alert"
+            onClick={onDelete}
+            className="p-2 rounded-lg hover:bg-[var(--accent-red)]/10 transition-colors text-[var(--text-muted)] hover:text-[var(--accent-red)]"
+            title="Delete alert"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           </button>
-        )}
-
-        {/* Delete button */}
-        <button
-          onClick={onDelete}
-          className="p-1.5 rounded-lg hover:bg-[var(--accent-red)]/10 transition-colors text-[var(--text-muted)] hover:text-[var(--accent-red)]"
-          title="Delete alert"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
+        </div>
       </div>
     </div>
   );
