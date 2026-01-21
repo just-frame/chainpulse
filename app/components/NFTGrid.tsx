@@ -2,34 +2,42 @@
 
 import { useState } from 'react';
 import type { NFT } from '@/types';
+import { NFTCardSkeleton } from './ui/Skeleton';
 
 interface NFTGridProps {
   nfts: NFT[];
+  isLoading?: boolean;
 }
 
-export default function NFTGrid({ nfts }: NFTGridProps) {
+export default function NFTGrid({ nfts, isLoading = false }: NFTGridProps) {
   const [showAll, setShowAll] = useState(false);
   const [showReceived, setShowReceived] = useState(false);
   
+  // Show skeletons while loading
+  if (isLoading && nfts.length === 0) {
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <NFTCardSkeleton key={i} />
+        ))}
+      </div>
+    );
+  }
+  
   // Categorize NFTs by how they were acquired
-  // "Owned" = minted or purchased (user paid for it)
-  // "Received" = airdrops, gifts, spam (free, sent to user)
   const ownedNfts = nfts.filter(nft => {
     const type = nft.acquisitionType;
     const price = nft.purchasePrice;
-    // User owns it if: they minted it, purchased it, OR paid any amount for it
     return type === 'minted' || type === 'purchased' || (price !== undefined && price > 0);
   });
   
   const receivedNfts = nfts.filter(nft => {
     const type = nft.acquisitionType;
     const price = nft.purchasePrice;
-    // Received = free AND (explicitly received OR unknown acquisition)
     return (price === 0 || price === undefined) && (type === 'received' || type === 'unknown' || type === undefined);
   });
   
   const filteredNfts = showReceived ? nfts : ownedNfts;
-  
   const displayNfts = showAll ? filteredNfts : filteredNfts.slice(0, 12);
   const hasMore = filteredNfts.length > 12;
 
@@ -49,20 +57,20 @@ export default function NFTGrid({ nfts }: NFTGridProps) {
     <div>
       {/* Filter toggle */}
       {receivedNfts.length > 0 && (
-        <div className="flex items-center justify-between mb-4 pb-4 border-b border-[var(--border)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-[var(--border)]">
           <div className="text-sm text-[var(--text-secondary)]">
             {showReceived 
               ? `Showing all ${nfts.length} NFTs`
               : `Showing ${ownedNfts.length} owned NFTs`
             }
             {!showReceived && ownedNfts.length > 0 && (
-              <span className="text-[var(--text-muted)]"> (minted or purchased)</span>
+              <span className="text-[var(--text-muted)] hidden sm:inline"> (minted or purchased)</span>
             )}
           </div>
           <button
             onClick={() => setShowReceived(!showReceived)}
             className={`
-              flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
+              flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap
               ${showReceived 
                 ? 'bg-[var(--accent-green)]/20 text-[var(--accent-green)] border border-[var(--accent-green)]/30' 
                 : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border border-[var(--border)] hover:border-[var(--text-muted)]'
@@ -76,7 +84,7 @@ export default function NFTGrid({ nfts }: NFTGridProps) {
                 </svg>
               )}
             </span>
-            Show received/airdrops ({receivedNfts.length})
+            Show received ({receivedNfts.length})
           </button>
         </div>
       )}
@@ -155,14 +163,12 @@ function NFTCard({ nft, index }: { nft: NFT; index: number }) {
     >
       {/* Top badges row */}
       <div className="absolute top-2 left-2 right-2 z-10 flex items-center justify-between">
-        {/* Acquisition type badge */}
         {badge && (
           <span className={`text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded ${badge.color}`}>
             {badge.label}
           </span>
         )}
         
-        {/* Price badge */}
         {nft.purchasePrice !== undefined && nft.purchasePrice > 0 && (
           <span className="text-[10px] font-mono text-[var(--accent-green)] px-1.5 py-0.5 rounded bg-black/70 backdrop-blur-sm">
             {formatPrice(nft.purchasePrice)}

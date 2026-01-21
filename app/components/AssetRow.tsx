@@ -21,7 +21,6 @@ export default function AssetRow({ asset, index }: AssetRowProps) {
   const fallbackIcon = getPlaceholderIcon(asset.symbol, chainConfig.color);
 
   const formatCurrency = (value: number) => {
-    // Always show exact amount to the cent
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -31,11 +30,9 @@ export default function AssetRow({ asset, index }: AssetRowProps) {
   };
 
   const formatBalance = (balance: number, symbol: string) => {
-    // Only use M for millions, otherwise show full number
     if (balance >= 1000000) {
       return `${(balance / 1000000).toFixed(2)}M ${symbol}`;
     }
-    // Show full number with commas, appropriate decimal places
     const decimals = balance < 1 ? 6 : balance < 100 ? 4 : 2;
     const formatted = new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 0,
@@ -62,8 +59,7 @@ export default function AssetRow({ asset, index }: AssetRowProps) {
       {/* Asset */}
       <td className="py-4 pr-4">
         <div className="flex items-center gap-3">
-          {/* Icon */}
-          <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-[var(--bg-tertiary)]">
+          <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-[var(--bg-tertiary)] shrink-0">
             {iconUrl && !imgError ? (
               <img
                 src={iconUrl}
@@ -83,14 +79,14 @@ export default function AssetRow({ asset, index }: AssetRowProps) {
               />
             )}
           </div>
-          <div className="flex flex-col">
-            <span className="font-medium">{asset.name}</span>
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col min-w-0">
+            <span className="font-medium truncate">{asset.name}</span>
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[var(--text-muted)] text-xs uppercase">
                 {asset.symbol}
               </span>
               {asset.isStaked && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--accent-green)]/10 text-[var(--accent-green)] font-medium">
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--accent-green)]/10 text-[var(--accent-green)] font-medium whitespace-nowrap">
                   {asset.stakingProtocol ? `⚡ ${asset.stakingProtocol}` : '⚡ STAKED'}
                 </span>
               )}
@@ -99,8 +95,8 @@ export default function AssetRow({ asset, index }: AssetRowProps) {
         </div>
       </td>
 
-      {/* Price */}
-      <td className="py-4 pr-4">
+      {/* Price - hidden on mobile */}
+      <td className="py-4 pr-4 hidden sm:table-cell">
         <span className="font-mono text-sm">
           {formatCurrency(asset.price)}
         </span>
@@ -109,7 +105,7 @@ export default function AssetRow({ asset, index }: AssetRowProps) {
       {/* Holdings - combined balance + value */}
       <td className="py-4 pr-4">
         <div className="flex flex-col">
-          <span className="font-mono font-medium">
+          <span className="font-mono font-medium text-sm sm:text-base">
             {formatCurrency(asset.value)}
           </span>
           <span className="font-mono text-xs text-[var(--text-muted)]">
@@ -118,8 +114,8 @@ export default function AssetRow({ asset, index }: AssetRowProps) {
         </div>
       </td>
 
-      {/* 24h Change */}
-      <td className="py-4 pr-4">
+      {/* 24h Change - hidden on smaller screens */}
+      <td className="py-4 pr-4 hidden md:table-cell">
         <span
           className={`font-mono text-sm ${
             isPositive ? 'price-up' : 'price-down'
@@ -129,10 +125,10 @@ export default function AssetRow({ asset, index }: AssetRowProps) {
         </span>
       </td>
 
-      {/* Chain */}
-      <td className="py-4">
+      {/* Chain - hidden on smaller screens */}
+      <td className="py-4 hidden lg:table-cell">
         <span
-          className="text-xs px-2 py-1 rounded-full"
+          className="text-xs px-2 py-1 rounded-full whitespace-nowrap"
           style={{
             backgroundColor: chainConfig.color + '15',
             color: chainConfig.color,

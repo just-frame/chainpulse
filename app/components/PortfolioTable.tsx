@@ -2,12 +2,39 @@
 
 import type { Asset } from '@/types';
 import AssetRow from './AssetRow';
+import { AssetRowSkeleton } from './ui/Skeleton';
 
 interface PortfolioTableProps {
   assets: Asset[];
+  isLoading?: boolean;
 }
 
-export default function PortfolioTable({ assets }: PortfolioTableProps) {
+export default function PortfolioTable({ assets, isLoading = false }: PortfolioTableProps) {
+  // Show skeletons while loading
+  if (isLoading && assets.length === 0) {
+    return (
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-[var(--border)]">
+              <th className="py-3 pr-4 text-left w-12">#</th>
+              <th className="py-3 pr-4 text-left">Asset</th>
+              <th className="py-3 pr-4 text-left hidden sm:table-cell">Price</th>
+              <th className="py-3 pr-4 text-left">Holdings</th>
+              <th className="py-3 pr-4 text-left hidden md:table-cell">24h</th>
+              <th className="py-3 text-left hidden lg:table-cell">Chain</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <AssetRowSkeleton key={i} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
   if (assets.length === 0) {
     return (
       <div className="text-center py-12 text-[var(--text-muted)]">
@@ -21,16 +48,16 @@ export default function PortfolioTable({ assets }: PortfolioTableProps) {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
+    <div className="overflow-x-auto -mx-6 px-6">
+      <table className="w-full min-w-[500px]">
         <thead>
           <tr className="border-b border-[var(--border)]">
             <th className="py-3 pr-4 text-left w-12">#</th>
             <th className="py-3 pr-4 text-left">Asset</th>
-            <th className="py-3 pr-4 text-left">Price</th>
+            <th className="py-3 pr-4 text-left hidden sm:table-cell">Price</th>
             <th className="py-3 pr-4 text-left">Holdings</th>
-            <th className="py-3 pr-4 text-left">24h</th>
-            <th className="py-3 text-left">Chain</th>
+            <th className="py-3 pr-4 text-left hidden md:table-cell">24h</th>
+            <th className="py-3 text-left hidden lg:table-cell">Chain</th>
           </tr>
         </thead>
         <tbody>
