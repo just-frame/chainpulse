@@ -335,11 +335,19 @@ export function usePortfolio(): UsePortfolioReturn {
               const walletKey = getWalletKey(w.address, w.chain);
               console.log('[usePortfolio] Fetching saved wallet:', walletKey);
               const data = await fetchWalletData(w.address, w.chain as Chain);
+              console.log('[usePortfolio] Got data for', walletKey, '- assets:', data.assets.length, 'nfts:', data.nfts.length, 'domains:', data.domains.length);
               newData[walletKey] = data;
             })
           );
           
-          console.log('[usePortfolio] Loaded saved wallets:', Object.keys(newData).length);
+          // Log total aggregated data
+          let totalAssets = 0;
+          let totalDomains = 0;
+          Object.values(newData).forEach(d => {
+            totalAssets += d.assets.length;
+            totalDomains += d.domains.length;
+          });
+          console.log('[usePortfolio] Loaded saved wallets:', Object.keys(newData).length, '- total assets:', totalAssets, 'domains:', totalDomains);
           setWalletData(newData);
           setLastUpdated(new Date());
         } catch (err) {
