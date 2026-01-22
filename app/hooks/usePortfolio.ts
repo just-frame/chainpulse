@@ -412,8 +412,9 @@ export function usePortfolio(): UsePortfolioReturn {
       }
       // Detect sign in: wasn't logged in, now is
       if (!prevUserRef.current && user) {
-        console.log('[usePortfolio] User signed in, resetting local wallet flag');
+        console.log('[usePortfolio] User signed in, resetting flags to reload from Supabase');
         hasLoadedLocalWallets.current = false;
+        hasLoadedSavedWallets.current = false; // Reset so saved wallets will load
         // Clear anonymous wallet data - will reload from Supabase
         setWalletData({});
       }
