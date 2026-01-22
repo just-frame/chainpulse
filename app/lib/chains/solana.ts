@@ -248,9 +248,11 @@ async function getSolBalance(address: string): Promise<number> {
  */
 async function getTokensWithHelius(address: string): Promise<SolanaBalance[]> {
   if (!HELIUS_DAS_API) {
-    console.warn('Helius API key not set, falling back to basic RPC');
+    console.warn('[Solana] Helius API key not set, falling back to basic RPC');
     return getTokensBasic(address);
   }
+
+  console.log('[Solana] Fetching tokens for:', address);
 
   try {
     const response = await fetch(HELIUS_DAS_API, {
@@ -268,7 +270,21 @@ async function getTokensWithHelius(address: string): Promise<SolanaBalance[]> {
       }),
     });
 
+    if (!response.ok) {
+      console.error('[Solana] Helius API error:', response.status, response.statusText);
+      return getTokensBasic(address);
+    }
+
     const data = await response.json();
+    
+    // Check for API error
+    if (data.error) {
+      console.error('[Solana] Helius API returned error:', data.error);
+      return getTokensBasic(address);
+    }
+
+    console.log('[Solana] Helius response - nativeBalance:', data.result?.nativeBalance?.lamports, 'items:', data.result?.items?.length || 0);
+
     const balances: SolanaBalance[] = [];
     const mints: string[] = [];
 
@@ -361,9 +377,11 @@ async function getTokensWithHelius(address: string): Promise<SolanaBalance[]> {
     // Sort by value descending
     enrichedBalances.sort((a, b) => (b.value || 0) - (a.value || 0));
 
+    console.log('[Solana] Token results - raw:', balances.length, 'after dust filter:', enrichedBalances.length);
+    
     return enrichedBalances;
   } catch (error) {
-    console.error('Error fetching tokens with Helius DAS:', error);
+    console.error('[Solana] Error fetching tokens with Helius DAS:', error);
     return getTokensBasic(address);
   }
 }
