@@ -45,30 +45,35 @@ export default function DomainList({ domains, isLoading = false }: DomainListPro
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+    <div className="flex flex-col gap-2 sm:grid sm:grid-cols-2 sm:gap-3">
       {domains.map((domain, index) => (
         <div
           key={domain.mint}
-          className="flex items-center gap-3 p-3 sm:p-4 bg-[var(--bg-tertiary)]/50 border border-[var(--border)] rounded-xl animate-fadeIn hover:border-[var(--accent-green)]/50 transition-all"
+          className="flex items-center gap-3 p-4 bg-[var(--bg-tertiary)]/50 border border-[var(--border)] rounded-xl animate-fadeIn hover:border-[var(--accent-primary)]/50 transition-all"
           style={{ animationDelay: `${index * 30}ms` }}
         >
           {/* Icon */}
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[var(--accent-green)]/10 flex items-center justify-center shrink-0">
-            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--accent-green)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-10 h-10 rounded-lg bg-[var(--accent-primary)]/10 flex items-center justify-center shrink-0">
+            <svg className="w-5 h-5 text-[var(--accent-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
             </svg>
           </div>
-          
+
           {/* Domain info */}
           <div className="min-w-0 flex-1">
-            <p className="font-mono text-sm sm:text-base font-medium truncate">{domain.name}</p>
-            <div className="flex items-center gap-2 text-[10px] sm:text-xs text-[var(--text-muted)]">
-              <span>{domain.name.endsWith('.sol') ? 'SNS' : 'ENS'}</span>
+            <p className="font-mono text-base font-medium truncate">{domain.name}</p>
+            <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+              <span
+                className="px-1.5 py-0.5 rounded text-[10px] font-medium"
+                style={{
+                  backgroundColor: domain.name.endsWith('.sol') ? '#9945FF15' : '#627EEA15',
+                  color: domain.name.endsWith('.sol') ? '#9945FF' : '#627EEA',
+                }}
+              >
+                {domain.name.endsWith('.sol') ? 'Solana' : 'Ethereum'}
+              </span>
               {domain.purchaseDate && (
-                <>
-                  <span>•</span>
-                  <span>{formatDate(domain.purchaseDate)}</span>
-                </>
+                <span>{formatDate(domain.purchaseDate)}</span>
               )}
             </div>
           </div>

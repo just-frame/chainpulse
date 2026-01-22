@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import type { Asset } from '@/types';
 import AssetRow from './AssetRow';
+import AssetCard from './AssetCard';
 import { AssetRowSkeleton } from './ui/Skeleton';
 
 interface PortfolioTableProps {
@@ -12,6 +13,7 @@ interface PortfolioTableProps {
 
 export default function PortfolioTable({ assets, isLoading = false }: PortfolioTableProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [showAll, setShowAll] = useState(false);
 
   // Filter assets based on search query
   const filteredAssets = useMemo(() => {
@@ -25,28 +27,50 @@ export default function PortfolioTable({ assets, isLoading = false }: PortfolioT
     );
   }, [assets, searchQuery]);
 
+  // Limit display on mobile
+  const displayAssets = showAll ? filteredAssets : filteredAssets.slice(0, 8);
+  const hasMore = filteredAssets.length > 8;
+
   // Show skeletons while loading
   if (isLoading && assets.length === 0) {
     return (
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-[var(--border)]">
-              <th className="py-3 pr-4 text-left w-12">#</th>
-              <th className="py-3 pr-4 text-left">Asset</th>
-              <th className="py-3 pr-4 text-left hidden sm:table-cell">Price</th>
-              <th className="py-3 pr-4 text-left">Holdings</th>
-              <th className="py-3 pr-4 text-left hidden md:table-cell">24h</th>
-              <th className="py-3 text-left hidden lg:table-cell">Chain</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[1, 2, 3, 4, 5].map((i) => (
-              <AssetRowSkeleton key={i} />
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <>
+        {/* Mobile skeleton - cards */}
+        <div className="md:hidden flex flex-col gap-3">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-[var(--bg-tertiary)]/50 border border-[var(--border)] rounded-xl p-4 animate-pulse">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-[var(--bg-tertiary)]" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-[var(--bg-tertiary)] rounded w-24" />
+                  <div className="h-3 bg-[var(--bg-tertiary)] rounded w-32" />
+                  <div className="h-5 bg-[var(--bg-tertiary)] rounded w-20" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Desktop skeleton - table */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-[var(--border)]">
+                <th className="py-3 pr-4 text-left w-12">#</th>
+                <th className="py-3 pr-4 text-left">Asset</th>
+                <th className="py-3 pr-4 text-left">Price</th>
+                <th className="py-3 pr-4 text-left">Holdings</th>
+                <th className="py-3 pr-4 text-left">24h</th>
+                <th className="py-3 text-left hidden lg:table-cell">Chain</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <AssetRowSkeleton key={i} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </>
     );
   }
 
@@ -85,7 +109,7 @@ export default function PortfolioTable({ assets, isLoading = false }: PortfolioT
             placeholder="Search assets..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-sm bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--accent-blue)] focus:outline-none transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 text-sm bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--accent-blue)] focus:outline-none transition-colors"
           />
           {searchQuery && (
             <button
@@ -113,17 +137,38 @@ export default function PortfolioTable({ assets, isLoading = false }: PortfolioT
         </div>
       )}
 
-      {/* Table */}
+      {/* Mobile: Card layout */}
       {filteredAssets.length > 0 && (
-        <div className="overflow-x-auto -mx-6 px-6">
+        <div className="md:hidden flex flex-col gap-3">
+          {displayAssets.map((asset, index) => (
+            <AssetCard
+              key={`${asset.symbol}-${asset.chain}-${asset.isStaked}`}
+              asset={asset}
+              index={index}
+            />
+          ))}
+          {hasMore && (
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="py-3 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors border border-[var(--border)] rounded-xl hover:bg-[var(--bg-hover)]"
+            >
+              {showAll ? 'Show less' : `Show all ${filteredAssets.length} assets`}
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Desktop: Table layout */}
+      {filteredAssets.length > 0 && (
+        <div className="hidden md:block overflow-x-auto -mx-6 px-6">
           <table className="w-full min-w-[500px]">
             <thead>
               <tr className="border-b border-[var(--border)]">
                 <th className="py-3 pr-4 text-left w-12">#</th>
                 <th className="py-3 pr-4 text-left">Asset</th>
-                <th className="py-3 pr-4 text-left hidden sm:table-cell">Price</th>
+                <th className="py-3 pr-4 text-left">Price</th>
                 <th className="py-3 pr-4 text-left">Holdings</th>
-                <th className="py-3 pr-4 text-left hidden md:table-cell">24h</th>
+                <th className="py-3 pr-4 text-left">24h</th>
                 <th className="py-3 text-left hidden lg:table-cell">Chain</th>
               </tr>
             </thead>

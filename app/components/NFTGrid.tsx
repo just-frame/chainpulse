@@ -16,7 +16,7 @@ export default function NFTGrid({ nfts, isLoading = false }: NFTGridProps) {
   // Show skeletons while loading
   if (isLoading && nfts.length === 0) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <NFTCardSkeleton key={i} />
         ))}
@@ -103,7 +103,7 @@ export default function NFTGrid({ nfts, isLoading = false }: NFTGridProps) {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
             {displayNfts.map((nft, index) => (
               <NFTCard key={nft.mint} nft={nft} index={index} />
             ))}
