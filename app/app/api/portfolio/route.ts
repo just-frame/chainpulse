@@ -11,6 +11,39 @@ import { getLitecoinHoldings } from '@/lib/chains/litecoin';
 import { getTronPortfolio } from '@/lib/chains/tron';
 import type { Asset, Chain, NFT, Domain } from '@/types';
 
+// Allowed chains for validation
+const ALLOWED_CHAINS: Chain[] = [
+  'bitcoin', 'ethereum', 'solana', 'hyperliquid', 'hyperevm',
+  'polygon', 'base', 'xrp', 'dogecoin', 'zcash', 'cardano', 'litecoin', 'tron'
+];
+
+// Address validation patterns per chain
+const ADDRESS_PATTERNS: Record<string, RegExp> = {
+  ethereum: /^0x[a-fA-F0-9]{40}$/,
+  hyperliquid: /^0x[a-fA-F0-9]{40}$/,
+  hyperevm: /^0x[a-fA-F0-9]{40}$/,
+  polygon: /^0x[a-fA-F0-9]{40}$/,
+  base: /^0x[a-fA-F0-9]{40}$/,
+  solana: /^[1-9A-HJ-NP-Za-km-z]{32,44}$/,
+  bitcoin: /^(1[a-km-zA-HJ-NP-Z1-9]{25,34}|3[a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-zA-HJ-NP-Z0-9]{39,59})$/,
+  xrp: /^r[1-9A-HJ-NP-Za-km-z]{24,34}$/,
+  dogecoin: /^[DA][1-9A-HJ-NP-Za-km-z]{33}$/,
+  zcash: /^(t[13][a-zA-Z0-9]{33}|zs1[a-z0-9]{75,}|u1[a-z0-9]{100,})$/,
+  cardano: /^(addr1|stake1)[a-z0-9]{50,}$/,
+  litecoin: /^([LM][a-km-zA-HJ-NP-Z1-9]{26,33}|ltc1[a-z0-9]{39,59})$/,
+  tron: /^T[1-9A-HJ-NP-Za-km-z]{33}$/,
+};
+
+function isValidChain(chain: string): chain is Chain {
+  return ALLOWED_CHAINS.includes(chain as Chain);
+}
+
+function isValidAddress(address: string, chain: Chain): boolean {
+  const pattern = ADDRESS_PATTERNS[chain];
+  if (!pattern) return false;
+  return pattern.test(address);
+}
+
 // Token name mapping
 const TOKEN_NAMES: { [key: string]: string } = {
   // Hyperliquid
@@ -136,10 +169,32 @@ async function fetchPrices(symbols: string[]): Promise<{ [key: string]: { price:
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const address = searchParams.get('address');
-  const chain = searchParams.get('chain') as Chain;
+  const chainParam = searchParams.get('chain');
 
+  // Validate required params
   if (!address) {
     return NextResponse.json({ error: 'Address is required' }, { status: 400 });
+  }
+
+  if (!chainParam) {
+    return NextResponse.json({ error: 'Chain is required' }, { status: 400 });
+  }
+
+  // Validate chain is allowed
+  if (!isValidChain(chainParam)) {
+    return NextResponse.json({ error: 'Invalid chain' }, { status: 400 });
+  }
+
+  const chain = chainParam;
+
+  // Validate address format for this chain
+  if (!isValidAddress(address, chain)) {
+    return NextResponse.json({ error: 'Invalid address format for this chain' }, { status: 400 });
+  }
+
+  // Additional security: limit address length
+  if (address.length > 150) {
+    return NextResponse.json({ error: 'Address too long' }, { status: 400 });
   }
 
   try {

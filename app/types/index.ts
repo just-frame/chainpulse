@@ -169,7 +169,7 @@ export const CHAIN_CONFIG: Record<Chain, ChainConfig> = {
     name: 'XRP',
     nativeToken: 'XRP',
     explorer: 'https://xrpscan.com',
-    color: '#23292f',
+    color: '#00aae4',
   },
   dogecoin: {
     id: 'dogecoin',
