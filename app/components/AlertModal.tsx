@@ -6,7 +6,7 @@ import type { Alert } from '@/hooks/useAlerts';
 
 // Data for creating a new alert (uses camelCase for API)
 export interface CreateAlertData {
-  type: 'price' | 'percent_change';
+  type: 'price';
   asset: string;
   assetName: string;
   condition: 'above' | 'below';
@@ -23,7 +23,6 @@ interface AlertModalProps {
 }
 
 export default function AlertModal({ isOpen, onClose, onSave, assets, editingAlert }: AlertModalProps) {
-  const [type, setType] = useState<'price' | 'percent_change'>('price');
   const [selectedAsset, setSelectedAsset] = useState('');
   const [condition, setCondition] = useState<'above' | 'below'>('above');
   const [threshold, setThreshold] = useState('');
@@ -48,12 +47,10 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
     if (isOpen && !hasInitialized.current) {
       hasInitialized.current = true;
       if (editingAlert) {
-        setType(editingAlert.type);
         setSelectedAsset(editingAlert.asset);
         setCondition(editingAlert.condition);
         setThreshold(editingAlert.threshold.toString());
       } else {
-        setType('price');
         setSelectedAsset(uniqueAssets[0]?.symbol || '');
         setCondition('above');
         setThreshold('');
@@ -88,7 +85,7 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
     setIsSubmitting(true);
     try {
       await onSave({
-        type,
+        type: 'price',
         asset: selectedAsset,
         assetName: asset.name,
         condition,
@@ -136,49 +133,6 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Alert Type - Large Segmented Control */}
-          <div>
-            <label className="block text-sm font-medium text-[var(--text-secondary)] mb-3">
-              Alert Type
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setType('price')}
-                className={`
-                  flex flex-col items-center justify-center gap-2 p-4 rounded-xl text-base font-medium transition-all border-2
-                  ${type === 'price'
-                    ? 'bg-[var(--accent-blue)]/10 border-[var(--accent-blue)] text-[var(--accent-blue)]'
-                    : 'bg-[var(--bg-tertiary)] border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
-                  }
-                `}
-              >
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>Price Alert</span>
-                <span className="text-xs opacity-70">When price hits target</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setType('percent_change')}
-                className={`
-                  flex flex-col items-center justify-center gap-2 p-4 rounded-xl text-base font-medium transition-all border-2
-                  ${type === 'percent_change'
-                    ? 'bg-[var(--accent-blue)]/10 border-[var(--accent-blue)] text-[var(--accent-blue)]'
-                    : 'bg-[var(--bg-tertiary)] border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
-                  }
-                `}
-              >
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
-                </svg>
-                <span>% Change</span>
-                <span className="text-xs opacity-70">When price moves X%</span>
-              </button>
-            </div>
-          </div>
-
           {/* Asset Selection */}
           <div>
             <label className="block text-sm font-medium text-[var(--text-secondary)] mb-3">
@@ -227,7 +181,7 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
                 </svg>
-                {type === 'price' ? 'Goes Above' : 'Rises By'}
+                Goes Above
               </button>
               <button
                 type="button"
@@ -243,7 +197,7 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                 </svg>
-                {type === 'price' ? 'Goes Below' : 'Drops By'}
+                Goes Below
               </button>
             </div>
           </div>
@@ -251,11 +205,11 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
           {/* Threshold */}
           <div>
             <label htmlFor="threshold-input" className="block text-sm font-medium text-[var(--text-secondary)] mb-3">
-              {type === 'price' ? 'Target Price (USD)' : 'Percentage Change (%)'}
+              Target Price (USD)
             </label>
             <div className="flex items-center gap-3">
               <span className="text-[var(--text-muted)] text-xl font-mono shrink-0">
-                {type === 'price' ? '$' : ''}
+                $
               </span>
               <input
                 id="threshold-input"
@@ -264,15 +218,12 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
                 min="0"
                 value={threshold}
                 onChange={(e) => setThreshold(e.target.value)}
-                placeholder={type === 'price' ? '150.00' : '10'}
+                placeholder="150.00"
                 className="w-full p-4 bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] text-lg font-mono focus:border-[var(--accent-blue)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-blue)]/20"
                 style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
               />
-              {type === 'percent_change' && (
-                <span className="text-[var(--text-muted)] text-xl font-mono shrink-0">%</span>
-              )}
             </div>
-            {type === 'price' && currentPrice > 0 && threshold && parseFloat(threshold) > 0 && (
+            {currentPrice > 0 && threshold && parseFloat(threshold) > 0 && (
               <p className="text-sm text-[var(--text-muted)] mt-2">
                 Alert when <span className="text-[var(--text-primary)] font-medium">{selectedAsset}</span>
                 {condition === 'above' ? ' rises above ' : ' drops below '}

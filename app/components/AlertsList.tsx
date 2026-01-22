@@ -110,7 +110,7 @@ function AlertItem({
 
       {/* Middle: Alert condition */}
       <p className="text-sm text-[var(--text-secondary)] mb-3">
-        {alert.type === 'price' ? 'Alert when price' : 'Alert when change'}{' '}
+        Alert when price{' '}
         <span className={`font-medium ${alert.condition === 'above' ? 'text-[var(--accent-green)]' : 'text-[var(--accent-red)]'}`}>
           {alert.condition === 'above' ? '↑ goes above' : '↓ drops below'}
         </span>{' '}
@@ -119,11 +119,8 @@ function AlertItem({
         </span>
       </p>
 
-      {/* Bottom row: Type badge + Actions */}
-      <div className="flex items-center justify-between">
-        <span className="text-xs px-2 py-1 rounded-full bg-[var(--bg-tertiary)] text-[var(--text-muted)]">
-          {alert.type === 'price' ? '💰 Price' : '📊 % Change'}
-        </span>
+      {/* Bottom row: Actions */}
+      <div className="flex items-center justify-end">
         
         <div className="flex items-center gap-1">
           {onEdit && (
