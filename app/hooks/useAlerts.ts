@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from './useAuth';
 
 export interface Alert {
@@ -20,6 +20,8 @@ export function useAlerts() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastCheckResult, setLastCheckResult] = useState<{ checked: number; triggered: number } | null>(null);
+  const hasCheckedAlerts = useRef(false);
 
   const fetchAlerts = useCallback(async () => {
     if (!user) {
@@ -46,11 +48,52 @@ export function useAlerts() {
     }
   }, [user]);
 
+  // Check alerts against current prices and send notifications
+  const checkAlerts = useCallback(async () => {
+    if (!user) return null;
+
+    try {
+      console.log('[useAlerts] Checking alerts...');
+      const response = await fetch('/api/alerts/check', { method: 'POST' });
+      if (!response.ok) {
+        console.error('[useAlerts] Check failed:', response.status);
+        return null;
+      }
+      const result = await response.json();
+      console.log('[useAlerts] Check result:', result);
+      setLastCheckResult(result);
+      
+      // Refetch alerts to update last_triggered timestamps
+      if (result.triggered > 0) {
+        await fetchAlerts();
+      }
+      
+      return result;
+    } catch (err) {
+      console.error('[useAlerts] Error checking alerts:', err);
+      return null;
+    }
+  }, [user, fetchAlerts]);
+
   useEffect(() => {
     if (!authLoading) {
       fetchAlerts();
     }
   }, [authLoading, fetchAlerts]);
+
+  // Check alerts once when user first loads (with enabled alerts)
+  useEffect(() => {
+    if (!authLoading && user && alerts.length > 0 && !hasCheckedAlerts.current) {
+      const enabledAlerts = alerts.filter(a => a.enabled);
+      if (enabledAlerts.length > 0) {
+        hasCheckedAlerts.current = true;
+        // Delay slightly to not block initial render
+        setTimeout(() => {
+          checkAlerts();
+        }, 2000);
+      }
+    }
+  }, [authLoading, user, alerts, checkAlerts]);
 
   const createAlert = useCallback(async (alertData: {
     type: 'price' | 'percent_change';
@@ -132,10 +175,12 @@ export function useAlerts() {
     alerts,
     loading,
     error,
+    lastCheckResult,
     createAlert,
     updateAlert,
     deleteAlert,
     toggleAlert,
+    checkAlerts,
     refetch: fetchAlerts,
   };
 }
