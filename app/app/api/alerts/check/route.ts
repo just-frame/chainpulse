@@ -10,9 +10,12 @@ const CACHE_TTL = 60000; // 1 minute
  * Fetch current price for an asset from CoinGecko
  */
 async function getAssetPrice(symbol: string): Promise<number | null> {
+  console.log(`[AlertCheck] getAssetPrice called with symbol: "${symbol}"`);
+  
   // Check cache first
   const cached = priceCache[symbol];
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    console.log(`[AlertCheck] Returning cached price for ${symbol}: ${cached.price}`);
     return cached.price;
   }
 
@@ -33,26 +36,31 @@ async function getAssetPrice(symbol: string): Promise<number | null> {
   };
 
   const coinId = symbolToId[symbol.toUpperCase()] || symbol.toLowerCase();
+  console.log(`[AlertCheck] Mapped symbol "${symbol}" to CoinGecko ID: "${coinId}"`);
 
   try {
-    const response = await fetch(
-      `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`,
-      { next: { revalidate: 60 } }
-    );
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`;
+    console.log(`[AlertCheck] Fetching: ${url}`);
+    
+    const response = await fetch(url, { cache: 'no-store' });
 
     if (!response.ok) {
-      console.error(`[AlertCheck] CoinGecko error for ${symbol}:`, response.status);
+      console.error(`[AlertCheck] CoinGecko error for ${symbol}: status ${response.status}`);
       return null;
     }
 
     const data = await response.json();
+    console.log(`[AlertCheck] CoinGecko response:`, JSON.stringify(data));
+    
     const price = data[coinId]?.usd;
 
     if (price) {
       priceCache[symbol] = { price, timestamp: Date.now() };
+      console.log(`[AlertCheck] Got price for ${symbol}: $${price}`);
       return price;
     }
 
+    console.log(`[AlertCheck] No price found in response for ${coinId}`);
     return null;
   } catch (err) {
     console.error(`[AlertCheck] Failed to fetch price for ${symbol}:`, err);
@@ -98,18 +106,22 @@ export async function POST(request: NextRequest) {
   const checked = alerts.length;
 
   for (const alert of alerts) {
+    console.log(`[AlertCheck] Processing alert: asset=${alert.asset}, type=${alert.type}, condition=${alert.condition}, threshold=${alert.threshold}`);
+    
     // Skip if triggered within last hour (prevent spam)
     if (alert.last_triggered) {
       const lastTriggered = new Date(alert.last_triggered).getTime();
       const hourAgo = Date.now() - 60 * 60 * 1000;
       if (lastTriggered > hourAgo) {
-        console.log(`[AlertCheck] Skipping ${alert.id} - triggered recently`);
+        console.log(`[AlertCheck] Skipping ${alert.id} - triggered recently at ${alert.last_triggered}`);
         continue;
       }
     }
 
     // Get current price
     const currentPrice = await getAssetPrice(alert.asset);
+    console.log(`[AlertCheck] Price for ${alert.asset}: ${currentPrice}`);
+    
     if (currentPrice === null) {
       console.log(`[AlertCheck] Could not get price for ${alert.asset}`);
       continue;
@@ -119,6 +131,7 @@ export async function POST(request: NextRequest) {
     let shouldTrigger = false;
     
     if (alert.type === 'price') {
+      console.log(`[AlertCheck] Comparing: currentPrice(${currentPrice}) ${alert.condition} threshold(${alert.threshold})`);
       if (alert.condition === 'above' && currentPrice > alert.threshold) {
         shouldTrigger = true;
       } else if (alert.condition === 'below' && currentPrice < alert.threshold) {
@@ -126,6 +139,8 @@ export async function POST(request: NextRequest) {
       }
     }
     // TODO: Implement percent_change alerts (requires tracking previous prices)
+
+    console.log(`[AlertCheck] shouldTrigger = ${shouldTrigger}`);
 
     if (shouldTrigger) {
       console.log(`[AlertCheck] Alert triggered: ${alert.asset} ${alert.condition} ${alert.threshold}`);
