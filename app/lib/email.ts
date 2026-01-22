@@ -1,9 +1,21 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 // Default "from" address - use Resend's default until you verify your domain
 const FROM_EMAIL = 'Chainpulse <onboarding@resend.dev>';
+
+// Lazy initialization to avoid build-time errors
+let resendClient: Resend | null = null;
+
+function getResendClient(): Resend {
+  if (!resendClient) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      throw new Error('RESEND_API_KEY is not configured');
+    }
+    resendClient = new Resend(apiKey);
+  }
+  return resendClient;
+}
 
 interface PriceAlertEmailProps {
   to: string;
@@ -96,6 +108,7 @@ View your portfolio: https://chainpulsetest1.vercel.app
   `.trim();
 
   try {
+    const resend = getResendClient();
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to,
