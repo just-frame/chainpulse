@@ -145,25 +145,35 @@ export async function POST(request: NextRequest) {
     if (shouldTrigger) {
       console.log(`[AlertCheck] Alert triggered: ${alert.asset} ${alert.condition} ${alert.threshold}`);
       
-      // Send email
-      const emailResult = await sendPriceAlertEmail({
-        to: userEmail,
-        assetName: alert.asset_name || alert.asset,
-        assetSymbol: alert.asset,
-        condition: alert.condition,
-        threshold: alert.threshold,
-        currentPrice,
-        alertType: alert.type,
-      });
-
-      if (emailResult.success) {
-        // Update last_triggered timestamp
-        await supabase
-          .from('alerts')
-          .update({ last_triggered: new Date().toISOString() })
-          .eq('id', alert.id);
-
-        triggered.push(alert.id);
+      // Mark as triggered FIRST (so in-app notifications work regardless of email)
+      triggered.push(alert.id);
+      
+      // Update last_triggered timestamp
+      await supabase
+        .from('alerts')
+        .update({ last_triggered: new Date().toISOString() })
+        .eq('id', alert.id);
+      
+      // Try to send email (don't block on failure)
+      try {
+        const emailResult = await sendPriceAlertEmail({
+          to: userEmail,
+          assetName: alert.asset_name || alert.asset,
+          assetSymbol: alert.asset,
+          condition: alert.condition,
+          threshold: alert.threshold,
+          currentPrice,
+          alertType: alert.type,
+        });
+        
+        if (emailResult.success) {
+          console.log(`[AlertCheck] Email sent successfully for ${alert.asset}`);
+        } else {
+          console.warn(`[AlertCheck] Email failed for ${alert.asset}:`, emailResult.error);
+        }
+      } catch (emailError) {
+        console.error(`[AlertCheck] Email error for ${alert.asset}:`, emailError);
+        // Don't throw - alert is still triggered, just email failed
       }
     }
   }
