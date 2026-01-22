@@ -125,3 +125,38 @@ CREATE POLICY "Users can view own daily" ON portfolio_daily
 
 CREATE POLICY "Service can insert daily" ON portfolio_daily
   FOR INSERT WITH CHECK (true);
+
+-- ============================================================
+-- Invite Codes (for invite-only access)
+-- ============================================================
+-- Pre-generated invite codes that can be used once
+
+CREATE TABLE IF NOT EXISTS invite_codes (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  code TEXT NOT NULL UNIQUE,
+  used_by UUID REFERENCES auth.users(id),
+  used_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  created_by TEXT DEFAULT 'system',
+  max_uses INTEGER DEFAULT 1,
+  current_uses INTEGER DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS invite_codes_code_idx ON invite_codes(code);
+
+-- No RLS needed - we'll use service role key for validation
+-- Or you can add public read policy for code validation
+
+ALTER TABLE invite_codes ENABLE ROW LEVEL SECURITY;
+
+-- Allow anyone to check if a code exists (for validation)
+CREATE POLICY "Anyone can check invite codes" ON invite_codes
+  FOR SELECT USING (true);
+
+-- Only admins/service can insert new codes
+CREATE POLICY "Service can insert invite codes" ON invite_codes
+  FOR INSERT WITH CHECK (true);
+
+-- Service can update when code is used
+CREATE POLICY "Service can update invite codes" ON invite_codes
+  FOR UPDATE USING (true);

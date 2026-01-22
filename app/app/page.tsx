@@ -10,6 +10,7 @@ import DomainList from '@/components/DomainList';
 import TabNav from '@/components/TabNav';
 import AlertModal, { CreateAlertData } from '@/components/AlertModal';
 import AlertsList from '@/components/AlertsList';
+import InviteCodeModal from '@/components/InviteCodeModal';
 import { usePortfolio } from '@/hooks/usePortfolio';
 import { useAlerts, type Alert, type AlertCheckResult } from '@/hooks/useAlerts';
 import { useToast } from '@/components/ui/Toast';
@@ -20,8 +21,35 @@ export default function Dashboard() {
   const [showAlertModal, setShowAlertModal] = useState(false);
   const [showAlertsPanel, setShowAlertsPanel] = useState(false);
   const [editingAlert, setEditingAlert] = useState<Alert | null>(null);
+  const [isInvited, setIsInvited] = useState<boolean | null>(null); // null = loading, true = invited, false = not invited
   const { addToast } = useToast();
   const lastCheckRef = useRef<string>('');
+
+  // Check if user has already entered an invite code
+  useEffect(() => {
+    const invited = localStorage.getItem('chainpulse_invited') === 'true';
+    setIsInvited(invited);
+  }, []);
+
+  // Handle successful invite code entry
+  const handleInviteSuccess = () => {
+    setIsInvited(true);
+    addToast('Welcome to Chainpulse! 🎉', 'success', 5000);
+  };
+
+  // Show invite code modal if not invited
+  if (isInvited === null) {
+    // Still checking localStorage
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#22c55e] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (isInvited === false) {
+    return <InviteCodeModal onSuccess={handleInviteSuccess} />;
+  }
   
   const { 
     assets,
