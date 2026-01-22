@@ -36,7 +36,7 @@ A chain-agnostic crypto portfolio tracker. Track spot holdings, staking, NFTs, a
 - Row Level Security — your data is private
 
 ### 🎨 Modern UI
-- GitHub-style navy dark theme
+- **4 color themes:** Gunmetal, Terracotta, Violet, Amber
 - Mert-style user menu dropdown
 - Wide-screen 12-column layout
 - Mobile responsive
@@ -150,7 +150,7 @@ Auto-deploys on every push to `main`.
 
 ## Roadmap
 
-### ✅ Completed (v0.3.0)
+### ✅ Completed (v0.3.1)
 - Multi-chain support (11 chains)
 - NFT & domain detection
 - User authentication (email + Google)
@@ -170,7 +170,6 @@ Auto-deploys on every push to `main`.
 - Telegram/Discord alerts
 - Portfolio sharing
 - Whale tracking
-- Multiple themes
 
 ---
 

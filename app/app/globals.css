@@ -1,7 +1,44 @@
 @import "tailwindcss";
 
-:root {
-  /* Background - Navy tones instead of pure black */
+/* ============================================
+   THEME: Default (Gunmetal)
+   Clean, neutral, no-nonsense
+   ============================================ */
+:root,
+[data-theme="default"] {
+  /* Background - True dark grays */
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #141414;
+  --bg-tertiary: #1a1a1a;
+  --bg-hover: #222222;
+
+  /* Text */
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1a1;
+  --text-muted: #6b6b6b;
+
+  /* Accents - Classic green/red */
+  --accent-primary: #22c55e;
+  --accent-green: #22c55e;
+  --accent-red: #ef4444;
+  --accent-blue: #3b82f6;
+  --accent-highlight: #fafafa;
+
+  /* Borders */
+  --border: #262626;
+  --border-hover: #363636;
+
+  /* Effects */
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --glow: none;
+}
+
+/* ============================================
+   THEME: Terracotta (Neon Coral)
+   Warm, playful, Memphis design energy
+   ============================================ */
+[data-theme="terracotta"] {
+  /* Background - Warm navy */
   --bg-primary: #0d1117;
   --bg-secondary: #161b22;
   --bg-tertiary: #1c2128;
@@ -12,17 +49,84 @@
   --text-secondary: #8b949e;
   --text-muted: #6e7681;
 
-  /* Accents */
-  --accent-green: #3fb950;
-  --accent-red: #f85149;
-  --accent-blue: #58a6ff;
+  /* Accents - Coral flame palette */
+  --accent-primary: #FF6B6B;
+  --accent-green: #4ECDC4;
+  --accent-red: #FF8A80;
+  --accent-blue: #74b9ff;
+  --accent-highlight: #FFD93D;
 
   /* Borders */
   --border: #21262d;
   --border-hover: #30363d;
 
-  /* Shadows */
+  /* Effects */
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --glow: 0 0 20px rgba(255, 107, 107, 0.15);
+}
+
+/* ============================================
+   THEME: Violet (Phantom)
+   Nocturnal, premium, synthwave
+   ============================================ */
+[data-theme="violet"] {
+  /* Background - Deep purple-tinted black */
+  --bg-primary: #0c0a14;
+  --bg-secondary: #13111c;
+  --bg-tertiary: #1a1726;
+  --bg-hover: #221f2e;
+
+  /* Text */
+  --text-primary: #f4f0ff;
+  --text-secondary: #9d8ec2;
+  --text-muted: #6b5f8a;
+
+  /* Accents - Electric violet palette */
+  --accent-primary: #A855F7;
+  --accent-green: #22D3EE;
+  --accent-red: #FB7185;
+  --accent-blue: #818CF8;
+  --accent-highlight: #FBBF24;
+
+  /* Borders */
+  --border: #2d2640;
+  --border-hover: #3d3555;
+
+  /* Effects */
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --glow: 0 0 20px rgba(168, 85, 247, 0.15);
+}
+
+/* ============================================
+   THEME: Amber (Terminal)
+   Retro-future, Bloomberg meets Cowboy Bebop
+   ============================================ */
+[data-theme="amber"] {
+  /* Background - Warm dark */
+  --bg-primary: #0c0a08;
+  --bg-secondary: #14120e;
+  --bg-tertiary: #1c1914;
+  --bg-hover: #24201a;
+
+  /* Text */
+  --text-primary: #faf5eb;
+  --text-secondary: #b5a892;
+  --text-muted: #7a7060;
+
+  /* Accents - Amber terminal palette */
+  --accent-primary: #F59E0B;
+  --accent-green: #14B8A6;
+  --accent-red: #EF4444;
+  --accent-blue: #F59E0B;
+  --accent-highlight: #FFFFFF;
+
+  /* Borders */
+  --border: #2a2620;
+  --border-hover: #3a352d;
+
+  /* Effects */
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --glow: 0 0 20px rgba(245, 158, 11, 0.1);
 }
 
 * {
@@ -111,7 +215,7 @@ th {
 }
 
 td {
-  padding: 16px 0;
+  padding: 12px 0;
   border-bottom: 1px solid var(--border);
 }
 
@@ -182,7 +286,7 @@ tr:hover td {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 24px;
+  padding: 20px;
 }
 
 /* Animations */

@@ -193,10 +193,10 @@ export default function Dashboard() {
                       <span className="sm:hidden">{wallet.address.slice(0, 4)}...{wallet.address.slice(-3)}</span>
                       <button
                         onClick={() => removeWallet(wallet.address, wallet.chain)}
-                        className="ml-1 opacity-0 group-hover:opacity-100 hover:text-[var(--accent-red)] transition-all"
+                        className="-mr-1 p-2 opacity-0 group-hover:opacity-100 hover:text-[var(--accent-red)] hover:bg-[var(--accent-red)]/10 rounded-lg transition-all"
                         title="Remove wallet"
                       >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M18 6L6 18M6 6l12 12" />
                         </svg>
                       </button>

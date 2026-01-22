@@ -8,7 +8,8 @@ Index of specialized agents for this project.
 
 | Agent | File | Purpose |
 |-------|------|---------|
-| **QA Agent** | [`agents/QA_AGENT.md`](agents/QA_AGENT.md) | UI/UX, security, and code quality review |
+| **Design Agent** | [`agents/DESIGN_AGENT.md`](agents/DESIGN_AGENT.md) | Visual design, aesthetics, cultural fit |
+| **QA Agent** | [`agents/QA_AGENT.md`](agents/QA_AGENT.md) | UI/UX patterns, security, code quality |
 
 ---
 

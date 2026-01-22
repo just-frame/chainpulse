@@ -4,7 +4,7 @@
 
 ---
 
-## Current Status: v0.3.0-alpha (LIVE)
+## Current Status: v0.3.1-alpha (LIVE)
 
 **Production URL:** https://chainpulsetest1.vercel.app
 
@@ -47,6 +47,7 @@
 - [x] Email/password auth (Supabase)
 - [x] Google OAuth sign-in
 - [x] **Mert-style user menu** — dropdown with theme/homepage selectors
+- [x] **4 color themes** — Gunmetal, Terracotta, Violet, Amber (with localStorage persistence)
 - [x] Wallet persistence (signed-in users)
 - [x] LocalStorage fallback (anonymous users)
 - [x] Row Level Security (RLS) — users can't see each other's data
@@ -101,7 +102,6 @@
 ### Other
 - [ ] Hyperliquid perps/positions
 - [ ] Telegram/Discord notifications
-- [ ] Multiple themes (functional)
 - [ ] PWA / Mobile app
 - [ ] Invite-only access system (built, not enabled)
 

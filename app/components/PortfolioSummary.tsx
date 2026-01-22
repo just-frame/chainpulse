@@ -110,19 +110,19 @@ export default function PortfolioSummary({
 
   return (
     <div className="card">
-      <div className="flex flex-col items-center gap-3 py-4">
+      <div className="flex flex-col items-start gap-3 py-4">
         {/* Header with title */}
         <span className="text-[var(--text-muted)] text-sm uppercase tracking-wider">
           Total Portfolio Value
         </span>
-        
+
         {/* Main value */}
         <span className="text-4xl sm:text-5xl font-semibold font-mono tracking-tight">
           {formatCurrency(totalValue)}
         </span>
-        
+
         {/* Enhanced change indicator */}
-        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
           {/* Percentage pill with arrow */}
           <span
             className={`
