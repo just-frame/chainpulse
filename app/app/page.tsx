@@ -274,9 +274,9 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {/* Alerts Panel (Desktop sidebar / Mobile slide-up) */}
+          {/* Alerts Panel - Desktop sidebar */}
           {showAlertsPanel && (
-            <div className="lg:w-80 card p-0 overflow-hidden">
+            <div className="hidden lg:block lg:w-80 card p-0 overflow-hidden">
               <div className="p-4 border-b border-[var(--border)] flex items-center justify-between">
                 <h3 className="font-semibold">Price Alerts</h3>
                 <div className="flex items-center gap-2">
@@ -306,14 +306,6 @@ export default function Dashboard() {
                       </svg>
                     </button>
                   )}
-                  <button
-                    onClick={() => setShowAlertsPanel(false)}
-                    className="p-2 rounded-lg hover:bg-[var(--bg-hover)] transition-colors lg:hidden"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M18 6L6 18M6 6l12 12" />
-                    </svg>
-                  </button>
                 </div>
               </div>
               
@@ -342,6 +334,89 @@ export default function Dashboard() {
           )}
         </div>
       </main>
+
+      {/* Mobile Alerts Panel - Full screen slide up */}
+      {showAlertsPanel && (
+        <div className="lg:hidden fixed inset-0 z-50">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowAlertsPanel(false)}
+          />
+          
+          {/* Panel */}
+          <div className="absolute bottom-0 left-0 right-0 bg-[var(--bg-primary)] rounded-t-3xl max-h-[85vh] overflow-hidden animate-slideUp">
+            {/* Handle */}
+            <div className="flex justify-center pt-3 pb-2">
+              <div className="w-10 h-1 bg-[var(--bg-tertiary)] rounded-full" />
+            </div>
+            
+            {/* Header */}
+            <div className="px-5 pb-4 flex items-center justify-between border-b border-[var(--border)]">
+              <h3 className="text-lg font-semibold">Price Alerts</h3>
+              <div className="flex items-center gap-3">
+                {isAuthenticated && alerts.length > 0 && (
+                  <button
+                    onClick={handleManualCheckAlerts}
+                    className="p-2.5 rounded-xl hover:bg-[var(--bg-hover)] transition-colors text-[var(--text-secondary)]"
+                    title="Check alerts now"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M9 12l2 2 4-4" />
+                      <circle cx="12" cy="12" r="10" />
+                    </svg>
+                  </button>
+                )}
+                {isAuthenticated && (
+                  <button
+                    onClick={() => {
+                      setEditingAlert(null);
+                      setShowAlertModal(true);
+                    }}
+                    className="p-2.5 rounded-xl bg-[var(--accent-blue)] hover:bg-[var(--accent-blue)]/80 transition-colors"
+                    title="Create alert"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                      <path d="M12 5v14M5 12h14" />
+                    </svg>
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowAlertsPanel(false)}
+                  className="p-2.5 rounded-xl hover:bg-[var(--bg-hover)] transition-colors"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            {/* Content */}
+            <div className="p-5 overflow-y-auto max-h-[calc(85vh-100px)]">
+              {!isAuthenticated ? (
+                <div className="text-center py-12 text-[var(--text-muted)]">
+                  <svg className="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <p className="text-base">Sign in to create alerts</p>
+                </div>
+              ) : alertsLoading ? (
+                <div className="text-center py-12 text-[var(--text-muted)]">
+                  <p>Loading alerts...</p>
+                </div>
+              ) : (
+                <AlertsList
+                  alerts={alerts}
+                  onToggle={toggleAlert}
+                  onDelete={deleteAlert}
+                  onEdit={handleEditAlert}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Alert Modal */}
       <AlertModal

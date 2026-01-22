@@ -219,3 +219,42 @@ tr:hover td {
   width: 100px;
   height: 32px;
 }
+
+/* Slide up animation for mobile modals */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 300ms ease-out forwards;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 640px) {
+  /* Larger touch targets */
+  button, a {
+    min-height: 44px;
+  }
+  
+  /* Better table readability on mobile */
+  td {
+    padding: 12px 0;
+  }
+  
+  th {
+    font-size: 10px;
+  }
+  
+  /* Card padding on mobile */
+  .card {
+    padding: 16px;
+    border-radius: 16px;
+  }
+}
