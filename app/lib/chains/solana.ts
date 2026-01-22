@@ -21,6 +21,11 @@ const DEXSCREENER_API = 'https://api.dexscreener.com/latest/dex/tokens';
 // Minimum USD value to show (filters dust)
 const MIN_USD_VALUE = 1.00;
 
+// Cache for Solana portfolio to avoid hitting rate limits
+// Key: address, Value: { data, timestamp }
+const portfolioCache: Map<string, { data: SolanaPortfolio; timestamp: number }> = new Map();
+const CACHE_TTL = 60000; // 60 seconds - more generous to avoid 429s
+
 export interface SolanaBalance {
   mint: string;
   symbol: string;
@@ -815,6 +820,14 @@ async function getSolanaNFTs(address: string, limit = 100): Promise<SolanaNFT[]>
  * Get complete Solana portfolio: tokens, NFTs, and domains
  */
 export async function getSolanaPortfolio(address: string): Promise<SolanaPortfolio> {
+  // Check cache first to avoid rate limits
+  const cached = portfolioCache.get(address.toLowerCase());
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    console.log(`[Solana] Using cached data for ${address.slice(0, 8)} (${Math.round((Date.now() - cached.timestamp) / 1000)}s old)`);
+    return cached.data;
+  }
+
+  console.log(`[Solana] Fetching fresh data for ${address.slice(0, 8)}`);
   console.time(`[Solana] Total fetch for ${address.slice(0, 8)}`);
   
   // Fetch tokens, NFTs, and domains in parallel
@@ -848,7 +861,12 @@ export async function getSolanaPortfolio(address: string): Promise<SolanaPortfol
     acquisitionType: 'unknown' as const,
   }));
 
-  return { tokens, nfts, domains };
+  const portfolio = { tokens, nfts, domains };
+  
+  // Cache the result
+  portfolioCache.set(address.toLowerCase(), { data: portfolio, timestamp: Date.now() });
+  
+  return portfolio;
 }
 
 /**
