@@ -133,15 +133,18 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
-      <Header 
+      <Header
         onAlertsClick={() => setShowAlertsPanel(!showAlertsPanel)}
         alertsCount={activeAlertsCount}
       />
-      
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Main content */}
-          <div className="flex-1 flex flex-col gap-4 sm:gap-6">
+
+      <main className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-6 sm:py-8">
+        {/* Desktop: Two column grid layout for better space usage */}
+        {/* Mobile: Single column stack */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 max-w-[1800px] mx-auto">
+
+          {/* Left column - Summary and Wallet Input */}
+          <div className="xl:col-span-4 flex flex-col gap-4 sm:gap-6">
             {/* Portfolio Summary */}
             <PortfolioSummary
               totalValue={totalValue}
@@ -164,7 +167,7 @@ export default function Dashboard() {
                   <div>
                     <p className="text-[var(--accent-red)] text-sm font-medium">Something went wrong</p>
                     <p className="text-[var(--text-muted)] text-xs mt-1">{error}</p>
-                    <button 
+                    <button
                       onClick={refreshAll}
                       className="text-xs text-[var(--accent-blue)] hover:underline mt-2"
                     >
@@ -200,7 +203,7 @@ export default function Dashboard() {
                     </div>
                   ))}
                 </div>
-                
+
                 {!isAuthenticated && wallets.length > 0 && (
                   <p className="text-xs text-[var(--text-muted)]">
                     <span className="text-yellow-500">⚠</span> Sign in to save your wallets
@@ -209,6 +212,72 @@ export default function Dashboard() {
               </div>
             )}
 
+            {/* Alerts Panel - Desktop (in left column on XL screens) */}
+            {showAlertsPanel && (
+              <div className="hidden xl:block card p-0 overflow-hidden">
+                <div className="p-4 border-b border-[var(--border)] flex items-center justify-between">
+                  <h3 className="font-semibold">Price Alerts</h3>
+                  <div className="flex items-center gap-2">
+                    {isAuthenticated && alerts.length > 0 && (
+                      <button
+                        onClick={handleManualCheckAlerts}
+                        className="p-2 rounded-lg hover:bg-[var(--bg-hover)] transition-colors text-[var(--text-secondary)]"
+                        title="Check alerts now"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M9 12l2 2 4-4" />
+                          <circle cx="12" cy="12" r="10" />
+                        </svg>
+                      </button>
+                    )}
+                    {isAuthenticated && (
+                      <button
+                        onClick={() => {
+                          setEditingAlert(null);
+                          setShowAlertModal(true);
+                        }}
+                        className="p-2 rounded-lg bg-[var(--accent-blue)] hover:bg-[var(--accent-blue)]/80 transition-colors"
+                        title="Create alert"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                          <path d="M12 5v14M5 12h14" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="p-4 max-h-[40vh] overflow-y-auto">
+                  {!isAuthenticated ? (
+                    <div className="text-center py-8 text-[var(--text-muted)]">
+                      <svg className="w-10 h-10 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      <p className="text-sm">Sign in to create alerts</p>
+                    </div>
+                  ) : alertsLoading ? (
+                    <div className="text-center py-8 text-[var(--text-muted)]">
+                      <p className="text-sm">Loading alerts...</p>
+                    </div>
+                  ) : (
+                    <AlertsList
+                      alerts={alerts}
+                      onToggle={toggleAlert}
+                      onDelete={deleteAlert}
+                      onEdit={handleEditAlert}
+                    />
+                  )}
+                </div>
+              </div>
+            )}
+
+            <p className="text-center text-[var(--text-muted)] text-xs px-4 xl:mt-auto">
+              Auto-refreshes every 30s • Data from CoinGecko, DeFiLlama & Helius
+            </p>
+          </div>
+
+          {/* Right column - Holdings Table (wider on desktop) */}
+          <div className="xl:col-span-8 flex flex-col gap-4">
             {/* Holdings Card with Tabs */}
             <div className="card p-0 overflow-hidden">
               {/* Tab Header */}
@@ -223,7 +292,7 @@ export default function Dashboard() {
                     activeTab={activeTab}
                     onTabChange={setActiveTab}
                   />
-                  
+
                   {wallets.length > 0 && (
                     <div className="flex items-center gap-2 shrink-0">
                       {lastUpdated && (
@@ -258,7 +327,7 @@ export default function Dashboard() {
                   )}
                 </div>
               </div>
-              
+
               {/* Tab Content */}
               <div className="p-3 sm:p-6">
                 {activeTab === 'assets' && (
@@ -272,76 +341,13 @@ export default function Dashboard() {
                 )}
               </div>
             </div>
-
-            <p className="text-center text-[var(--text-muted)] text-xs px-4">
-              Auto-refreshes every 30s • Data from CoinGecko, DeFiLlama & Helius
-            </p>
           </div>
-
-          {/* Alerts Panel - Desktop sidebar */}
-          {showAlertsPanel && (
-            <div className="hidden lg:block lg:w-80 card p-0 overflow-hidden">
-              <div className="p-4 border-b border-[var(--border)] flex items-center justify-between">
-                <h3 className="font-semibold">Price Alerts</h3>
-                <div className="flex items-center gap-2">
-                  {isAuthenticated && alerts.length > 0 && (
-                    <button
-                      onClick={handleManualCheckAlerts}
-                      className="p-2 rounded-lg hover:bg-[var(--bg-hover)] transition-colors text-[var(--text-secondary)]"
-                      title="Check alerts now"
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M9 12l2 2 4-4" />
-                        <circle cx="12" cy="12" r="10" />
-                      </svg>
-                    </button>
-                  )}
-                  {isAuthenticated && (
-                    <button
-                      onClick={() => {
-                        setEditingAlert(null);
-                        setShowAlertModal(true);
-                      }}
-                      className="p-2 rounded-lg bg-[var(--accent-blue)] hover:bg-[var(--accent-blue)]/80 transition-colors"
-                      title="Create alert"
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                        <path d="M12 5v14M5 12h14" />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-              </div>
-              
-              <div className="p-4 max-h-96 lg:max-h-[60vh] overflow-y-auto">
-                {!isAuthenticated ? (
-                  <div className="text-center py-8 text-[var(--text-muted)]">
-                    <svg className="w-10 h-10 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                    <p className="text-sm">Sign in to create alerts</p>
-                  </div>
-                ) : alertsLoading ? (
-                  <div className="text-center py-8 text-[var(--text-muted)]">
-                    <p className="text-sm">Loading alerts...</p>
-                  </div>
-                ) : (
-                  <AlertsList
-                    alerts={alerts}
-                    onToggle={toggleAlert}
-                    onDelete={deleteAlert}
-                    onEdit={handleEditAlert}
-                  />
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </main>
 
-      {/* Mobile Alerts Panel - Full screen slide up */}
+      {/* Mobile/Tablet Alerts Panel - Full screen slide up (below xl breakpoint) */}
       {showAlertsPanel && (
-        <div className="lg:hidden fixed inset-0 z-50">
+        <div className="xl:hidden fixed inset-0 z-50">
           {/* Backdrop */}
           <div 
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"

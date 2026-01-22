@@ -64,8 +64,8 @@ export default function PortfolioTable({ assets, isLoading = false }: PortfolioT
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Search input - only show when there are assets */}
-      {assets.length > 3 && (
+      {/* Search input - show when there are assets */}
+      {assets.length > 0 && (
         <div className="relative">
           <svg
             className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]"
