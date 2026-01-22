@@ -13,12 +13,9 @@ export default function Header({ onAlertsClick, alertsCount = 0 }: HeaderProps) 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-[#00ffa3] to-[#00d4aa] rounded-lg flex items-center justify-center">
-              <span className="text-black font-bold text-xs sm:text-sm">⚡</span>
-            </div>
-            <span className="text-base sm:text-lg font-semibold tracking-tight">
-              Chainpulse
+          <div className="flex items-center">
+            <span className="text-base sm:text-lg font-medium tracking-tight text-[var(--text-muted)]">
+              placeholder
             </span>
           </div>
 
