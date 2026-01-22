@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Header from '@/components/Header';
 import PortfolioSummary from '@/components/PortfolioSummary';
 import PortfolioTable from '@/components/PortfolioTable';
@@ -11,7 +11,8 @@ import TabNav from '@/components/TabNav';
 import AlertModal, { CreateAlertData } from '@/components/AlertModal';
 import AlertsList from '@/components/AlertsList';
 import { usePortfolio } from '@/hooks/usePortfolio';
-import { useAlerts, type Alert } from '@/hooks/useAlerts';
+import { useAlerts, type Alert, type AlertCheckResult } from '@/hooks/useAlerts';
+import { useToast } from '@/components/ui/Toast';
 import type { Chain } from '@/types';
 
 export default function Dashboard() {
@@ -19,6 +20,8 @@ export default function Dashboard() {
   const [showAlertModal, setShowAlertModal] = useState(false);
   const [showAlertsPanel, setShowAlertsPanel] = useState(false);
   const [editingAlert, setEditingAlert] = useState<Alert | null>(null);
+  const { addToast } = useToast();
+  const lastCheckRef = useRef<string>('');
   
   const { 
     assets,
@@ -37,10 +40,58 @@ export default function Dashboard() {
   const {
     alerts,
     loading: alertsLoading,
+    lastCheckResult,
     createAlert,
     deleteAlert,
     toggleAlert,
+    checkAlerts,
   } = useAlerts();
+
+  // Show toast notifications when alerts trigger
+  useEffect(() => {
+    if (lastCheckResult && lastCheckResult.triggered > 0 && lastCheckResult.triggeredAlerts) {
+      const resultKey = lastCheckResult.triggeredIds.join(',');
+      if (resultKey !== lastCheckRef.current) {
+        lastCheckRef.current = resultKey;
+        
+        for (const alert of lastCheckResult.triggeredAlerts) {
+          const arrow = alert.condition === 'above' ? '↑' : '↓';
+          const verb = alert.condition === 'above' ? 'went above' : 'dropped below';
+          const threshold = alert.type === 'price' 
+            ? `$${alert.threshold.toLocaleString()}` 
+            : `${alert.threshold}%`;
+          
+          addToast(
+            `${arrow} ${alert.assetName || alert.asset} ${verb} ${threshold}!`,
+            alert.condition === 'above' ? 'success' : 'warning',
+            8000 // Show for 8 seconds
+          );
+        }
+        
+        // Open alerts panel to show the triggered alerts
+        setShowAlertsPanel(true);
+      }
+    }
+  }, [lastCheckResult, addToast]);
+
+  // Manual check alerts - wrapped in useCallback for stability
+  const handleManualCheckAlerts = useCallback(async () => {
+    const result = await checkAlerts();
+    if (result && result.triggered === 0) {
+      addToast('All alerts checked - no conditions met yet', 'info', 3000);
+    }
+  }, [checkAlerts, addToast]);
+
+  // Also check alerts when portfolio refreshes
+  const handleRefreshWithAlertCheck = useCallback(async () => {
+    await refreshAll();
+    // Check alerts after a brief delay to ensure prices are updated
+    if (isAuthenticated && alerts.filter(a => a.enabled).length > 0) {
+      setTimeout(() => {
+        checkAlerts();
+      }, 1000);
+    }
+  }, [refreshAll, isAuthenticated, alerts, checkAlerts]);
 
   // Calculate portfolio totals
   const totalValue = assets.reduce((sum, asset) => sum + asset.value, 0);
@@ -179,7 +230,7 @@ export default function Dashboard() {
                       </span>
                     )}
                     <button
-                      onClick={refreshAll}
+                      onClick={handleRefreshWithAlertCheck}
                       disabled={isLoading}
                       className="p-2 rounded-lg hover:bg-[var(--bg-hover)] transition-colors disabled:opacity-50"
                       title="Refresh"
@@ -229,6 +280,18 @@ export default function Dashboard() {
               <div className="p-4 border-b border-[var(--border)] flex items-center justify-between">
                 <h3 className="font-semibold">Price Alerts</h3>
                 <div className="flex items-center gap-2">
+                  {isAuthenticated && alerts.length > 0 && (
+                    <button
+                      onClick={handleManualCheckAlerts}
+                      className="p-2 rounded-lg hover:bg-[var(--bg-hover)] transition-colors text-[var(--text-secondary)]"
+                      title="Check alerts now"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M9 12l2 2 4-4" />
+                        <circle cx="12" cy="12" r="10" />
+                      </svg>
+                    </button>
+                  )}
                   {isAuthenticated && (
                     <button
                       onClick={() => {

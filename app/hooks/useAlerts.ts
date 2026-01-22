@@ -15,12 +15,28 @@ export interface Alert {
   created_at: string;
 }
 
+export interface TriggeredAlert {
+  id: string;
+  asset: string;
+  assetName: string;
+  condition: 'above' | 'below';
+  threshold: number;
+  type: 'price' | 'percent_change';
+}
+
+export interface AlertCheckResult {
+  checked: number;
+  triggered: number;
+  triggeredIds: string[];
+  triggeredAlerts: TriggeredAlert[];
+}
+
 export function useAlerts() {
   const { user, loading: authLoading } = useAuth();
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [lastCheckResult, setLastCheckResult] = useState<{ checked: number; triggered: number } | null>(null);
+  const [lastCheckResult, setLastCheckResult] = useState<AlertCheckResult | null>(null);
   const hasCheckedAlerts = useRef(false);
 
   const fetchAlerts = useCallback(async () => {
@@ -49,7 +65,7 @@ export function useAlerts() {
   }, [user]);
 
   // Check alerts against current prices and send notifications
-  const checkAlerts = useCallback(async () => {
+  const checkAlerts = useCallback(async (): Promise<AlertCheckResult | null> => {
     if (!user) return null;
 
     try {
@@ -59,7 +75,7 @@ export function useAlerts() {
         console.error('[useAlerts] Check failed:', response.status);
         return null;
       }
-      const result = await response.json();
+      const result: AlertCheckResult = await response.json();
       console.log('[useAlerts] Check result:', result);
       setLastCheckResult(result);
       

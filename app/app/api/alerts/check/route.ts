@@ -157,6 +157,17 @@ export async function POST(request: NextRequest) {
     checked,
     triggered: triggered.length,
     triggeredIds: triggered,
+    triggeredAlerts: triggered.map(id => {
+      const alert = alerts.find(a => a.id === id);
+      return alert ? {
+        id: alert.id,
+        asset: alert.asset,
+        assetName: alert.asset_name,
+        condition: alert.condition,
+        threshold: alert.threshold,
+        type: alert.type,
+      } : null;
+    }).filter(Boolean),
   });
 }
 
