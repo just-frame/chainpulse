@@ -13,6 +13,7 @@ A chain-agnostic crypto portfolio tracker. Track spot holdings, staking, NFTs, a
 - Auto-detects chain from wallet address
 - Aggregates balances from multiple wallets
 - Real-time USD values with 24h change
+- **Search & filter** assets by name, symbol, or chain
 
 ### 💎 Assets, NFTs & Domains
 - Full token holdings with exact amounts
@@ -24,21 +25,31 @@ A chain-agnostic crypto portfolio tracker. Track spot holdings, staking, NFTs, a
 - Set alerts for price above/below targets
 - Percentage change alerts
 - Toggle, edit, or delete alerts
-- (Email notifications coming soon)
+- In-app toast notifications
+- Email notifications (Resend)
 
 ### 🔐 Auth & Privacy
 - Email/password authentication
+- Google OAuth sign-in
 - Wallet persistence for signed-in users
 - LocalStorage for anonymous users
 - Row Level Security — your data is private
+
+### 🎨 Modern UI
+- GitHub-style navy dark theme
+- Mert-style user menu dropdown
+- Wide-screen 12-column layout
+- Mobile responsive
+- Smooth animations
 
 ---
 
 ## Tech Stack
 
 - **Framework:** Next.js 14 (App Router)
-- **Styling:** TailwindCSS
+- **Styling:** TailwindCSS + CSS Variables
 - **Auth & DB:** Supabase
+- **Email:** Resend
 - **Deployment:** Vercel
 
 ### Data Sources
@@ -85,10 +96,14 @@ cp .env.example .env.local
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_key
 
-# APIs (optional but recommended)
+# APIs
 HELIUS_API_KEY=your_helius_key
 ALCHEMY_API_KEY=your_alchemy_key
+
+# Email (optional)
+RESEND_API_KEY=your_resend_key
 ```
 
 ### Run Locally
@@ -114,6 +129,7 @@ This creates:
 - `alerts` — price alert configurations
 - `portfolio_snapshots` — historical data (for future sparklines)
 - `portfolio_daily` — aggregated daily values
+- `invite_codes` — invite system (not enabled)
 
 All tables have Row Level Security enabled.
 
@@ -134,23 +150,27 @@ Auto-deploys on every push to `main`.
 
 ## Roadmap
 
-### ✅ Completed (v0.2.0)
+### ✅ Completed (v0.3.0)
 - Multi-chain support (11 chains)
 - NFT & domain detection
-- User authentication
-- Price alerts UI
+- User authentication (email + Google)
+- Price alerts with in-app notifications
+- Asset search & filtering
+- Wide-screen layout optimization
+- Input validation & security hardening
 - Mobile responsive
 
-### 🚧 In Progress
-- Email notifications for alerts
+### 📋 Next Up
+- Portfolio charts (sparklines, historical)
+- P&L tracking
+- DeFi positions (LPs, lending)
+- Swap integration
 
-### 📋 Future
-- Sparkline charts
-- Google OAuth / Web3 sign-in
-- Hyperliquid perps tracking
-- DeFi LP positions
+### 🔮 Future
 - Telegram/Discord alerts
 - Portfolio sharing
+- Whale tracking
+- Multiple themes
 
 ---
 

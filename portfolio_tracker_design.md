@@ -4,7 +4,7 @@
 
 ---
 
-## Current Status: v0.2.0-alpha (LIVE)
+## Current Status: v0.3.0-alpha (LIVE)
 
 **Production URL:** https://chainpulsetest1.vercel.app
 
@@ -31,6 +31,7 @@
 - [x] Multi-wallet support
 - [x] Portfolio total value (USD)
 - [x] Individual asset breakdown
+- [x] **Asset search** — filter by name, symbol, or chain
 - [x] Staking detection (Hyperliquid, Solana native, ETH LSDs, Cardano, Tron)
 - [x] 24h change indicators (weighted by holdings)
 - [x] NFT display with spam filtering
@@ -38,24 +39,35 @@
 - [x] Tabbed navigation (Assets / NFTs / Domains)
 - [x] Loading skeletons
 - [x] Mobile responsive design
+- [x] **Wide-screen layout** — 12-column grid for ultrawide displays
 - [x] Toast notifications system
 - [x] Auto-refresh every 30s
 
-### Auth & Data
+### Auth & User Experience
 - [x] Email/password auth (Supabase)
+- [x] Google OAuth sign-in
+- [x] **Mert-style user menu** — dropdown with theme/homepage selectors
 - [x] Wallet persistence (signed-in users)
 - [x] LocalStorage fallback (anonymous users)
 - [x] Row Level Security (RLS) — users can't see each other's data
 - [x] Portfolio clears on sign-out (privacy)
 - [x] Portfolio snapshots schema (ready for sparklines)
 
-### Price Alerts (Phase 1.5 — COMPLETE)
+### Price Alerts
 - [x] Alert creation modal UI
 - [x] Alert types: price above/below, % change
 - [x] Alert list with toggle/edit/delete
 - [x] Duplicate alert prevention
 - [x] Per-asset alerts stored in Supabase
 - [x] RLS security on alerts table
+- [x] **In-app toast notifications** when alerts trigger
+- [x] Email notifications via Resend (requires domain verification)
+
+### Security
+- [x] **Input validation** — chain-specific address regex patterns
+- [x] Address length limits
+- [x] Chain whitelist validation
+- [x] All user data isolated by RLS
 
 ### Deployment
 - [x] Vercel (Hobby tier)
@@ -64,28 +76,34 @@
 
 ---
 
-## 🚧 Remaining (Phase 1.5)
+## 🚧 Planned (Phase 2)
 
-### Email Notifications
-- [ ] Resend integration for alert emails
-- [ ] Background job to check alert conditions
-- [ ] Email templates for price alerts
-
----
-
-## 📋 Phase 2 (Future)
-
+### Analytics & Performance
 - [ ] Sparkline charts (requires cron job — Pro tier or external cron)
-- [ ] Historical portfolio value chart
-- [ ] OAuth (Google)
-- [ ] Web3 sign-in (wallet connect)
-- [ ] Hyperliquid perps/positions
-- [ ] LP positions + DeFi protocols
-- [ ] Telegram/Discord notifications
-- [ ] Whale movement alerts
-- [ ] Multiple themes
-- [ ] PWA / Mobile app
+- [ ] Historical portfolio value chart (1D, 1W, 1M, 1Y)
+- [ ] P&L tracking
+- [ ] Asset allocation breakdown
+
+### DeFi Positions
+- [ ] LP positions (Raydium, Orca, Uniswap)
+- [ ] Lending positions (Aave, Kamino, MarginFi)
+- [ ] Yield farming APYs
+
+### Trading
+- [ ] Swap integration (Jupiter, 1inch)
+- [ ] Bridge support
+
+### Social
 - [ ] Portfolio sharing (public links)
+- [ ] Whale wallet tracking
+- [ ] Follow wallets
+
+### Other
+- [ ] Hyperliquid perps/positions
+- [ ] Telegram/Discord notifications
+- [ ] Multiple themes (functional)
+- [ ] PWA / Mobile app
+- [ ] Invite-only access system (built, not enabled)
 
 ---
 
@@ -93,8 +111,9 @@
 
 ```
 Frontend:       Next.js 14 (App Router)
-Styling:        TailwindCSS + CSS Variables
+Styling:        TailwindCSS + CSS Variables (GitHub navy theme)
 Auth + DB:      Supabase
+Email:          Resend
 Deployment:     Vercel
 
 Data Sources:
@@ -160,6 +179,15 @@ portfolio_daily (
   low_value numeric,
   UNIQUE(user_id, date)
 )
+
+-- Invite Codes (not enabled yet)
+invite_codes (
+  id uuid PRIMARY KEY,
+  code text UNIQUE,
+  max_uses int,
+  current_uses int,
+  created_at timestamp
+)
 ```
 
 ---
@@ -171,6 +199,8 @@ portfolio_daily (
 - ✅ API keys stored in environment variables
 - ✅ No sensitive data in client bundle
 - ✅ Alerts can only be viewed/modified by owner
+- ✅ Input validation with chain-specific regex
+- ✅ Address length limits (max 150 chars)
 - See `chainpulse_security.md` for full audit
 
 ---
@@ -185,16 +215,16 @@ portfolio-tracker/
 │   │   ├── page.tsx
 │   │   ├── globals.css
 │   │   └── api/
-│   │       ├── portfolio/
-│   │       │   ├── route.ts
-│   │       │   └── history/route.ts
+│   │       ├── portfolio/route.ts
 │   │       ├── alerts/route.ts
-│   │       └── cron/snapshot/route.ts
+│   │       ├── alerts/check/route.ts
+│   │       └── invite/route.ts
 │   ├── components/
 │   │   ├── ui/
 │   │   │   ├── Skeleton.tsx
 │   │   │   └── Toast.tsx
 │   │   ├── Header.tsx
+│   │   ├── UserMenu.tsx
 │   │   ├── PortfolioSummary.tsx
 │   │   ├── PortfolioTable.tsx
 │   │   ├── AssetRow.tsx
@@ -205,6 +235,7 @@ portfolio-tracker/
 │   │   ├── AuthModal.tsx
 │   │   ├── AlertModal.tsx
 │   │   ├── AlertsList.tsx
+│   │   ├── InviteCodeModal.tsx
 │   │   └── Providers.tsx
 │   ├── hooks/
 │   │   ├── usePortfolio.ts
@@ -215,20 +246,11 @@ portfolio-tracker/
 │   ├── lib/
 │   │   ├── supabase.ts
 │   │   ├── supabase-server.ts
+│   │   ├── email.ts
 │   │   └── chains/
-│   │       ├── bitcoin.ts
-│   │       ├── cardano.ts
-│   │       ├── dogecoin.ts
-│   │       ├── ethereum.ts
-│   │       ├── hyperliquid.ts
-│   │       ├── litecoin.ts
-│   │       ├── solana.ts
-│   │       ├── tron.ts
-│   │       ├── xrp.ts
-│   │       └── zcash.ts
+│   │       └── [10 chain modules]
 │   └── types/index.ts
 ├── supabase-schema.sql
-├── chainpulse_security.md
 └── portfolio_tracker_design.md
 ```
 
