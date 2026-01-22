@@ -45,38 +45,32 @@ export default function DomainList({ domains, isLoading = false }: DomainListPro
   }
 
   return (
-    <div className="space-y-2">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
       {domains.map((domain, index) => (
         <div
           key={domain.mint}
-          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg animate-fadeIn hover:border-[var(--accent-green)] transition-colors"
-          style={{ animationDelay: `${index * 50}ms` }}
+          className="flex items-center gap-3 p-3 sm:p-4 bg-[var(--bg-tertiary)]/50 border border-[var(--border)] rounded-xl animate-fadeIn hover:border-[var(--accent-green)]/50 transition-all"
+          style={{ animationDelay: `${index * 30}ms` }}
         >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[var(--bg-tertiary)] flex items-center justify-center shrink-0">
-              <svg className="w-5 h-5 text-[var(--accent-green)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-              </svg>
-            </div>
-            <div className="min-w-0">
-              <p className="font-mono font-medium truncate">{domain.name}</p>
-              <p className="text-xs text-[var(--text-muted)]">
-                {domain.name.endsWith('.sol') ? 'Solana Name Service' : 'Ethereum Name Service'}
-              </p>
-            </div>
+          {/* Icon */}
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[var(--accent-green)]/10 flex items-center justify-center shrink-0">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--accent-green)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+            </svg>
           </div>
           
-          <div className="text-left sm:text-right pl-13 sm:pl-0">
-            {domain.purchasePrice !== undefined && (
-              <p className={`font-mono text-sm ${domain.purchasePrice === 0 ? 'text-[var(--text-muted)]' : 'text-[var(--accent-green)]'}`}>
-                {formatPrice(domain.purchasePrice)}
-              </p>
-            )}
-            {domain.purchaseDate && (
-              <p className="text-xs text-[var(--text-muted)]">
-                {formatDate(domain.purchaseDate)}
-              </p>
-            )}
+          {/* Domain info */}
+          <div className="min-w-0 flex-1">
+            <p className="font-mono text-sm sm:text-base font-medium truncate">{domain.name}</p>
+            <div className="flex items-center gap-2 text-[10px] sm:text-xs text-[var(--text-muted)]">
+              <span>{domain.name.endsWith('.sol') ? 'SNS' : 'ENS'}</span>
+              {domain.purchaseDate && (
+                <>
+                  <span>•</span>
+                  <span>{formatDate(domain.purchaseDate)}</span>
+                </>
+              )}
+            </div>
           </div>
         </div>
       ))}

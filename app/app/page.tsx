@@ -211,52 +211,56 @@ export default function Dashboard() {
 
             {/* Holdings Card with Tabs */}
             <div className="card p-0 overflow-hidden">
-              <div className="p-4 sm:p-6 border-b border-[var(--border)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <TabNav
-                  tabs={[
-                    { id: 'assets', label: 'Assets', count: assets.length },
-                    { id: 'nfts', label: 'NFTs', count: nfts.length },
-                    { id: 'domains', label: 'Domains', count: domains.length },
-                  ]}
-                  activeTab={activeTab}
-                  onTabChange={setActiveTab}
-                />
-                
-                {wallets.length > 0 && (
-                  <div className="flex items-center gap-3">
-                    {lastUpdated && (
-                      <span className="text-[var(--text-muted)] text-xs">
-                        Updated {formatLastUpdated(lastUpdated)}
-                      </span>
-                    )}
-                    <button
-                      onClick={handleRefreshWithAlertCheck}
-                      disabled={isLoading}
-                      className="p-2 rounded-lg hover:bg-[var(--bg-hover)] transition-colors disabled:opacity-50"
-                      title="Refresh"
-                    >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className={`text-[var(--text-secondary)] ${isLoading ? 'animate-spin' : ''}`}
+              {/* Tab Header */}
+              <div className="p-3 sm:p-4 border-b border-[var(--border)]">
+                <div className="flex items-center justify-between gap-3">
+                  <TabNav
+                    tabs={[
+                      { id: 'assets', label: 'Assets', count: assets.length },
+                      { id: 'nfts', label: 'NFTs', count: nfts.length },
+                      { id: 'domains', label: 'Domains', count: domains.length },
+                    ]}
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                  />
+                  
+                  {wallets.length > 0 && (
+                    <div className="flex items-center gap-2 shrink-0">
+                      {lastUpdated && (
+                        <span className="text-[var(--text-muted)] text-[10px] sm:text-xs hidden sm:block">
+                          {formatLastUpdated(lastUpdated)}
+                        </span>
+                      )}
+                      <button
+                        onClick={handleRefreshWithAlertCheck}
+                        disabled={isLoading}
+                        className="p-2 rounded-lg hover:bg-[var(--bg-hover)] transition-colors disabled:opacity-50"
+                        title="Refresh"
                       >
-                        <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                        <path d="M3 3v5h5" />
-                        <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
-                        <path d="M16 16h5v5" />
-                      </svg>
-                    </button>
-                  </div>
-                )}
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className={`text-[var(--text-secondary)] ${isLoading ? 'animate-spin' : ''}`}
+                        >
+                          <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                          <path d="M3 3v5h5" />
+                          <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+                          <path d="M16 16h5v5" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
               
-              <div className="p-4 sm:p-6">
+              {/* Tab Content */}
+              <div className="p-3 sm:p-6">
                 {activeTab === 'assets' && (
                   <PortfolioTable assets={assets} isLoading={isLoading} />
                 )}
