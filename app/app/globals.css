@@ -1,226 +1,135 @@
 @import "tailwindcss";
 
 /* ============================================
-   THEME: Default (Gunmetal)
-   Clean, neutral, no-nonsense
+   THEME: Noir (Default)
+   Pure black, minimal, muted secondary text
    ============================================ */
 :root,
-[data-theme="default"] {
-  /* Background - True dark grays */
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #141414;
-  --bg-tertiary: #1a1a1a;
-  --bg-hover: #222222;
+[data-theme="noir"] {
+  /* Background - True black */
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #111111;
+  --bg-hover: #1a1a1a;
 
   /* Text */
-  --text-primary: #fafafa;
-  --text-secondary: #a1a1a1;
-  --text-muted: #6b6b6b;
+  --text-primary: #ffffff;
+  --text-secondary: #888888;
+  --text-muted: #555555;
 
   /* Accents - Classic green/red */
-  --accent-primary: #22c55e;
+  --accent-primary: #ffffff;
   --accent-green: #22c55e;
   --accent-red: #ef4444;
   --accent-blue: #3b82f6;
-  --accent-highlight: #fafafa;
-
-  /* Borders */
-  --border: #262626;
-  --border-hover: #363636;
-
-  /* Effects */
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-  --glow: none;
-}
-
-/* ============================================
-   THEME: Terracotta (Neon Coral)
-   Warm, playful, Memphis design energy
-   ============================================ */
-[data-theme="terracotta"] {
-  /* Background - Warm navy */
-  --bg-primary: #0d1117;
-  --bg-secondary: #161b22;
-  --bg-tertiary: #1c2128;
-  --bg-hover: #21262d;
-
-  /* Text */
-  --text-primary: #f0f6fc;
-  --text-secondary: #8b949e;
-  --text-muted: #6e7681;
-
-  /* Accents - Coral flame palette */
-  --accent-primary: #FF6B6B;
-  --accent-green: #4ECDC4;
-  --accent-red: #FF8A80;
-  --accent-blue: #74b9ff;
-  --accent-highlight: #FFD93D;
-
-  /* Borders */
-  --border: #21262d;
-  --border-hover: #30363d;
-
-  /* Effects */
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-  --glow: 0 0 20px rgba(255, 107, 107, 0.15);
-}
-
-/* ============================================
-   THEME: Violet (Phantom)
-   Nocturnal, premium, synthwave
-   ============================================ */
-[data-theme="violet"] {
-  /* Background - Deep purple-tinted black */
-  --bg-primary: #0c0a14;
-  --bg-secondary: #13111c;
-  --bg-tertiary: #1a1726;
-  --bg-hover: #221f2e;
-
-  /* Text */
-  --text-primary: #f4f0ff;
-  --text-secondary: #9d8ec2;
-  --text-muted: #6b5f8a;
-
-  /* Accents - Electric violet palette */
-  --accent-primary: #A855F7;
-  --accent-green: #22D3EE;
-  --accent-red: #FB7185;
-  --accent-blue: #818CF8;
-  --accent-highlight: #FBBF24;
-
-  /* Borders */
-  --border: #2d2640;
-  --border-hover: #3d3555;
-
-  /* Effects */
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-  --glow: 0 0 20px rgba(168, 85, 247, 0.15);
-}
-
-/* ============================================
-   THEME: Amber (Terminal)
-   Retro-future, Bloomberg meets Cowboy Bebop
-   ============================================ */
-[data-theme="amber"] {
-  /* Background - Warm dark */
-  --bg-primary: #0c0a08;
-  --bg-secondary: #14120e;
-  --bg-tertiary: #1c1914;
-  --bg-hover: #24201a;
-
-  /* Text */
-  --text-primary: #faf5eb;
-  --text-secondary: #b5a892;
-  --text-muted: #7a7060;
-
-  /* Accents - Amber terminal palette */
-  --accent-primary: #F59E0B;
-  --accent-green: #14B8A6;
-  --accent-red: #EF4444;
-  --accent-blue: #F59E0B;
-  --accent-highlight: #FFFFFF;
-
-  /* Borders */
-  --border: #2a2620;
-  --border-hover: #3a352d;
-
-  /* Effects */
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-  --glow: 0 0 20px rgba(245, 158, 11, 0.1);
-}
-
-/* ============================================
-   THEME: Swiss (Precision)
-   Maximum clarity, zero ornamentation
-   Clean whites, sharp contrasts
-   ============================================ */
-[data-theme="swiss"] {
-  /* Background - Pure darks */
-  --bg-primary: #000000;
-  --bg-secondary: #0a0a0a;
-  --bg-tertiary: #121212;
-  --bg-hover: #1a1a1a;
-
-  /* Text - High contrast */
-  --text-primary: #ffffff;
-  --text-secondary: #999999;
-  --text-muted: #666666;
-
-  /* Accents - Minimal, functional */
-  --accent-primary: #ffffff;
-  --accent-green: #00ff88;
-  --accent-red: #ff4444;
-  --accent-blue: #0066ff;
   --accent-highlight: #ffffff;
 
-  /* Borders - Subtle but present */
+  /* Borders */
   --border: #1a1a1a;
-  --border-hover: #333333;
+  --border-hover: #2a2a2a;
 
-  /* Effects - None */
+  /* Effects */
   --shadow: none;
   --glow: none;
 }
 
 /* ============================================
-   THEME: Terminal (CRT Maximalism)
-   Monospace everything, phosphor green
+   THEME: Bloomberg
+   Professional terminal, orange highlights
+   Classic financial terminal aesthetic
    ============================================ */
-[data-theme="terminal"] {
-  /* Background - CRT black */
+[data-theme="bloomberg"] {
+  /* Background - Deep black */
   --bg-primary: #000000;
-  --bg-secondary: #050505;
-  --bg-tertiary: #0a0a0a;
-  --bg-hover: #0f0f0f;
+  --bg-secondary: #0d0d0d;
+  --bg-tertiary: #141414;
+  --bg-hover: #1c1c1c;
 
-  /* Text - Phosphor green */
-  --text-primary: #00ff41;
-  --text-secondary: #00cc33;
-  --text-muted: #008822;
+  /* Text */
+  --text-primary: #ffffff;
+  --text-secondary: #ff8c00;
+  --text-muted: #666666;
 
-  /* Accents - Classic terminal */
-  --accent-primary: #00ff41;
-  --accent-green: #00ff41;
-  --accent-red: #ff0000;
-  --accent-blue: #00ffff;
-  --accent-highlight: #ffff00;
+  /* Accents - Bloomberg orange + green/red */
+  --accent-primary: #ff8c00;
+  --accent-green: #00d26a;
+  --accent-red: #ff3b30;
+  --accent-blue: #ff8c00;
+  --accent-highlight: #ff8c00;
 
-  /* Borders - Subtle green */
-  --border: #003300;
-  --border-hover: #005500;
+  /* Borders */
+  --border: #1a1a1a;
+  --border-hover: #333333;
 
-  /* Effects - CRT glow */
-  --shadow: 0 0 10px rgba(0, 255, 65, 0.1);
-  --glow: 0 0 20px rgba(0, 255, 65, 0.15);
+  /* Effects */
+  --shadow: none;
+  --glow: none;
 }
 
-/* Terminal theme: Force monospace on all text */
-[data-theme="terminal"] body {
-  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Consolas', monospace !important;
+/* ============================================
+   THEME: Sakura
+   Dark with pink/cherry blossom accents
+   Soft, elegant, Japanese aesthetic
+   ============================================ */
+[data-theme="sakura"] {
+  /* Background - Soft dark */
+  --bg-primary: #0a0a0c;
+  --bg-secondary: #101014;
+  --bg-tertiary: #16161a;
+  --bg-hover: #1e1e24;
+
+  /* Text */
+  --text-primary: #f8f8f8;
+  --text-secondary: #a8a8b0;
+  --text-muted: #68687a;
+
+  /* Accents - Cherry blossom pink */
+  --accent-primary: #f472b6;
+  --accent-green: #4ade80;
+  --accent-red: #fb7185;
+  --accent-blue: #f472b6;
+  --accent-highlight: #fda4af;
+
+  /* Borders */
+  --border: #1e1e24;
+  --border-hover: #2e2e38;
+
+  /* Effects */
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --glow: 0 0 20px rgba(244, 114, 182, 0.1);
 }
 
-[data-theme="terminal"] * {
-  font-family: inherit;
-}
+/* ============================================
+   THEME: Ember
+   Warm dark with coral/orange accents
+   Cozy, inviting, warm energy
+   ============================================ */
+[data-theme="ember"] {
+  /* Background - Warm tinted dark */
+  --bg-primary: #0c0a09;
+  --bg-secondary: #121110;
+  --bg-tertiary: #1a1816;
+  --bg-hover: #231f1c;
 
-/* Terminal theme: Subtle scanline effect */
-[data-theme="terminal"]::after {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0.15),
-    rgba(0, 0, 0, 0.15) 1px,
-    transparent 1px,
-    transparent 2px
-  );
-  z-index: 9999;
-  opacity: 0.4;
+  /* Text */
+  --text-primary: #faf8f7;
+  --text-secondary: #a8a29e;
+  --text-muted: #6b6560;
+
+  /* Accents - Warm coral/ember */
+  --accent-primary: #f97316;
+  --accent-green: #4ecdc4;
+  --accent-red: #ff6b6b;
+  --accent-blue: #f97316;
+  --accent-highlight: #fbbf24;
+
+  /* Borders */
+  --border: #262220;
+  --border-hover: #363230;
+
+  /* Effects */
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --glow: 0 0 20px rgba(249, 115, 22, 0.1);
 }
 
 * {
@@ -250,8 +159,8 @@ body {
 
 /* Selection */
 ::selection {
-  background-color: var(--accent-blue);
-  color: var(--text-primary);
+  background-color: var(--accent-primary);
+  color: var(--bg-primary);
 }
 
 /* Scrollbar */
@@ -275,7 +184,7 @@ body {
 
 /* Focus states */
 *:focus-visible {
-  outline: 2px solid var(--accent-blue);
+  outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
 }
 
@@ -332,7 +241,7 @@ tr:hover td {
 
 .btn-primary {
   background-color: var(--accent-primary);
-  color: #000000;
+  color: var(--bg-primary);
 }
 
 .btn-primary:hover {
@@ -371,7 +280,7 @@ tr:hover td {
 }
 
 .input:focus {
-  border-color: var(--accent-blue);
+  border-color: var(--accent-primary);
   outline: none;
 }
 
@@ -440,16 +349,16 @@ tr:hover td {
   button, a {
     min-height: 44px;
   }
-  
+
   /* Better table readability on mobile */
   td {
     padding: 12px 0;
   }
-  
+
   th {
     font-size: 10px;
   }
-  
+
   /* Card padding on mobile */
   .card {
     padding: 16px;
