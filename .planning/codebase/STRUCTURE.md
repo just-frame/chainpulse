@@ -106,7 +106,7 @@ portfolio-tracker/
 - `app/lib/chains/ethereum.ts` - Ethereum + Polygon + Base holdings
 
 **Styling:**
-- `app/app/globals.css` - Global styles + 4 theme definitions (default, terracotta, aquamarine, midnight)
+- `app/app/globals.css` - Global styles + 4 theme definitions (noir, bloomberg, sakura, ember)
 - Theme system: CSS variables (--bg-primary, --text-primary, --accent-blue, etc.)
 - Active theme: Set via `document.documentElement.setAttribute('data-theme', themeName)`
 

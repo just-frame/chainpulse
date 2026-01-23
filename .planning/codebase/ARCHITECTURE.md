@@ -175,7 +175,7 @@
 
 **Styling:**
 - Tailwind CSS utility classes (PostCSS plugin)
-- CSS variables for theming (4 themes: default, terracotta, aquamarine, midnight)
+- CSS variables for theming (4 themes: noir, bloomberg, sakura, ember)
 - Responsive breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px)
 - Dark mode only (no light theme)
 

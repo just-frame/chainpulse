@@ -36,7 +36,7 @@ A chain-agnostic crypto portfolio tracker. Track spot holdings, staking, NFTs, a
 - Row Level Security — your data is private
 
 ### 🎨 Modern UI
-- **4 color themes:** Gunmetal, Terracotta, Violet, Amber
+- **4 color themes:** Noir, Bloomberg, Sakura, Ember
 - Mert-style user menu dropdown
 - Wide-screen 12-column layout
 - Mobile responsive

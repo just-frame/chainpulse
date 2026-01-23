@@ -47,7 +47,7 @@
 - [x] Email/password auth (Supabase)
 - [x] Google OAuth sign-in
 - [x] **Mert-style user menu** — dropdown with theme/homepage selectors
-- [x] **4 color themes** — Gunmetal, Terracotta, Violet, Amber (with localStorage persistence)
+- [x] **4 color themes** — Noir, Bloomberg, Sakura, Ember (with localStorage persistence)
 - [x] Wallet persistence (signed-in users)
 - [x] LocalStorage fallback (anonymous users)
 - [x] Row Level Security (RLS) — users can't see each other's data
