@@ -123,27 +123,13 @@ export default function AssetRow({ asset, index }: AssetRowProps) {
           {/* Percentage with background pill */}
           <span
             className={`
-              inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-sm font-mono font-medium
-              ${isPositive 
-                ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)]' 
+              inline-flex items-center px-2 py-0.5 rounded-md text-sm font-mono font-medium
+              ${isPositive
+                ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)]'
                 : 'bg-[var(--accent-red)]/10 text-[var(--accent-red)]'
               }
             `}
           >
-            {/* Arrow icon */}
-            <svg 
-              className="w-3 h-3" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
-              strokeWidth={2.5}
-            >
-              {isPositive ? (
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-              )}
-            </svg>
             {formatPercent(asset.change24h)}
           </span>
           {/* Dollar amount change */}

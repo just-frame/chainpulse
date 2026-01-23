@@ -2,19 +2,21 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-export type Theme = 'default' | 'terracotta' | 'violet' | 'amber';
+export type Theme = 'swiss' | 'default' | 'terracotta' | 'violet' | 'amber' | 'terminal';
 
 export const THEMES: { id: Theme; name: string; description: string }[] = [
+  { id: 'swiss', name: 'Swiss', description: 'Maximum clarity' },
   { id: 'default', name: 'Gunmetal', description: 'Clean, neutral dark' },
   { id: 'terracotta', name: 'Terracotta', description: 'Warm coral energy' },
   { id: 'violet', name: 'Violet', description: 'Nocturnal synthwave' },
   { id: 'amber', name: 'Amber', description: 'Retro terminal' },
+  { id: 'terminal', name: 'Terminal', description: 'CRT maximalism' },
 ];
 
 const STORAGE_KEY = 'portfolio-theme';
 
 export function useTheme() {
-  const [theme, setThemeState] = useState<Theme>('default');
+  const [theme, setThemeState] = useState<Theme>('swiss');
   const [mounted, setMounted] = useState(false);
 
   // Load theme from localStorage on mount

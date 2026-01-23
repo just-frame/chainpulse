@@ -144,7 +144,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 max-w-[1800px] mx-auto">
 
           {/* Left column - Summary and Wallet Input */}
-          <div className="xl:col-span-4 flex flex-col gap-4 sm:gap-6">
+          <div className="xl:col-span-3 flex flex-col gap-4 sm:gap-6">
             {/* Portfolio Summary */}
             <PortfolioSummary
               totalValue={totalValue}
@@ -277,7 +277,7 @@ export default function Dashboard() {
           </div>
 
           {/* Right column - Holdings Table (wider on desktop) */}
-          <div className="xl:col-span-8 flex flex-col gap-4">
+          <div className="xl:col-span-9 flex flex-col gap-4">
             {/* Holdings Card with Tabs */}
             <div className="card p-0 overflow-hidden">
               {/* Tab Header */}

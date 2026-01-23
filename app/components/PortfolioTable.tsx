@@ -109,7 +109,7 @@ export default function PortfolioTable({ assets, isLoading = false }: PortfolioT
             placeholder="Search assets..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 text-sm bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--accent-blue)] focus:outline-none transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 text-sm bg-[var(--bg-secondary)] border border-[var(--border-hover)] rounded-lg text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--accent-blue)] focus:outline-none transition-colors"
           />
           {searchQuery && (
             <button

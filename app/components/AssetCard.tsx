@@ -94,26 +94,13 @@ export default function AssetCard({ asset, index }: AssetCardProps) {
             </div>
             <span
               className={`
-                inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-mono font-medium
+                inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-medium
                 ${isPositive
                   ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)]'
                   : 'bg-[var(--accent-red)]/10 text-[var(--accent-red)]'
                 }
               `}
             >
-              <svg
-                className="w-2.5 h-2.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={3}
-              >
-                {isPositive ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                )}
-              </svg>
               {formatPercent(asset.change24h)}
             </span>
           </div>

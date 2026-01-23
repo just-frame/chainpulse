@@ -123,29 +123,16 @@ export default function PortfolioSummary({
 
         {/* Enhanced change indicator */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
-          {/* Percentage pill with arrow */}
+          {/* Percentage pill */}
           <span
             className={`
-              inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-base sm:text-lg font-mono font-semibold
-              ${isPositive 
-                ? 'bg-[var(--accent-green)]/15 text-[var(--accent-green)]' 
+              inline-flex items-center px-3 py-1.5 rounded-lg text-base sm:text-lg font-mono font-semibold
+              ${isPositive
+                ? 'bg-[var(--accent-green)]/15 text-[var(--accent-green)]'
                 : 'bg-[var(--accent-red)]/15 text-[var(--accent-red)]'
               }
             `}
           >
-            <svg 
-              className="w-4 h-4" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
-              strokeWidth={2.5}
-            >
-              {isPositive ? (
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-              )}
-            </svg>
             {formatPercent(displayChangePercent)}
           </span>
           

@@ -129,6 +129,100 @@
   --glow: 0 0 20px rgba(245, 158, 11, 0.1);
 }
 
+/* ============================================
+   THEME: Swiss (Precision)
+   Maximum clarity, zero ornamentation
+   Clean whites, sharp contrasts
+   ============================================ */
+[data-theme="swiss"] {
+  /* Background - Pure darks */
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #121212;
+  --bg-hover: #1a1a1a;
+
+  /* Text - High contrast */
+  --text-primary: #ffffff;
+  --text-secondary: #999999;
+  --text-muted: #666666;
+
+  /* Accents - Minimal, functional */
+  --accent-primary: #ffffff;
+  --accent-green: #00ff88;
+  --accent-red: #ff4444;
+  --accent-blue: #0066ff;
+  --accent-highlight: #ffffff;
+
+  /* Borders - Subtle but present */
+  --border: #1a1a1a;
+  --border-hover: #333333;
+
+  /* Effects - None */
+  --shadow: none;
+  --glow: none;
+}
+
+/* ============================================
+   THEME: Terminal (CRT Maximalism)
+   Monospace everything, phosphor green
+   ============================================ */
+[data-theme="terminal"] {
+  /* Background - CRT black */
+  --bg-primary: #000000;
+  --bg-secondary: #050505;
+  --bg-tertiary: #0a0a0a;
+  --bg-hover: #0f0f0f;
+
+  /* Text - Phosphor green */
+  --text-primary: #00ff41;
+  --text-secondary: #00cc33;
+  --text-muted: #008822;
+
+  /* Accents - Classic terminal */
+  --accent-primary: #00ff41;
+  --accent-green: #00ff41;
+  --accent-red: #ff0000;
+  --accent-blue: #00ffff;
+  --accent-highlight: #ffff00;
+
+  /* Borders - Subtle green */
+  --border: #003300;
+  --border-hover: #005500;
+
+  /* Effects - CRT glow */
+  --shadow: 0 0 10px rgba(0, 255, 65, 0.1);
+  --glow: 0 0 20px rgba(0, 255, 65, 0.15);
+}
+
+/* Terminal theme: Force monospace on all text */
+[data-theme="terminal"] body {
+  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Consolas', monospace !important;
+}
+
+[data-theme="terminal"] * {
+  font-family: inherit;
+}
+
+/* Terminal theme: Subtle scanline effect */
+[data-theme="terminal"]::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  z-index: 9999;
+  opacity: 0.4;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -237,8 +331,8 @@ tr:hover td {
 }
 
 .btn-primary {
-  background-color: var(--text-primary);
-  color: var(--bg-primary);
+  background-color: var(--accent-primary);
+  color: #000000;
 }
 
 .btn-primary:hover {
