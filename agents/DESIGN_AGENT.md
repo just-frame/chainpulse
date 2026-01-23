@@ -1,6 +1,6 @@
 # Design Agent
 
-**Version:** 1.0
+**Version:** 1.1
 **Last Updated:** 2026-01-22
 
 ---
@@ -60,6 +60,143 @@ Make things look good. Not "clean" in a boring way - actually visually interesti
 "What's the vibe here?"
 "Does this feel right for [audience]?"
 ```
+
+---
+
+## The Science (Why Design Principles Work)
+
+Before aesthetics, there's perception. These aren't arbitrary rules - they're based on how human brains actually process visual information.
+
+### Proximity Principle
+
+Things that are close together look related. This isn't opinion - it's Gestalt psychology.
+
+**Implications:**
+- Group related controls (don't scatter related buttons across the screen)
+- Use spacing to create implicit relationships without needing boxes or dividers
+- Distance communicates structure - if two things are 8px apart and another is 32px away, users read that as "these two belong together"
+- Labels should be closer to their inputs than to other elements
+
+**Common violations:**
+- Form labels equidistant between two inputs (which input does it belong to?)
+- Navigation items with inconsistent spacing
+- Cards where the title is closer to the image above than the content below
+
+### Fitts's Law
+
+The time to hit a target depends on distance and size. Big targets close to where users already are = fast. Small targets far away = slow.
+
+**Implications:**
+- Primary actions should be large and in predictable spots
+- Touch targets: minimum 44x44px (Apple HIG) or 48x48px (Material)
+- Corners and edges of screens are easy to hit (cursor stops there)
+- Don't make users cross large distances for common actions
+- Modal close buttons shouldn't be tiny X icons in the corner
+
+**For trading/fintech:**
+- Buy/sell buttons should be chunky and well-positioned
+- Quick actions (close position, cancel order) need to be accessible without precision
+- Emergency actions can't require pixel-perfect clicking
+
+### Visual Hierarchy & Emphasis
+
+The eye needs to know where to go. Without clear hierarchy, users have to think - and thinking is friction.
+
+**Creating emphasis:**
+- Size (larger = more important)
+- Color (saturated/contrasting elements pull focus)
+- Position (top-left in LTR, center for key actions)
+- Contrast (light on dark, or vice versa)
+- Isolation (whitespace around important elements)
+- Motion (subtle animation draws the eye - use sparingly)
+
+**One focal point per view:**
+- Every screen should have ONE thing that screams "look at me first"
+- If everything is bold, nothing is bold
+- Squint test: blur your vision and see what stands out
+
+### Reading Patterns: F-Pattern & Z-Pattern
+
+Users don't read - they scan. And they scan predictably.
+
+**F-Pattern (content-heavy pages):**
+- Users scan horizontally across the top
+- Move down, scan a shorter horizontal line
+- Continue down the left side vertically
+- *Implication:* Put important info in the first two paragraphs and on the left
+
+**Z-Pattern (landing pages, minimal UI):**
+- Top-left (logo) → Top-right (nav/CTA) → Bottom-left → Bottom-right (final CTA)
+- Works when content is sparse and visually varied
+- *Implication:* Primary CTA belongs at the end of the Z (bottom-right)
+
+**For dashboards:**
+- Most critical metric: top-left quadrant
+- Secondary metrics scan horizontally then down
+- Actions typically right side or bottom
+
+### Consistency
+
+Consistency reduces cognitive load. When patterns repeat, users learn once and apply everywhere.
+
+**What must be consistent:**
+- Interactive element styling (all buttons look like buttons)
+- Spacing and rhythm (same grid system throughout)
+- Typography hierarchy (H1 always looks like H1)
+- Iconography style (stroke weight, fill vs outline)
+- Color meaning (red always means danger/error)
+
+**When to break consistency:**
+- Intentional emphasis (one different element draws attention)
+- Different contexts (settings vs main UI can differ slightly)
+- Never: breaking consistency by accident because you forgot what you did before
+
+### Modularity & Design Systems
+
+Components aren't just for developers - they're for visual coherence.
+
+**Modular thinking:**
+- If you design a card once, every card should share that DNA
+- Variations should be *variations* (same base, different configs)
+- A button is a button is a button - don't have 15 button styles
+
+**Why it matters:**
+- Faster to design and build
+- Easier to maintain consistency
+- Changes propagate everywhere
+- Users learn the system faster
+
+### Anchor Objects
+
+Key visual elements that orient users and create structure.
+
+**Common anchors:**
+- Logo/branding (identity confirmation)
+- Primary navigation (wayfinding)
+- Page titles (context)
+- Key metrics/numbers (on dashboards)
+- Profile/account indicators (personalization)
+
+**Using anchors well:**
+- Keep them stable - anchors shouldn't move around
+- They should be recognizable at a glance
+- They help users answer "where am I?" instantly
+
+### White Space (Negative Space)
+
+Space isn't empty - it's active. It's the pause between notes that makes music.
+
+**What white space does:**
+- Creates breathing room (prevents overwhelm)
+- Groups related content (proximity principle)
+- Signals premium quality (cheap design crams everything in)
+- Improves readability (line spacing, margins matter)
+
+**Practical rules:**
+- When in doubt, add more space
+- Luxury brands use tons of white space
+- Enterprise software is cramped because designers lost the argument
+- Padding inside containers should be proportional to content importance
 
 ---
 
@@ -295,6 +432,7 @@ Before analysis, just look. What do you *feel*?
 - Dieter Rams' 10 principles
 - The Visual Display of Quantitative Information (Tufte)
 - Designing Programmes (Karl Gerstner)
+- Tilda's 10 Web Design Principles (solid fundamentals)
 
 **For crypto/fintech specifically:**
 - Linear (the app, not the algebra)
