@@ -103,15 +103,18 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] overflow-y-auto overscroll-contain" style={{ height: '100dvh' }}>
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/90 backdrop-blur-sm"
         onClick={onClose}
+        style={{ height: '100dvh' }}
       />
 
-      {/* Modal */}
-      <div className="relative bg-[var(--bg-secondary)] border border-[var(--border)] rounded-xl p-6 sm:p-8 w-full max-w-md animate-fadeIn">
+      {/* Modal Container - centers content and handles scroll */}
+      <div className="relative min-h-full flex flex-col items-center justify-start sm:justify-center px-4 py-8 sm:py-4">
+        {/* Modal */}
+        <div className="relative bg-[var(--bg-secondary)] border border-[var(--border)] rounded-xl p-6 sm:p-8 w-full max-w-md animate-fadeIn shadow-2xl">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded-lg transition-colors"
@@ -211,6 +214,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
             {mode === 'signin' ? 'Sign up' : 'Sign in'}
           </button>
         </p>
+        </div>
       </div>
     </div>
   );
