@@ -47,9 +47,9 @@ export async function POST(request: Request) {
       })
       .eq('id', inviteCode.id);
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Welcome to Chainpulse!' 
+    return NextResponse.json({
+      success: true,
+      message: 'Welcome to vault!'
     });
   } catch (err) {
     console.error('Error validating invite code:', err);

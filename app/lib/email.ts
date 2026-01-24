@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
 
 // Default "from" address - use Resend's default until you verify your domain
-const FROM_EMAIL = 'Chainpulse <onboarding@resend.dev>';
+const FROM_EMAIL = 'vault <onboarding@resend.dev>';
 
 // Lazy initialization to avoid build-time errors
 let resendClient: Resend | null = null;
@@ -88,7 +88,7 @@ export async function sendPriceAlertEmail({
           
           <!-- Footer -->
           <p style="margin: 24px 0 0 0; text-align: center; color: #666666; font-size: 12px;">
-            You received this because you set a price alert on Chainpulse.<br>
+            You received this because you set a price alert on vault.<br>
             <a href="https://chainpulsetest1.vercel.app" style="color: #888888;">Manage your alerts</a>
           </p>
           

@@ -117,7 +117,8 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
         <div className="relative bg-[var(--bg-secondary)] border border-[var(--border)] rounded-xl p-6 sm:p-8 w-full max-w-md animate-fadeIn shadow-2xl">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded-lg transition-colors"
+          className="absolute top-3 right-3 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded-lg transition-colors"
+          aria-label="Close modal"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M18 6L6 18M6 6l12 12" />

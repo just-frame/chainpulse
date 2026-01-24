@@ -139,28 +139,30 @@ function AlertItem({
 
         {/* Right side: Actions & Toggle */}
         <div className="flex items-center gap-2 shrink-0">
-          {/* Action buttons (show on hover) */}
+          {/* Action buttons (show on hover/touch) */}
           <div className={`
-            flex items-center gap-1 transition-all duration-150
-            ${showActions ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+            flex items-center gap-0.5 transition-all duration-150
+            ${showActions ? 'opacity-100' : 'sm:opacity-0 sm:pointer-events-none'}
           `}>
             {onEdit && (
               <button
                 onClick={onEdit}
-                className="p-1.5 hover:bg-[var(--bg-hover)] transition-colors text-[var(--text-muted)] hover:text-[var(--accent-primary)]"
+                className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-[var(--bg-hover)] transition-colors text-[var(--text-muted)] hover:text-[var(--accent-primary)]"
                 title="Edit"
+                aria-label="Edit alert"
               >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="square" strokeLinejoin="miter" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
                 </svg>
               </button>
             )}
             <button
               onClick={onDelete}
-              className="p-1.5 hover:bg-[var(--accent-red-muted)] transition-colors text-[var(--text-muted)] hover:text-[var(--accent-red)]"
+              className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-[var(--accent-red-muted)] transition-colors text-[var(--text-muted)] hover:text-[var(--accent-red)]"
               title="Delete"
+              aria-label="Delete alert"
             >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="square" strokeLinejoin="miter" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>

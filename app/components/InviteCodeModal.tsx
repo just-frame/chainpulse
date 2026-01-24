@@ -124,7 +124,7 @@ export default function InviteCodeModal({ onSuccess }: InviteCodeModalProps) {
         </h1>
         
         <p className="text-[#888] text-center mb-8">
-          chainpulse is currently invite-only. Enter your code below to continue.
+          vault is currently invite-only. Enter your code below to continue.
         </p>
 
         {/* Code Input */}

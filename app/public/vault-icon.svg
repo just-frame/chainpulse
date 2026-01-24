@@ -1,0 +1,22 @@
+<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Chromatic cyan layer (offset left) -->
+  <g opacity="0.7" transform="translate(-1.5, 0)">
+    <rect x="6" y="12" width="20" height="16" rx="2" stroke="#00FFFF" stroke-width="2" fill="none"/>
+    <circle cx="16" cy="20" r="3" stroke="#00FFFF" stroke-width="2" fill="none"/>
+    <path d="M11 12V8a5 5 0 0 1 10 0v4" stroke="#00FFFF" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <!-- Chromatic magenta layer (offset right) -->
+  <g opacity="0.7" transform="translate(1.5, 0)">
+    <rect x="6" y="12" width="20" height="16" rx="2" stroke="#FF00FF" stroke-width="2" fill="none"/>
+    <circle cx="16" cy="20" r="3" stroke="#FF00FF" stroke-width="2" fill="none"/>
+    <path d="M11 12V8a5 5 0 0 1 10 0v4" stroke="#FF00FF" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <!-- White core layer -->
+  <g>
+    <rect x="6" y="12" width="20" height="16" rx="2" stroke="#FFFFFF" stroke-width="2" fill="none"/>
+    <circle cx="16" cy="20" r="3" stroke="#FFFFFF" stroke-width="2" fill="none"/>
+    <path d="M11 12V8a5 5 0 0 1 10 0v4" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+  </g>
+</svg>

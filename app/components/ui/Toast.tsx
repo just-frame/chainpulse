@@ -105,7 +105,8 @@ function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
       <p className="text-sm text-[var(--text-primary)] flex-1">{toast.message}</p>
       <button
         onClick={onClose}
-        className="shrink-0 opacity-60 hover:opacity-100 transition-opacity"
+        className="shrink-0 -m-2 p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg opacity-60 hover:opacity-100 hover:bg-white/10 transition-all"
+        aria-label="Dismiss notification"
       >
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
