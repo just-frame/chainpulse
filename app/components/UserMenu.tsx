@@ -107,11 +107,11 @@ export default function UserMenu({ onAlertsClick, alertsCount = 0 }: UserMenuPro
         {isOpen && (
           <div className="absolute right-0 top-full mt-2 w-72 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden animate-fadeInScale z-50">
             {/* Theme Section */}
-            <div className="p-4">
+            <div className="p-4 pb-3">
               <span className="text-caption">Theme</span>
 
               {/* Theme Swatches */}
-              <div className="flex items-center gap-2 mt-3">
+              <div className="flex items-stretch gap-1 mt-3">
                 {mounted && THEMES.map((t) => (
                   <ThemeSwatch
                     key={t.id}
@@ -120,13 +120,6 @@ export default function UserMenu({ onAlertsClick, alertsCount = 0 }: UserMenuPro
                     onClick={() => setTheme(t.id)}
                   />
                 ))}
-              </div>
-
-              {/* Active theme name */}
-              <div className="mt-3 text-sm text-[var(--text-secondary)]">
-                {THEMES.find(t => t.id === theme)?.name}
-                <span className="text-[var(--text-muted)]"> — </span>
-                <span className="text-[var(--text-muted)]">{THEMES.find(t => t.id === theme)?.description}</span>
               </div>
             </div>
 
@@ -202,58 +195,59 @@ function ThemeSwatch({
     <button
       onClick={onClick}
       className={`
-        relative group flex-1 aspect-square rounded-xl overflow-hidden transition-all duration-200
+        relative flex-1 flex flex-col items-center gap-2 p-2 rounded-xl transition-all duration-200
         ${isActive
-          ? 'ring-2 ring-[var(--text-primary)] ring-offset-2 ring-offset-[var(--bg-secondary)]'
-          : 'hover:scale-105 hover:shadow-lg'
+          ? 'bg-[var(--bg-tertiary)]'
+          : 'hover:bg-[var(--bg-glass)]'
         }
       `}
-      style={{ backgroundColor: themeConfig.colors.bg }}
       title={themeConfig.name}
     >
-      {/* Accent bar */}
+      {/* Color swatch circle */}
       <div
-        className="absolute bottom-0 left-0 right-0 h-1.5"
-        style={{ backgroundColor: themeConfig.colors.accent }}
-      />
-
-      {/* Accent glow */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-8 opacity-30"
+        className={`
+          relative w-10 h-10 rounded-full border-2 transition-all duration-200
+          ${isActive ? 'scale-110' : 'hover:scale-105'}
+        `}
         style={{
-          background: `linear-gradient(to top, ${themeConfig.colors.accent}40, transparent)`
+          backgroundColor: themeConfig.colors.bg,
+          borderColor: themeConfig.colors.accent,
+          boxShadow: isActive
+            ? `0 0 16px ${themeConfig.colors.accent}60, inset 0 0 12px ${themeConfig.colors.accent}30`
+            : `0 0 8px ${themeConfig.colors.accent}20`
         }}
-      />
+      >
+        {/* Inner accent dot */}
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full"
+          style={{ backgroundColor: themeConfig.colors.accent }}
+        />
 
-      {/* Check mark for active */}
-      {isActive && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div
-            className="w-5 h-5 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: themeConfig.colors.accent }}
-          >
+        {/* Check mark for active */}
+        {isActive && (
+          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-[var(--accent-green)] flex items-center justify-center">
             <svg
-              className="w-3 h-3"
+              className="w-2.5 h-2.5 text-black"
               fill="none"
               viewBox="0 0 24 24"
-              stroke={themeConfig.colors.bg}
+              stroke="currentColor"
               strokeWidth={3}
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
           </div>
-        </div>
-      )}
-
-      {/* Hover overlay with name */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
-        <span
-          className="text-xs font-semibold"
-          style={{ color: themeConfig.colors.text }}
-        >
-          {themeConfig.name}
-        </span>
+        )}
       </div>
+
+      {/* Theme name */}
+      <span
+        className={`
+          text-[11px] font-medium transition-colors
+          ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}
+        `}
+      >
+        {themeConfig.name}
+      </span>
     </button>
   );
 }
