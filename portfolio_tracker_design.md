@@ -4,9 +4,12 @@
 
 ---
 
-## Current Status: v0.4.0-alpha (LIVE)
+## Current Status: v0.5.0-alpha (LIVE)
 
 **Production URL:** https://chainpulsetest1.vercel.app
+
+### Latest Update (v0.5.0) — UI/UX Overhaul
+Major design refinements focused on typography, spacing, and component polish.
 
 ---
 
@@ -43,13 +46,33 @@
 - [x] Toast notifications system
 - [x] Auto-refresh every 30s
 
-### Design System (v0.4 - "Obsidian Luxe")
+### Design System (v0.5 - "Obsidian Luxe" Refined)
+
+#### Typography (NEW)
+- [x] **Plus Jakarta Sans** — body text (replaces Inter)
+- [x] **Instrument Sans** — display/headlines
+- [x] **JetBrains Mono** — numbers and data
+
+#### Component Redesigns (NEW)
+- [x] **TimeRangeSelector** — larger touch targets, sliding indicator animation
+- [x] **AlertsList** — compact one-line format, color-coded accent bars, live pulse indicator
+- [x] **TabNav** — clean underline indicator with smooth animation, larger text
+- [x] **Theme Selector** — circular swatches with accent borders, glow effects, checkmark indicator
+- [x] **Tracked Wallets** — proper card container, green status dots, "WATCHING" header
+
+#### Spacing & Layout (NEW)
+- [x] **Increased padding** — cards 28px (up from 24px), mobile 24px
+- [x] **Larger border-radius** — 20px (up from 16px)
+- [x] **Table rows** — 18px padding for better scanning
+- [x] **Grid gaps** — 8-10px between major sections
+
+#### Core Design Elements
 - [x] **Premium glass morphism** — backdrop-blur effects, subtle transparency layers
 - [x] **Refined color system** — luminous accents with proper opacity hierarchy
 - [x] **Enhanced CSS variables** — `--bg-glass`, `--accent-glow`, `--shadow-glow`, gradient overlays
 - [x] **Shimmer loading animation** — replaces basic pulse for skeleton states
 - [x] **Interactive row highlights** — accent line indicators on hover
-- [x] **Display typography** — large monospace numbers with tight letter-spacing (-0.03em)
+- [x] **Display typography** — large monospace numbers with tight letter-spacing (-0.035em)
 - [x] **Directional indicators** — arrows (↗/↘) with colored badges for price changes
 - [x] **Icon glow effects** — chain-colored glow on asset icons
 - [x] **Expandable cards** — mobile asset cards with smooth expand animation
@@ -58,8 +81,8 @@
 ### Auth & User Experience
 - [x] Email/password auth (Supabase)
 - [x] Google OAuth sign-in
-- [x] **Mert-style user menu** — dropdown with theme/homepage selectors
-- [x] **4 color themes** — Noir, Bloomberg, Sakura, Ember (all with glass/glow variables)
+- [x] **User menu dropdown** — compact theme swatches + auth section
+- [x] **4 color themes** — Noir, Bloomberg, Sakura, Ember (visual swatches with accent borders)
 - [x] Wallet persistence (signed-in users)
 - [x] LocalStorage fallback (anonymous users)
 - [x] Row Level Security (RLS) — users can't see each other's data
@@ -124,6 +147,7 @@
 ```
 Frontend:       Next.js 14 (App Router)
 Styling:        TailwindCSS + CSS Variables (Obsidian Luxe design system)
+Typography:     Plus Jakarta Sans, Instrument Sans, JetBrains Mono (Google Fonts)
 Auth + DB:      Supabase
 Email:          Resend
 Deployment:     Vercel
