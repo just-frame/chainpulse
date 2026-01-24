@@ -172,26 +172,35 @@ export default function Dashboard() {
 
             {/* Tracked Wallets */}
             {wallets.length > 0 && (
-              <div className="flex flex-col gap-3">
-                <span className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
-                  Tracked Wallets
-                </span>
-                <div className="flex flex-wrap gap-2">
+              <div className="card py-5 px-5">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-caption">
+                    Watching
+                  </span>
+                  <span className="text-xs text-[var(--text-muted)] font-mono">
+                    {wallets.length} wallet{wallets.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-2">
                   {wallets.map((wallet, i) => (
                     <div
                       key={wallet.id || i}
-                      className="group flex items-center gap-2 text-xs px-3 py-2 rounded-xl bg-[var(--bg-tertiary)] text-[var(--text-secondary)] font-mono border border-[var(--border)] hover:border-[var(--border-hover)] transition-all"
+                      className="group flex items-center justify-between gap-3 text-sm py-2 px-3 -mx-3 rounded-lg hover:bg-[var(--bg-glass)] transition-all"
                     >
-                      <span className="capitalize text-[var(--text-muted)]">{wallet.chain}</span>
-                      <span className="text-[var(--border-hover)]"></span>
-                      <span className="hidden sm:inline">{wallet.address.slice(0, 6)}...{wallet.address.slice(-4)}</span>
-                      <span className="sm:hidden">{wallet.address.slice(0, 4)}...{wallet.address.slice(-3)}</span>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="w-2 h-2 rounded-full bg-[var(--accent-green)] shrink-0" />
+                        <span className="font-mono text-[var(--text-primary)] truncate">
+                          <span className="hidden sm:inline">{wallet.address.slice(0, 6)}...{wallet.address.slice(-4)}</span>
+                          <span className="sm:hidden">{wallet.address.slice(0, 4)}...{wallet.address.slice(-3)}</span>
+                        </span>
+                        <span className="text-xs text-[var(--text-muted)] capitalize shrink-0">{wallet.chain}</span>
+                      </div>
                       <button
                         onClick={() => removeWallet(wallet.address, wallet.chain)}
-                        className="-mr-1 p-1.5 opacity-0 group-hover:opacity-100 hover:text-[var(--accent-red)] hover:bg-[var(--accent-red)]/10 rounded-lg transition-all"
+                        className="p-1.5 opacity-0 group-hover:opacity-100 hover:text-[var(--accent-red)] hover:bg-[var(--accent-red)]/10 rounded-lg transition-all shrink-0"
                         title="Remove wallet"
                       >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M18 6L6 18M6 6l12 12" />
                         </svg>
                       </button>
@@ -199,12 +208,12 @@ export default function Dashboard() {
                   ))}
                 </div>
 
-                {!isAuthenticated && wallets.length > 0 && (
-                  <p className="text-xs text-[var(--text-muted)] flex items-center gap-1.5">
-                    <svg className="w-3.5 h-3.5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                {!isAuthenticated && (
+                  <p className="text-xs text-[var(--text-muted)] flex items-center gap-2 mt-4 pt-4 border-t border-[var(--border)]">
+                    <svg className="w-4 h-4 text-yellow-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
-                    Sign in to save your wallets
+                    Sign in to save wallets across devices
                   </p>
                 )}
               </div>
