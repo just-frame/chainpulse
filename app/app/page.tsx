@@ -172,9 +172,9 @@ export default function Dashboard() {
 
             {/* Tracked Wallets */}
             {wallets.length > 0 && (
-              <div className="card">
+              <div className="card card-interactive">
                 <div className="flex items-center justify-between mb-5">
-                  <span className="text-caption">
+                  <span className="text-caption section-header">
                     Watching
                   </span>
                   <span className="text-sm text-[var(--text-muted)] font-mono">
@@ -188,7 +188,7 @@ export default function Dashboard() {
                       className="group flex items-center justify-between gap-4 py-3 px-4 -mx-4 rounded-lg hover:bg-[var(--bg-glass)] transition-all"
                     >
                       <div className="flex items-center gap-4 min-w-0">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-green)] shrink-0" />
+                        <span className="w-2.5 h-2.5 bg-[var(--accent-green)] shrink-0 status-pulse" style={{ color: 'var(--accent-green)' }} />
                         <span className="font-mono text-[var(--text-primary)] text-sm truncate">
                           <span className="hidden sm:inline">{wallet.address.slice(0, 6)}...{wallet.address.slice(-4)}</span>
                           <span className="sm:hidden">{wallet.address.slice(0, 4)}...{wallet.address.slice(-3)}</span>
@@ -222,12 +222,12 @@ export default function Dashboard() {
 
             {/* Desktop Alerts Panel - Inline in sidebar */}
             {showAlertsPanel && (
-              <div className="hidden xl:block card p-0 overflow-hidden animate-fadeIn">
+              <div className="hidden xl:block card card-interactive p-0 overflow-hidden animate-fadeIn corner-brackets">
                 {/* Header with accent */}
                 <div className="px-6 py-5 border-b border-[var(--border)] flex items-center justify-between relative">
                   <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--accent-primary)] to-transparent opacity-50" />
                   <div className="flex items-center gap-3">
-                    <div className="w-1.5 h-1.5 bg-[var(--accent-primary)]" style={{ boxShadow: '0 0 6px var(--accent-primary)' }} />
+                    <div className="w-1.5 h-1.5 bg-[var(--accent-primary)] status-pulse" style={{ color: 'var(--accent-primary)' }} />
                     <h3 className="text-xs font-semibold tracking-wider uppercase">Price Alerts</h3>
                   </div>
                   <div className="flex items-center gap-1">
@@ -304,7 +304,7 @@ export default function Dashboard() {
 
           {/* Right Column - Holdings */}
           <div className="xl:col-span-9 flex flex-col gap-8">
-            <div className="card p-0 overflow-hidden">
+            <div className="card card-interactive p-0 overflow-hidden">
               {/* Tab Header */}
               <div className="px-8 sm:px-10 py-6 border-b border-[var(--border)]">
                 <div className="flex items-center justify-between gap-4">
@@ -381,7 +381,7 @@ export default function Dashboard() {
         {/* Backdrop with blur */}
         <div
           className={`
-            absolute inset-0 bg-black/60 backdrop-blur-sm
+            absolute inset-0 bg-black/70 overlay-backdrop
             transition-opacity duration-300
             ${showAlertsPanel ? 'opacity-100' : 'opacity-0'}
           `}
@@ -396,7 +396,7 @@ export default function Dashboard() {
             shadow-[-8px_0_32px_rgba(0,0,0,0.5)]
             transform transition-transform duration-300 ease-out
             ${showAlertsPanel ? 'translate-x-0' : 'translate-x-full'}
-            flex flex-col
+            flex flex-col corner-brackets
           `}
         >
           {/* Accent line on left edge */}
@@ -405,7 +405,7 @@ export default function Dashboard() {
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--border)] shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-[var(--accent-primary)] animate-pulse" style={{ boxShadow: '0 0 8px var(--accent-primary)' }} />
+              <div className="w-2 h-2 bg-[var(--accent-primary)] status-pulse" style={{ color: 'var(--accent-primary)' }} />
               <h3 className="text-sm font-semibold tracking-wider uppercase">Price Alerts</h3>
               {alerts.filter(a => a.enabled).length > 0 && (
                 <span className="px-2 py-0.5 text-[10px] font-bold tracking-wide bg-[var(--accent-green-muted)] text-[var(--accent-green)] border border-[var(--accent-green)]/30">

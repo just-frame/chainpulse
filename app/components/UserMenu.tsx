@@ -116,13 +116,9 @@ export default function UserMenu({ onAlertsClick, alertsCount = 0 }: UserMenuPro
 
         {/* Dropdown */}
         {isOpen && (
-          <div className="absolute right-0 top-full mt-2 w-72 bg-[var(--bg-secondary)] border border-[var(--border)] shadow-2xl overflow-hidden animate-fadeInScale z-50">
+          <div className="absolute right-0 top-full mt-2 w-72 bg-[var(--bg-secondary)] border border-[var(--border)] shadow-2xl overflow-hidden animate-fadeInScale z-50 corner-brackets">
             {/* Top border glow */}
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--accent-primary)] to-transparent opacity-50" />
-
-            {/* Corner accents */}
-            <div className="absolute top-0 left-0 w-3 h-3 border-l border-t border-[var(--accent-primary)] opacity-40" />
-            <div className="absolute top-0 right-0 w-3 h-3 border-r border-t border-[var(--accent-primary)] opacity-40" />
 
             {/* Content */}
             <div className="p-4">

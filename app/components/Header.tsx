@@ -32,19 +32,13 @@ export default function Header({ onAlertsClick, alertsCount = 0 }: HeaderProps) 
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
-            <a
-              href="#"
-              className="px-4 py-2 text-sm font-medium text-[var(--text-primary)] rounded-lg bg-[var(--bg-glass)] border border-[var(--border)] transition-all hover:border-[var(--border-hover)]"
-            >
-              Dashboard
-            </a>
             <button
               onClick={onAlertsClick}
-              className="relative px-4 py-2 text-sm font-medium text-[var(--text-secondary)] rounded-lg transition-all hover:text-[var(--text-primary)] hover:bg-[var(--bg-glass)]"
+              className="relative px-4 py-2 text-sm font-medium text-[var(--text-secondary)] transition-all hover:text-[var(--text-primary)] hover:bg-[var(--bg-glass)] border border-transparent hover:border-[var(--border)]"
             >
               Alerts
               {alertsCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] text-[10px] font-bold bg-[var(--accent-green)] text-black rounded-full flex items-center justify-center px-1">
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] text-[10px] font-bold bg-[var(--accent-green)] text-black flex items-center justify-center px-1" style={{ boxShadow: '0 0 6px var(--accent-green)' }}>
                   {alertsCount > 9 ? '9+' : alertsCount}
                 </span>
               )}

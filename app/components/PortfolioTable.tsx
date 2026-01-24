@@ -77,13 +77,21 @@ export default function PortfolioTable({ assets, isLoading = false }: PortfolioT
   if (assets.length === 0) {
     return (
       <div className="text-center py-16">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[var(--bg-tertiary)] flex items-center justify-center">
-          <svg className="w-8 h-8 text-[var(--text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+        <div className="relative w-16 h-16 mx-auto mb-5">
+          {/* Outer frame */}
+          <div className="absolute inset-0 border border-[var(--border)]" />
+          {/* Corner accents */}
+          <div className="absolute -top-1 -left-1 w-3 h-3 border-l-2 border-t-2 border-[var(--accent-primary)] opacity-60" />
+          <div className="absolute -bottom-1 -right-1 w-3 h-3 border-r-2 border-b-2 border-[var(--accent-primary)] opacity-60" />
+          {/* Icon container */}
+          <div className="absolute inset-0 flex items-center justify-center bg-[var(--bg-tertiary)]">
+            <svg className="w-7 h-7 text-[var(--text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="square" strokeLinejoin="miter" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
         </div>
-        <p className="text-[var(--text-secondary)] font-medium">No assets found</p>
-        <p className="text-sm text-[var(--text-muted)] mt-1">Add a wallet to start tracking</p>
+        <p className="text-xs font-semibold tracking-[0.1em] uppercase text-[var(--text-secondary)] mb-1">No assets found</p>
+        <p className="text-[11px] text-[var(--text-muted)] tracking-wide">Add a wallet to start tracking</p>
       </div>
     );
   }

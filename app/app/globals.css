@@ -279,6 +279,21 @@ td {
 
 tbody tr {
   border-bottom: 1px solid var(--border);
+  position: relative;
+  transition: all 150ms ease;
+}
+
+tbody tr::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 0;
+  background: var(--accent-primary);
+  transition: height 150ms ease;
+  box-shadow: 0 0 8px var(--accent-primary);
 }
 
 tbody tr:last-child {
@@ -287,6 +302,10 @@ tbody tr:last-child {
 
 tbody tr:hover {
   background: var(--bg-glass-hover);
+}
+
+tbody tr:hover::before {
+  height: 50%;
 }
 
 /* ============================================
@@ -1121,6 +1140,173 @@ tbody tr:hover {
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
   opacity: 0.3;
+}
+
+/* ============================================
+   ENHANCED EMPTY STATES
+   ============================================ */
+.empty-state-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state-icon::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 1px solid var(--border);
+  opacity: 0.5;
+}
+
+.empty-state-icon::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 8px;
+  height: 8px;
+  border-left: 2px solid var(--accent-primary);
+  border-top: 2px solid var(--accent-primary);
+  opacity: 0.6;
+}
+
+/* ============================================
+   CARD POLISH EFFECTS
+   ============================================ */
+.card-interactive {
+  transition: all 200ms ease;
+}
+
+.card-interactive:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-glow);
+}
+
+.card-interactive:hover::before {
+  opacity: 0.5;
+}
+
+/* Section header styling */
+.section-header {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-header::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--accent-primary);
+  box-shadow: 0 0 8px var(--accent-primary);
+}
+
+/* Loading scanline effect */
+.loading-scanline {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-scanline::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+  animation: loadingScan 1.5s ease-in-out infinite;
+}
+
+@keyframes loadingScan {
+  0% { transform: translateY(0); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+/* Tab indicator glow effect */
+.tab-indicator-glow {
+  box-shadow: 0 2px 8px var(--accent-primary), 0 0 12px var(--accent-primary);
+}
+
+/* Enhanced button hover */
+.btn-enhanced {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-enhanced::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left 400ms ease;
+}
+
+.btn-enhanced:hover::after {
+  left: 100%;
+}
+
+/* Status pulse animation */
+@keyframes statusPulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 6px currentColor;
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 12px currentColor;
+  }
+}
+
+.status-pulse {
+  animation: statusPulse 2s ease-in-out infinite;
+}
+
+/* Modal/Panel overlay improvements */
+.overlay-backdrop {
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+}
+
+/* Corner bracket decorations */
+.corner-brackets {
+  position: relative;
+}
+
+.corner-brackets::before,
+.corner-brackets::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: var(--accent-primary);
+  border-style: solid;
+  opacity: 0.4;
+  transition: opacity 200ms ease;
+}
+
+.corner-brackets::before {
+  top: 0;
+  left: 0;
+  border-width: 2px 0 0 2px;
+}
+
+.corner-brackets::after {
+  bottom: 0;
+  right: 0;
+  border-width: 0 2px 2px 0;
+}
+
+.corner-brackets:hover::before,
+.corner-brackets:hover::after {
+  opacity: 0.8;
 }
 
 /* ============================================

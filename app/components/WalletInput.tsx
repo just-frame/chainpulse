@@ -159,7 +159,7 @@ export default function WalletInput({ onAdd }: WalletInputProps) {
           <button
             type="submit"
             disabled={!address.trim() || !selectedChain || isLoading}
-            className="btn btn-primary whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none"
+            className="btn btn-primary btn-enhanced whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none"
           >
             {isLoading ? (
               <span className="flex items-center gap-2">

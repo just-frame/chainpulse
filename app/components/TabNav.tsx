@@ -37,13 +37,14 @@ export default function TabNav({ tabs, activeTab, onTabChange }: TabNavProps) {
       ref={containerRef}
       className="relative inline-flex items-center"
     >
-      {/* Sliding underline indicator */}
+      {/* Sliding underline indicator with glow */}
       <div
-        className="absolute bottom-0 h-0.5 bg-[var(--text-primary)] rounded-full transition-all duration-300 ease-out"
+        className="absolute bottom-0 h-0.5 bg-[var(--text-primary)] transition-all duration-300 ease-out"
         style={{
           left: indicatorStyle.left,
           width: indicatorStyle.width,
           opacity: indicatorStyle.width > 0 ? 1 : 0,
+          boxShadow: '0 2px 8px var(--accent-primary), 0 0 12px rgba(90, 171, 184, 0.4)',
         }}
       />
 
