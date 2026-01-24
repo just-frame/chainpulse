@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
+import { requireInvite } from '@/lib/invite-check';
+import { logger } from '@/lib/logger';
 
 export interface AlertData {
   id?: string;
@@ -18,6 +20,10 @@ export interface AlertData {
  * Returns all alerts for the authenticated user
  */
 export async function GET() {
+  // Check invite status first
+  const inviteError = await requireInvite();
+  if (inviteError) return inviteError;
+
   const supabase = await createServerSupabaseClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -32,7 +38,7 @@ export async function GET() {
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('[Alerts API] Error fetching alerts:', error);
+    logger.error('[Alerts API] Error fetching alerts', error);
     return NextResponse.json({ error: 'Failed to fetch alerts' }, { status: 500 });
   }
 
@@ -44,6 +50,10 @@ export async function GET() {
  * Create a new alert
  */
 export async function POST(request: NextRequest) {
+  // Check invite status first
+  const inviteError = await requireInvite();
+  if (inviteError) return inviteError;
+
   const supabase = await createServerSupabaseClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -87,13 +97,13 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError) {
-      console.error('[Alerts API] Error creating alert:', insertError);
+      logger.error('[Alerts API] Error creating alert', insertError);
       return NextResponse.json({ error: 'Failed to create alert' }, { status: 500 });
     }
 
     return NextResponse.json(alert, { status: 201 });
   } catch (error) {
-    console.error('[Alerts API] Error parsing request:', error);
+    logger.error('[Alerts API] Error parsing request', error);
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
 }
@@ -103,6 +113,10 @@ export async function POST(request: NextRequest) {
  * Delete an alert
  */
 export async function DELETE(request: NextRequest) {
+  // Check invite status first
+  const inviteError = await requireInvite();
+  if (inviteError) return inviteError;
+
   const supabase = await createServerSupabaseClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -122,7 +136,7 @@ export async function DELETE(request: NextRequest) {
     .eq('user_id', user.id); // RLS also enforces this, but be explicit
 
   if (deleteError) {
-    console.error('[Alerts API] Error deleting alert:', deleteError);
+    logger.error('[Alerts API] Error deleting alert', deleteError);
     return NextResponse.json({ error: 'Failed to delete alert' }, { status: 500 });
   }
 
@@ -134,6 +148,10 @@ export async function DELETE(request: NextRequest) {
  * Update an alert (toggle enabled, update threshold, etc.)
  */
 export async function PATCH(request: NextRequest) {
+  // Check invite status first
+  const inviteError = await requireInvite();
+  if (inviteError) return inviteError;
+
   const supabase = await createServerSupabaseClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -170,13 +188,13 @@ export async function PATCH(request: NextRequest) {
       .single();
 
     if (updateError) {
-      console.error('[Alerts API] Error updating alert:', updateError);
+      logger.error('[Alerts API] Error updating alert', updateError);
       return NextResponse.json({ error: 'Failed to update alert' }, { status: 500 });
     }
 
     return NextResponse.json(alert);
   } catch (error) {
-    console.error('[Alerts API] Error parsing request:', error);
+    logger.error('[Alerts API] Error parsing request', error);
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
 }

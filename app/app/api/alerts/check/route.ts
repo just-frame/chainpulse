@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
+import { requireInvite } from '@/lib/invite-check';
 import { sendPriceAlertEmail } from '@/lib/email';
+import { logger } from '@/lib/logger';
 
 // Price cache to avoid hammering CoinGecko
 const priceCache: Record<string, { price: number; timestamp: number }> = {};
@@ -10,12 +12,12 @@ const CACHE_TTL = 60000; // 1 minute
  * Fetch current price for an asset from CoinGecko
  */
 async function getAssetPrice(symbol: string): Promise<number | null> {
-  console.log(`[AlertCheck] getAssetPrice called with symbol: "${symbol}"`);
-  
+  logger.debug(`[AlertCheck] getAssetPrice called with symbol: "${symbol}"`);
+
   // Check cache first
   const cached = priceCache[symbol];
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    console.log(`[AlertCheck] Returning cached price for ${symbol}: ${cached.price}`);
+    logger.debug(`[AlertCheck] Returning cached price for ${symbol}`);
     return cached.price;
   }
 
@@ -36,34 +38,35 @@ async function getAssetPrice(symbol: string): Promise<number | null> {
   };
 
   const coinId = symbolToId[symbol.toUpperCase()] || symbol.toLowerCase();
-  console.log(`[AlertCheck] Mapped symbol "${symbol}" to CoinGecko ID: "${coinId}"`);
+  logger.debug(`[AlertCheck] Mapped symbol "${symbol}" to CoinGecko ID`);
 
   try {
     const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`;
-    console.log(`[AlertCheck] Fetching: ${url}`);
-    
+    logger.debug('[AlertCheck] Fetching price from CoinGecko');
+
     const response = await fetch(url, { cache: 'no-store' });
 
     if (!response.ok) {
-      console.error(`[AlertCheck] CoinGecko error for ${symbol}: status ${response.status}`);
+      logger.error(`[AlertCheck] CoinGecko error for ${symbol}: status ${response.status}`);
       return null;
     }
 
     const data = await response.json();
-    console.log(`[AlertCheck] CoinGecko response:`, JSON.stringify(data));
-    
+    // Don't log full API response - just note that we got one
+    logger.debug('[AlertCheck] CoinGecko response received');
+
     const price = data[coinId]?.usd;
 
     if (price) {
       priceCache[symbol] = { price, timestamp: Date.now() };
-      console.log(`[AlertCheck] Got price for ${symbol}: $${price}`);
+      logger.debug(`[AlertCheck] Got price for ${symbol}`);
       return price;
     }
 
-    console.log(`[AlertCheck] No price found in response for ${coinId}`);
+    logger.debug(`[AlertCheck] No price found in response for ${coinId}`);
     return null;
   } catch (err) {
-    console.error(`[AlertCheck] Failed to fetch price for ${symbol}:`, err);
+    logger.error(`[AlertCheck] Failed to fetch price for ${symbol}`, err);
     return null;
   }
 }
@@ -73,6 +76,10 @@ async function getAssetPrice(symbol: string): Promise<number | null> {
  * Check all alerts for the current user and send notifications for triggered ones
  */
 export async function POST(request: NextRequest) {
+  // Check invite status first
+  const inviteError = await requireInvite();
+  if (inviteError) return inviteError;
+
   const supabase = await createServerSupabaseClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -94,7 +101,7 @@ export async function POST(request: NextRequest) {
     .eq('enabled', true);
 
   if (alertsError) {
-    console.error('[AlertCheck] Error fetching alerts:', alertsError);
+    logger.error('[AlertCheck] Error fetching alerts', alertsError);
     return NextResponse.json({ error: 'Failed to fetch alerts' }, { status: 500 });
   }
 
@@ -106,32 +113,32 @@ export async function POST(request: NextRequest) {
   const checked = alerts.length;
 
   for (const alert of alerts) {
-    console.log(`[AlertCheck] Processing alert: asset=${alert.asset}, type=${alert.type}, condition=${alert.condition}, threshold=${alert.threshold}`);
-    
+    logger.debug(`[AlertCheck] Processing alert: asset=${alert.asset}, type=${alert.type}, condition=${alert.condition}`);
+
     // Skip if triggered within last hour (prevent spam)
     if (alert.last_triggered) {
       const lastTriggered = new Date(alert.last_triggered).getTime();
       const hourAgo = Date.now() - 60 * 60 * 1000;
       if (lastTriggered > hourAgo) {
-        console.log(`[AlertCheck] Skipping ${alert.id} - triggered recently at ${alert.last_triggered}`);
+        logger.debug(`[AlertCheck] Skipping alert - triggered recently`);
         continue;
       }
     }
 
     // Get current price
     const currentPrice = await getAssetPrice(alert.asset);
-    console.log(`[AlertCheck] Price for ${alert.asset}: ${currentPrice}`);
-    
+    logger.debug(`[AlertCheck] Price check completed for ${alert.asset}`);
+
     if (currentPrice === null) {
-      console.log(`[AlertCheck] Could not get price for ${alert.asset}`);
+      logger.debug(`[AlertCheck] Could not get price for ${alert.asset}`);
       continue;
     }
 
     // Check if alert condition is met
     let shouldTrigger = false;
-    
+
     if (alert.type === 'price') {
-      console.log(`[AlertCheck] Comparing: currentPrice(${currentPrice}) ${alert.condition} threshold(${alert.threshold})`);
+      logger.debug(`[AlertCheck] Evaluating price condition for ${alert.asset}`);
       if (alert.condition === 'above' && currentPrice > alert.threshold) {
         shouldTrigger = true;
       } else if (alert.condition === 'below' && currentPrice < alert.threshold) {
@@ -140,20 +147,20 @@ export async function POST(request: NextRequest) {
     }
     // TODO: Implement percent_change alerts (requires tracking previous prices)
 
-    console.log(`[AlertCheck] shouldTrigger = ${shouldTrigger}`);
+    logger.debug(`[AlertCheck] shouldTrigger = ${shouldTrigger}`);
 
     if (shouldTrigger) {
-      console.log(`[AlertCheck] Alert triggered: ${alert.asset} ${alert.condition} ${alert.threshold}`);
-      
+      logger.info(`[AlertCheck] Alert triggered: ${alert.asset} ${alert.condition}`);
+
       // Mark as triggered FIRST (so in-app notifications work regardless of email)
       triggered.push(alert.id);
-      
+
       // Update last_triggered timestamp
       await supabase
         .from('alerts')
         .update({ last_triggered: new Date().toISOString() })
         .eq('id', alert.id);
-      
+
       // Try to send email (don't block on failure)
       try {
         const emailResult = await sendPriceAlertEmail({
@@ -165,14 +172,14 @@ export async function POST(request: NextRequest) {
           currentPrice,
           alertType: alert.type,
         });
-        
+
         if (emailResult.success) {
-          console.log(`[AlertCheck] Email sent successfully for ${alert.asset}`);
+          logger.info(`[AlertCheck] Email sent to ${logger.maskEmail(userEmail)} for ${alert.asset}`);
         } else {
-          console.warn(`[AlertCheck] Email failed for ${alert.asset}:`, emailResult.error);
+          logger.warn(`[AlertCheck] Email failed for ${alert.asset}`);
         }
       } catch (emailError) {
-        console.error(`[AlertCheck] Email error for ${alert.asset}:`, emailError);
+        logger.error(`[AlertCheck] Email error for ${alert.asset}`, emailError);
         // Don't throw - alert is still triggered, just email failed
       }
     }

@@ -3,8 +3,10 @@
  * Using Helius DAS API + Jupiter for comprehensive token data
  */
 
+import { logger } from '@/lib/logger';
+
 const HELIUS_API_KEY = process.env.HELIUS_API_KEY;
-const HELIUS_RPC = HELIUS_API_KEY 
+const HELIUS_RPC = HELIUS_API_KEY
   ? `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`
   : 'https://api.mainnet-beta.solana.com';
 
@@ -114,7 +116,7 @@ async function getDexScreenerIcons(mints: string[]): Promise<Map<string, string>
     // DexScreener allows batching with comma-separated addresses
     const response = await fetch(`${DEXSCREENER_API}/${mints.join(',')}`);
     const data = await response.json();
-    
+
     if (data.pairs) {
       for (const pair of data.pairs) {
         const mint = pair.baseToken?.address;
@@ -125,7 +127,7 @@ async function getDexScreenerIcons(mints: string[]): Promise<Map<string, string>
       }
     }
   } catch (error) {
-    console.error('Error fetching DexScreener icons:', error);
+    logger.error('[Solana] Error fetching DexScreener icons', error);
   }
 
   return icons;
@@ -143,7 +145,7 @@ async function getSolanaPrices(mints: string[]): Promise<Map<string, number>> {
     const ids = mints.map(m => `solana:${m}`).join(',');
     const response = await fetch(`${DEFILLAMA_PRICE_API}/${ids}`);
     const data = await response.json();
-    
+
     if (data.coins) {
       for (const [key, priceData] of Object.entries(data.coins)) {
         const mint = key.replace('solana:', '');
@@ -154,7 +156,7 @@ async function getSolanaPrices(mints: string[]): Promise<Map<string, number>> {
       }
     }
   } catch (error) {
-    console.error('Error fetching DeFiLlama prices:', error);
+    logger.error('[Solana] Error fetching DeFiLlama prices', error);
   }
 
   return prices;
@@ -194,11 +196,11 @@ async function getNativeStakedSol(address: string): Promise<{ balance: number; v
     });
 
     const data = await response.json();
-    
+
     if (data.result && Array.isArray(data.result)) {
       let totalStaked = 0;
       const validatorSet = new Set<string>();
-      
+
       for (const account of data.result) {
         const stakeInfo = account.account?.data?.parsed?.info;
         if (stakeInfo?.stake?.delegation) {
@@ -207,16 +209,16 @@ async function getNativeStakedSol(address: string): Promise<{ balance: number; v
           validatorSet.add(stakeInfo.stake.delegation.voter);
         }
       }
-      
+
       return {
         balance: totalStaked / 1e9,
         validators: validatorSet.size,
       };
     }
-    
+
     return { balance: 0, validators: 0 };
   } catch (error) {
-    console.error('Error fetching native staked SOL:', error);
+    logger.error('[Solana] Error fetching native staked SOL', error);
     return { balance: 0, validators: 0 };
   }
 }
@@ -243,7 +245,7 @@ async function getSolBalance(address: string): Promise<number> {
     }
     return 0;
   } catch (error) {
-    console.error('Error fetching SOL balance:', error);
+    logger.error('[Solana] Error fetching SOL balance', error);
     return 0;
   }
 }
@@ -253,11 +255,11 @@ async function getSolBalance(address: string): Promise<number> {
  */
 async function getTokensWithHelius(address: string): Promise<SolanaBalance[]> {
   if (!HELIUS_DAS_API) {
-    console.warn('[Solana] Helius API key not set, falling back to basic RPC');
+    logger.warn('[Solana] Helius API key not set, falling back to basic RPC');
     return getTokensBasic(address);
   }
 
-  console.log('[Solana] Fetching tokens for:', address);
+  logger.debug(`[Solana] Fetching tokens for: ${logger.maskAddress(address)}`);
 
   try {
     const response = await fetch(HELIUS_DAS_API, {
@@ -276,19 +278,19 @@ async function getTokensWithHelius(address: string): Promise<SolanaBalance[]> {
     });
 
     if (!response.ok) {
-      console.error('[Solana] Helius API error:', response.status, response.statusText);
+      logger.error(`[Solana] Helius API error: status ${response.status}`);
       return getTokensBasic(address);
     }
 
     const data = await response.json();
-    
+
     // Check for API error
     if (data.error) {
-      console.error('[Solana] Helius API returned error:', data.error);
+      logger.error('[Solana] Helius API returned error');
       return getTokensBasic(address);
     }
 
-    console.log('[Solana] Helius response - nativeBalance:', data.result?.nativeBalance?.lamports, 'items:', data.result?.items?.length || 0);
+    logger.debug(`[Solana] Helius response received - items: ${data.result?.items?.length || 0}`);
 
     const balances: SolanaBalance[] = [];
     const mints: string[] = [];
@@ -315,20 +317,20 @@ async function getTokensWithHelius(address: string): Promise<SolanaBalance[]> {
         const tokenInfo = item.token_info;
         const content = item.content;
         const metadata = content?.metadata;
-        
+
         if (tokenInfo && tokenInfo.balance > 0) {
           const decimals = tokenInfo.decimals || 0;
           const balance = tokenInfo.balance / Math.pow(10, decimals);
-          
+
           if (balance > 0.0001) {
             const mint = item.id;
-            
+
             // Priority: Helius metadata > fallback
             const symbol = tokenInfo.symbol || metadata?.symbol || mint.slice(0, 6);
             const name = metadata?.name || symbol;
             // Icon priority: hardcoded > Helius CDN > Helius files
             const imageUrl = SOLANA_TOKEN_ICONS[mint] || content?.links?.image || content?.files?.[0]?.cdn_uri;
-            
+
             mints.push(mint);
             balances.push({
               mint,
@@ -353,21 +355,21 @@ async function getTokensWithHelius(address: string): Promise<SolanaBalance[]> {
       getSolanaPrices(mints),
       mintsNeedingIcons.length > 0 ? getDexScreenerIcons(mintsNeedingIcons) : Promise.resolve(new Map<string, string>()),
     ]);
-    
+
     // Enrich balances with prices, icons, staking info, and filter dust
     const enrichedBalances: SolanaBalance[] = [];
     for (const balance of balances) {
       const price = prices.get(balance.mint) || 0;
       const value = balance.balance * price;
-      
+
       // Only include if value >= threshold OR it's a known token with price
       if (value >= MIN_USD_VALUE || (price > 0 && value >= 0.01)) {
         // Add DexScreener icon if we don't have one
         const imageUrl = balance.imageUrl || dexScreenerIcons.get(balance.mint);
-        
+
         // Check if it's a liquid staking token
         const stakingInfo = SOLANA_STAKING_TOKENS[balance.mint];
-        
+
         enrichedBalances.push({
           ...balance,
           imageUrl,
@@ -382,11 +384,11 @@ async function getTokensWithHelius(address: string): Promise<SolanaBalance[]> {
     // Sort by value descending
     enrichedBalances.sort((a, b) => (b.value || 0) - (a.value || 0));
 
-    console.log('[Solana] Token results - raw:', balances.length, 'after dust filter:', enrichedBalances.length);
-    
+    logger.debug(`[Solana] Token results - raw: ${balances.length}, after dust filter: ${enrichedBalances.length}`);
+
     return enrichedBalances;
   } catch (error) {
-    console.error('[Solana] Error fetching tokens with Helius DAS:', error);
+    logger.error('[Solana] Error fetching tokens with Helius DAS', error);
     return getTokensBasic(address);
   }
 }
@@ -419,7 +421,7 @@ async function getTokensBasic(address: string): Promise<SolanaBalance[]> {
         const info = account.account.data.parsed.info;
         const mint = info.mint;
         const amount = info.tokenAmount;
-        
+
         if (parseFloat(amount.uiAmount) > 0) {
           balances.push({
             mint,
@@ -434,7 +436,7 @@ async function getTokensBasic(address: string): Promise<SolanaBalance[]> {
 
     return balances;
   } catch (error) {
-    console.error('Error fetching token accounts:', error);
+    logger.error('[Solana] Error fetching token accounts', error);
     return [];
   }
 }
@@ -449,15 +451,15 @@ export async function getSolanaHoldings(address: string): Promise<SolanaBalance[
     getTokensWithHelius(address),
     getNativeStakedSol(address),
   ]);
-  
+
   const balances = [...tokens];
-  
+
   // Add native staked SOL if any
   if (nativeStaking.balance > 0.0001) {
     // Get SOL price from existing tokens or fetch it
     const solToken = balances.find(b => b.symbol === 'SOL');
     const solPrice = solToken?.price || 0;
-    
+
     balances.push({
       mint: 'native-staked',
       symbol: 'SOL',
@@ -471,14 +473,14 @@ export async function getSolanaHoldings(address: string): Promise<SolanaBalance[
       stakingProtocol: 'Native',
     });
   }
-  
+
   // If we got tokens, return them
   if (balances.length > 0) {
     // Re-sort by value after adding staked SOL
     balances.sort((a, b) => (b.value || 0) - (a.value || 0));
     return balances;
   }
-  
+
   // Fallback: fetch SOL balance separately
   const solBalance = await getSolBalance(address);
 
@@ -522,16 +524,16 @@ async function getNFTPurchasePrice(mint: string, ownerAddress?: string): Promise
         params: { id: mint, limit: 1000 },
       }),
     });
-    
+
     const sigData = await sigResponse.json();
     if (!sigData.result?.items?.length) return null;
-    
+
     // Get signatures - the LAST one is usually the original mint/purchase
     const allSigs = sigData.result.items.map((item: [string, string]) => item[0]);
-    
+
     // Take last 10 signatures (oldest transactions - likely the mint/first purchase)
     const oldestSigs = allSigs.slice(-10).reverse();
-    
+
     // Parse these transactions
     const txResponse = await fetch(
       `https://api.helius.xyz/v0/transactions?api-key=${HELIUS_API_KEY}`,
@@ -541,20 +543,20 @@ async function getNFTPurchasePrice(mint: string, ownerAddress?: string): Promise
         body: JSON.stringify({ transactions: oldestSigs }),
       }
     );
-    
+
     const transactions = await txResponse.json();
     if (!Array.isArray(transactions)) return null;
-    
+
     // Look for the original mint or first purchase
     for (const tx of transactions) {
       if (!tx || !tx.timestamp) continue;
-      
+
       const type = (tx.type || '').toUpperCase();
       const feePayer = tx.feePayer;
-      
+
       // Determine acquisition type based on transaction type and who paid fees
       let acquisitionType: AcquisitionType = 'unknown';
-      
+
       if (type.includes('NFT_MINT') || type.includes('COMPRESSED_NFT_MINT')) {
         // User minted this NFT themselves if they paid the fees
         acquisitionType = (ownerAddress && feePayer === ownerAddress) ? 'minted' : 'received';
@@ -565,14 +567,14 @@ async function getNFTPurchasePrice(mint: string, ownerAddress?: string): Promise
         // Just a transfer - received as gift/airdrop
         acquisitionType = 'received';
       }
-      
+
       // Check for mint, sale, or purchase transactions
       if (type.includes('MINT') || type.includes('SALE') || type.includes('BUY') || type.includes('NFT')) {
         // Check native SOL transfers (> 0.001 SOL to filter dust)
         const nativeTransfer = tx.nativeTransfers?.find(
           (t: { amount: number }) => t.amount > 1000000
         );
-        
+
         if (nativeTransfer) {
           // If user paid SOL, they either minted or purchased
           if (acquisitionType === 'unknown') {
@@ -586,27 +588,27 @@ async function getNFTPurchasePrice(mint: string, ownerAddress?: string): Promise
         }
       }
     }
-    
+
     // If no price found, return the mint date at least
     const oldestTx = transactions.find((tx: { timestamp?: number }) => tx?.timestamp);
     if (oldestTx?.timestamp) {
       const type = (oldestTx.type || '').toUpperCase();
       let acquisitionType: AcquisitionType = 'received'; // Default: likely airdrop if no payment
-      
+
       if (type.includes('MINT') && ownerAddress && oldestTx.feePayer === ownerAddress) {
         acquisitionType = 'minted';
       }
-      
+
       return {
         price: 0, // Free mint or airdrop
         date: new Date(oldestTx.timestamp * 1000).toISOString(),
         acquisitionType,
       };
     }
-    
+
     return null;
   } catch (error) {
-    console.error('Error fetching NFT purchase price:', error);
+    logger.error('[Solana] Error fetching NFT purchase price', error);
     return null;
   }
 }
@@ -621,7 +623,7 @@ async function enrichNFTsWithPrices(nfts: SolanaNFT[], ownerAddress: string, lim
     ...nft,
     acquisitionType: 'unknown' as AcquisitionType,
   }));
-  
+
   const enrichedNfts = await Promise.all(
     nftsToEnrich.map(async (nft) => {
       const priceData = await getNFTPurchasePrice(nft.mint, ownerAddress);
@@ -636,7 +638,7 @@ async function enrichNFTsWithPrices(nfts: SolanaNFT[], ownerAddress: string, lim
       return { ...nft, acquisitionType: 'unknown' as AcquisitionType };
     })
   );
-  
+
   return [...enrichedNfts, ...remainingNfts];
 }
 
@@ -651,19 +653,19 @@ async function getDomainPurchasePrice(domainKey: string): Promise<{ price: numbe
     const response = await fetch(
       `https://api.helius.xyz/v0/addresses/${domainKey}/transactions?api-key=${HELIUS_API_KEY}&limit=100`
     );
-    
+
     if (!response.ok) return null;
-    
+
     const result = await response.json();
     if (result.error || !Array.isArray(result)) return null;
-    
+
     // Look for the registration/purchase transaction (usually the oldest)
     const transactions = result.reverse(); // Oldest first
-    
+
     // Find the earliest transaction (registration)
     const registrationTx = transactions[0];
     if (!registrationTx?.timestamp) return null;
-    
+
     // Sum up all SOL transfers in the registration tx (rent + fees + actual cost)
     let totalSol = 0;
     if (registrationTx.nativeTransfers) {
@@ -671,7 +673,7 @@ async function getDomainPurchasePrice(domainKey: string): Promise<{ price: numbe
         totalSol += (transfer.amount || 0);
       }
     }
-    
+
     // Check for token transfers (USDC, FIDA, etc.)
     let tokenCost = '';
     if (registrationTx.tokenTransfers?.length > 0) {
@@ -680,13 +682,13 @@ async function getDomainPurchasePrice(domainKey: string): Promise<{ price: numbe
         tokenCost = `${t.tokenAmount} ${t.mint?.slice(0, 4) || 'tokens'}`;
       }
     }
-    
+
     return {
       price: totalSol / 1e9, // Convert lamports to SOL
       date: new Date(registrationTx.timestamp * 1000).toISOString(),
     };
   } catch (error) {
-    console.error('Error fetching domain purchase price:', error);
+    logger.error('[Solana] Error fetching domain purchase price', error);
     return null;
   }
 }
@@ -700,15 +702,15 @@ async function getSolanaDomains(address: string): Promise<SolanaDomain[]> {
       `https://sns-sdk-proxy.bonfida.workers.dev/domains/${address}`
     );
     const data = await response.json();
-    
+
     if (data.s !== 'ok' || !data.result) return [];
-    
+
     // Get basic domain info
     const domains: SolanaDomain[] = data.result.map((d: { key: string; domain: string }) => ({
       name: `${d.domain}.sol`,
       mint: d.key,
     }));
-    
+
     // Enrich with purchase prices (in parallel)
     const enrichedDomains = await Promise.all(
       domains.map(async (domain) => {
@@ -723,10 +725,10 @@ async function getSolanaDomains(address: string): Promise<SolanaDomain[]> {
         return domain;
       })
     );
-    
+
     return enrichedDomains;
   } catch (error) {
-    console.error('Error fetching Solana domains:', error);
+    logger.error('[Solana] Error fetching Solana domains', error);
     return [];
   }
 }
@@ -766,10 +768,10 @@ async function getSolanaNFTs(address: string, limit = 100): Promise<SolanaNFT[]>
         const content = item.content;
         const metadata = content?.metadata;
         const name = metadata?.name || 'Unknown NFT';
-        
+
         // Skip spam/scam NFTs (comprehensive patterns)
         const nameLower = name.toLowerCase();
-        const isSpam = 
+        const isSpam =
           // Scam keywords
           nameLower.includes('claim') ||
           nameLower.includes('reward') ||
@@ -793,13 +795,13 @@ async function getSolanaNFTs(address: string, limit = 100): Promise<SolanaNFT[]>
           nameLower.includes('eligible') ||
           // No image = likely spam
           (!content?.links?.image && !content?.files?.[0]?.cdn_uri && !content?.files?.[0]?.uri);
-        
+
         if (isSpam) continue;
-        
+
         const collection = item.grouping?.find(
           (g: { group_key: string }) => g.group_key === 'collection'
         );
-        
+
         nfts.push({
           mint: item.id,
           name,
@@ -811,7 +813,7 @@ async function getSolanaNFTs(address: string, limit = 100): Promise<SolanaNFT[]>
 
     return nfts;
   } catch (error) {
-    console.error('Error fetching NFTs:', error);
+    logger.error('[Solana] Error fetching NFTs', error);
     return [];
   }
 }
@@ -823,38 +825,21 @@ export async function getSolanaPortfolio(address: string): Promise<SolanaPortfol
   // Check cache first to avoid rate limits
   const cached = portfolioCache.get(address.toLowerCase());
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    console.log(`[Solana] Using cached data for ${address.slice(0, 8)} (${Math.round((Date.now() - cached.timestamp) / 1000)}s old)`);
+    logger.debug(`[Solana] Using cached data for ${logger.maskAddress(address)}`);
     return cached.data;
   }
 
-  console.log(`[Solana] Fetching fresh data for ${address.slice(0, 8)}`);
-  console.time(`[Solana] Total fetch for ${address.slice(0, 8)}`);
-  
+  logger.debug(`[Solana] Fetching fresh data for ${logger.maskAddress(address)}`);
+
   // Fetch tokens, NFTs, and domains in parallel
   const [tokens, rawNfts, domains] = await Promise.all([
-    (async () => {
-      console.time('[Solana] Tokens');
-      const result = await getSolanaHoldings(address);
-      console.timeEnd('[Solana] Tokens');
-      return result;
-    })(),
-    (async () => {
-      console.time('[Solana] NFTs');
-      const result = await getSolanaNFTs(address, 50); // Limit to 50 for faster loading
-      console.timeEnd('[Solana] NFTs');
-      return result;
-    })(),
-    (async () => {
-      console.time('[Solana] Domains');
-      const result = await getSolanaDomains(address);
-      console.timeEnd('[Solana] Domains');
-      return result;
-    })(),
+    getSolanaHoldings(address),
+    getSolanaNFTs(address, 50), // Limit to 50 for faster loading
+    getSolanaDomains(address),
   ]);
 
-  console.timeEnd(`[Solana] Total fetch for ${address.slice(0, 8)}`);
-  console.log(`[Solana] Found ${tokens.length} tokens, ${rawNfts.length} NFTs, ${domains.length} domains`);
-  
+  logger.debug(`[Solana] Found ${tokens.length} tokens, ${rawNfts.length} NFTs, ${domains.length} domains`);
+
   // NFTs without price enrichment (too slow - TODO: lazy load prices on demand)
   const nfts = rawNfts.map(nft => ({
     ...nft,
@@ -862,10 +847,10 @@ export async function getSolanaPortfolio(address: string): Promise<SolanaPortfol
   }));
 
   const portfolio = { tokens, nfts, domains };
-  
+
   // Cache the result
   portfolioCache.set(address.toLowerCase(), { data: portfolio, timestamp: Date.now() });
-  
+
   return portfolio;
 }
 
