@@ -98,6 +98,17 @@ Shows directly in dropdown (no confusing "Connect"):
 | `/app/app/layout.tsx` | Updated | JetBrains Mono only |
 | `/app/app/page.tsx` | Unchanged | Main dashboard |
 
+## What's Done - Mobile Auth Modal Fix
+
+**Issue:** Sign Up modal cut off at top on iPhone 15 Pro - Google button hidden
+
+**Fix (AuthModal.tsx):**
+- `items-start` on mobile, `items-center` on desktop (sm breakpoint)
+- `100dvh` for dynamic viewport height (accounts for iOS Safari chrome)
+- `z-index: 100` for proper stacking above header
+- Darker backdrop (90% opacity)
+- Proper flex container with `min-h-full` for scroll handling
+
 ## Dev Commands
 ```bash
 cd "/Users/justframe/Desktop/vibecode2026/portfolio tracker/app"
