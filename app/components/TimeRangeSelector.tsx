@@ -1,5 +1,7 @@
 'use client';
 
+import { useRef, useEffect, useState } from 'react';
+
 export type TimeRange = '1D' | '1W' | '1M' | '3M' | 'YTD' | '1Y' | 'ALL';
 
 interface TimeRangeSelectorProps {
@@ -22,26 +24,59 @@ export default function TimeRangeSelector({
   onChange,
   disabled = false,
 }: TimeRangeSelectorProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const selectedButton = containerRef.current.querySelector(`[data-value="${selected}"]`) as HTMLButtonElement;
+    if (selectedButton) {
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const buttonRect = selectedButton.getBoundingClientRect();
+      setIndicatorStyle({
+        left: buttonRect.left - containerRect.left,
+        width: buttonRect.width,
+      });
+    }
+  }, [selected]);
+
   return (
-    <div className="inline-flex items-center gap-0.5 p-1 bg-[var(--bg-tertiary)] rounded-lg border border-[var(--border)]">
-      {TIME_RANGES.map(({ value, label }) => (
-        <button
-          key={value}
-          onClick={() => onChange(value)}
-          disabled={disabled}
-          className={`
-            px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200
-            ${
-              selected === value
-                ? 'bg-[var(--bg-primary)] text-[var(--text-primary)] shadow-sm'
-                : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
-            }
-            ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-          `}
-        >
-          {label}
-        </button>
-      ))}
+    <div
+      ref={containerRef}
+      className="relative inline-flex items-center gap-1 p-1.5 bg-[var(--bg-tertiary)] rounded-xl border border-[var(--border)]"
+    >
+      {/* Sliding indicator */}
+      <div
+        className="absolute top-1.5 h-[calc(100%-12px)] bg-[var(--text-primary)] rounded-lg shadow-lg transition-all duration-300 ease-out"
+        style={{
+          left: indicatorStyle.left,
+          width: indicatorStyle.width,
+          opacity: indicatorStyle.width > 0 ? 1 : 0,
+        }}
+      />
+
+      {TIME_RANGES.map(({ value, label }) => {
+        const isSelected = selected === value;
+        return (
+          <button
+            key={value}
+            data-value={value}
+            onClick={() => onChange(value)}
+            disabled={disabled}
+            className={`
+              relative z-10 px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200
+              ${isSelected
+                ? 'text-[var(--bg-primary)]'
+                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+              }
+              ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+            `}
+          >
+            {label}
+          </button>
+        );
+      })}
     </div>
   );
 }

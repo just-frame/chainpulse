@@ -4,11 +4,58 @@ import { useState, useEffect, useCallback } from 'react';
 
 export type Theme = 'bloomberg' | 'sakura' | 'noir' | 'ember';
 
-export const THEMES: { id: Theme; name: string; description: string }[] = [
-  { id: 'bloomberg', name: 'Bloomberg', description: 'Professional terminal' },
-  { id: 'sakura', name: 'Sakura', description: 'Cherry blossom' },
-  { id: 'noir', name: 'Noir', description: 'Pure minimal' },
-  { id: 'ember', name: 'Ember', description: 'Warm glow' },
+export interface ThemeConfig {
+  id: Theme;
+  name: string;
+  description: string;
+  colors: {
+    bg: string;
+    accent: string;
+    text: string;
+  };
+}
+
+export const THEMES: ThemeConfig[] = [
+  {
+    id: 'noir',
+    name: 'Noir',
+    description: 'Pure obsidian',
+    colors: {
+      bg: '#050505',
+      accent: '#ffffff',
+      text: '#fafafa',
+    },
+  },
+  {
+    id: 'bloomberg',
+    name: 'Bloomberg',
+    description: 'Terminal amber',
+    colors: {
+      bg: '#000000',
+      accent: '#ff8c00',
+      text: '#ff9500',
+    },
+  },
+  {
+    id: 'sakura',
+    name: 'Sakura',
+    description: 'Cherry blossom',
+    colors: {
+      bg: '#080609',
+      accent: '#ec4899',
+      text: '#f9a8d4',
+    },
+  },
+  {
+    id: 'ember',
+    name: 'Ember',
+    description: 'Warm glow',
+    colors: {
+      bg: '#080605',
+      accent: '#f97316',
+      text: '#fb923c',
+    },
+  },
 ];
 
 const STORAGE_KEY = 'portfolio-theme';

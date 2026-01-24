@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useTheme, THEMES, type Theme } from '@/hooks/useTheme';
+import { useTheme, THEMES, type Theme, type ThemeConfig } from '@/hooks/useTheme';
 import AuthModal from './AuthModal';
 
 interface UserMenuProps {
@@ -105,42 +105,39 @@ export default function UserMenu({ onAlertsClick, alertsCount = 0 }: UserMenuPro
 
         {/* Dropdown */}
         {isOpen && (
-          <div className="absolute right-0 top-full mt-2 w-80 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden animate-fadeInScale z-50">
+          <div className="absolute right-0 top-full mt-2 w-72 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden animate-fadeInScale z-50">
             {/* Theme Section */}
-            <div className="p-5 space-y-4">
-              <div>
-                <span className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">Appearance</span>
-                <div className="grid grid-cols-2 gap-2 mt-3">
-                  {mounted && THEMES.map((t) => (
-                    <button
-                      key={t.id}
-                      onClick={() => setTheme(t.id)}
-                      className={`
-                        relative px-4 py-3 rounded-xl text-sm font-medium transition-all text-left
-                        ${theme === t.id
-                          ? 'bg-[var(--accent-primary)] text-[var(--bg-primary)]'
-                          : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] border border-[var(--border)]'
-                        }
-                      `}
-                    >
-                      {t.name}
-                      {theme === t.id && (
-                        <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-[var(--bg-primary)] rounded-full" />
-                      )}
-                    </button>
-                  ))}
-                </div>
+            <div className="p-4">
+              <span className="text-caption">Theme</span>
+
+              {/* Theme Swatches */}
+              <div className="flex items-center gap-2 mt-3">
+                {mounted && THEMES.map((t) => (
+                  <ThemeSwatch
+                    key={t.id}
+                    themeConfig={t}
+                    isActive={theme === t.id}
+                    onClick={() => setTheme(t.id)}
+                  />
+                ))}
+              </div>
+
+              {/* Active theme name */}
+              <div className="mt-3 text-sm text-[var(--text-secondary)]">
+                {THEMES.find(t => t.id === theme)?.name}
+                <span className="text-[var(--text-muted)]"> — </span>
+                <span className="text-[var(--text-muted)]">{THEMES.find(t => t.id === theme)?.description}</span>
               </div>
             </div>
 
             <div className="border-t border-[var(--border)]" />
 
             {/* Auth Section */}
-            <div className="p-5">
+            <div className="p-4">
               {!loading && (
                 user ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-4 bg-[var(--bg-tertiary)] rounded-xl border border-[var(--border)]">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 p-3 bg-[var(--bg-tertiary)] rounded-xl">
                       <div className="w-10 h-10 bg-gradient-to-br from-[var(--accent-primary)] to-[var(--text-secondary)] rounded-full flex items-center justify-center">
                         <span className="text-[var(--bg-primary)] font-bold">
                           {user.email?.[0]?.toUpperCase() || '?'}
@@ -157,24 +154,21 @@ export default function UserMenu({ onAlertsClick, alertsCount = 0 }: UserMenuPro
                     </div>
                     <button
                       onClick={handleSignOut}
-                      className="w-full py-3 text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] rounded-xl transition-colors border border-transparent hover:border-[var(--border)]"
+                      className="w-full py-2.5 text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] rounded-xl transition-colors"
                     >
                       Sign out
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    <div className="text-center">
+                  <div className="space-y-3">
+                    <div className="text-center py-1">
                       <p className="text-sm text-[var(--text-secondary)]">
                         Sign in to save your portfolio
-                      </p>
-                      <p className="text-xs text-[var(--text-muted)] mt-1">
-                        Track history, create alerts, sync across devices
                       </p>
                     </div>
                     <button
                       onClick={handleSignIn}
-                      className="w-full py-3.5 bg-[var(--text-primary)] text-[var(--bg-primary)] font-semibold rounded-xl hover:opacity-90 transition-all hover:shadow-lg"
+                      className="w-full py-3 bg-[var(--text-primary)] text-[var(--bg-primary)] font-semibold rounded-xl hover:opacity-90 transition-all"
                     >
                       Sign In
                     </button>
@@ -192,5 +186,74 @@ export default function UserMenu({ onAlertsClick, alertsCount = 0 }: UserMenuPro
         initialMode={authMode}
       />
     </>
+  );
+}
+
+function ThemeSwatch({
+  themeConfig,
+  isActive,
+  onClick
+}: {
+  themeConfig: ThemeConfig;
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`
+        relative group flex-1 aspect-square rounded-xl overflow-hidden transition-all duration-200
+        ${isActive
+          ? 'ring-2 ring-[var(--text-primary)] ring-offset-2 ring-offset-[var(--bg-secondary)]'
+          : 'hover:scale-105 hover:shadow-lg'
+        }
+      `}
+      style={{ backgroundColor: themeConfig.colors.bg }}
+      title={themeConfig.name}
+    >
+      {/* Accent bar */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-1.5"
+        style={{ backgroundColor: themeConfig.colors.accent }}
+      />
+
+      {/* Accent glow */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-8 opacity-30"
+        style={{
+          background: `linear-gradient(to top, ${themeConfig.colors.accent}40, transparent)`
+        }}
+      />
+
+      {/* Check mark for active */}
+      {isActive && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div
+            className="w-5 h-5 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: themeConfig.colors.accent }}
+          >
+            <svg
+              className="w-3 h-3"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke={themeConfig.colors.bg}
+              strokeWidth={3}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+        </div>
+      )}
+
+      {/* Hover overlay with name */}
+      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
+        <span
+          className="text-xs font-semibold"
+          style={{ color: themeConfig.colors.text }}
+        >
+          {themeConfig.name}
+        </span>
+      </div>
+    </button>
   );
 }

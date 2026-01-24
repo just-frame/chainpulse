@@ -130,11 +130,11 @@ export default function Dashboard() {
         alertsCount={activeAlertsCount}
       />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-6 sm:py-8">
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8 max-w-[1800px] mx-auto">
+      <main className="w-full px-4 sm:px-6 lg:px-10 xl:px-16 py-8 sm:py-10">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 lg:gap-10 max-w-[1800px] mx-auto">
 
           {/* Left Column - Summary & Controls */}
-          <div className="xl:col-span-3 flex flex-col gap-5">
+          <div className="xl:col-span-3 flex flex-col gap-6">
             {/* Portfolio Summary */}
             <PortfolioSummary
               totalValue={totalValue}
@@ -278,10 +278,10 @@ export default function Dashboard() {
           </div>
 
           {/* Right Column - Holdings */}
-          <div className="xl:col-span-9 flex flex-col gap-5">
+          <div className="xl:col-span-9 flex flex-col gap-6">
             <div className="card p-0 overflow-hidden">
               {/* Tab Header */}
-              <div className="p-4 sm:p-5 border-b border-[var(--border)]">
+              <div className="px-6 sm:px-8 py-5 border-b border-[var(--border)]">
                 <div className="flex items-center justify-between gap-4">
                   <TabNav
                     tabs={[
@@ -329,7 +329,7 @@ export default function Dashboard() {
               </div>
 
               {/* Tab Content */}
-              <div className="p-4 sm:p-6">
+              <div className="p-6 sm:p-8">
                 {activeTab === 'assets' && (
                   <PortfolioTable assets={assets} isLoading={isLoading} />
                 )}

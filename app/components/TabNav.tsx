@@ -1,5 +1,7 @@
 'use client';
 
+import { useRef, useEffect, useState } from 'react';
+
 interface Tab {
   id: string;
   label: string;
@@ -13,34 +15,64 @@ interface TabNavProps {
 }
 
 export default function TabNav({ tabs, activeTab, onTabChange }: TabNavProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const activeButton = containerRef.current.querySelector(`[data-tab="${activeTab}"]`) as HTMLButtonElement;
+    if (activeButton) {
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const buttonRect = activeButton.getBoundingClientRect();
+      setIndicatorStyle({
+        left: buttonRect.left - containerRect.left,
+        width: buttonRect.width,
+      });
+    }
+  }, [activeTab]);
+
   return (
-    <div className="inline-flex items-center gap-1 p-1 bg-[var(--bg-tertiary)] rounded-xl border border-[var(--border)]">
-      {tabs.map((tab) => {
+    <div
+      ref={containerRef}
+      className="relative inline-flex items-center"
+    >
+      {/* Sliding underline indicator */}
+      <div
+        className="absolute bottom-0 h-0.5 bg-[var(--text-primary)] rounded-full transition-all duration-300 ease-out"
+        style={{
+          left: indicatorStyle.left,
+          width: indicatorStyle.width,
+          opacity: indicatorStyle.width > 0 ? 1 : 0,
+        }}
+      />
+
+      {tabs.map((tab, index) => {
         const isActive = activeTab === tab.id;
         return (
           <button
             key={tab.id}
+            data-tab={tab.id}
             onClick={() => onTabChange(tab.id)}
             className={`
-              relative flex items-center justify-center gap-2
-              px-4 py-2.5
-              text-sm font-medium rounded-lg
-              transition-all duration-200 ease-out
+              relative flex items-center gap-2.5 px-5 py-3
+              text-base font-medium transition-all duration-200
               ${isActive
-                ? 'bg-[var(--bg-primary)] text-[var(--text-primary)] shadow-sm'
-                : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-glass)]'
+                ? 'text-[var(--text-primary)]'
+                : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
               }
+              ${index === 0 ? 'pl-0' : ''}
             `}
           >
             {tab.label}
             {tab.count !== undefined && tab.count > 0 && (
               <span
                 className={`
-                  text-[10px] px-1.5 py-0.5 rounded-full min-w-[20px] text-center font-mono font-semibold
-                  transition-colors duration-200
+                  text-xs px-2 py-0.5 rounded-full font-mono font-semibold
+                  transition-all duration-200
                   ${isActive
-                    ? 'bg-[var(--accent-green)]/20 text-[var(--accent-green)]'
-                    : 'bg-[var(--bg-primary)]/60 text-[var(--text-muted)]'
+                    ? 'bg-[var(--accent-green)]/15 text-[var(--accent-green)]'
+                    : 'bg-[var(--bg-tertiary)] text-[var(--text-muted)]'
                   }
                 `}
               >
