@@ -130,11 +130,11 @@ export default function Dashboard() {
         alertsCount={activeAlertsCount}
       />
 
-      <main className="w-full px-4 sm:px-6 lg:px-10 xl:px-16 py-8 sm:py-10">
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 lg:gap-10 max-w-[1800px] mx-auto">
+      <main className="w-full px-5 sm:px-8 lg:px-12 xl:px-20 py-10 sm:py-14">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 lg:gap-14 max-w-[1920px] mx-auto">
 
           {/* Left Column - Summary & Controls */}
-          <div className="xl:col-span-3 flex flex-col gap-6">
+          <div className="xl:col-span-3 flex flex-col gap-8">
             {/* Portfolio Summary */}
             <PortfolioSummary
               totalValue={totalValue}
@@ -172,28 +172,28 @@ export default function Dashboard() {
 
             {/* Tracked Wallets */}
             {wallets.length > 0 && (
-              <div className="card py-5 px-5">
-                <div className="flex items-center justify-between mb-4">
+              <div className="card">
+                <div className="flex items-center justify-between mb-5">
                   <span className="text-caption">
                     Watching
                   </span>
-                  <span className="text-xs text-[var(--text-muted)] font-mono">
+                  <span className="text-sm text-[var(--text-muted)] font-mono">
                     {wallets.length} wallet{wallets.length !== 1 ? 's' : ''}
                   </span>
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-3">
                   {wallets.map((wallet, i) => (
                     <div
                       key={wallet.id || i}
-                      className="group flex items-center justify-between gap-3 text-sm py-2 px-3 -mx-3 rounded-lg hover:bg-[var(--bg-glass)] transition-all"
+                      className="group flex items-center justify-between gap-4 py-3 px-4 -mx-4 rounded-lg hover:bg-[var(--bg-glass)] transition-all"
                     >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <span className="w-2 h-2 rounded-full bg-[var(--accent-green)] shrink-0" />
-                        <span className="font-mono text-[var(--text-primary)] truncate">
+                      <div className="flex items-center gap-4 min-w-0">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-green)] shrink-0" />
+                        <span className="font-mono text-[var(--text-primary)] text-sm truncate">
                           <span className="hidden sm:inline">{wallet.address.slice(0, 6)}...{wallet.address.slice(-4)}</span>
                           <span className="sm:hidden">{wallet.address.slice(0, 4)}...{wallet.address.slice(-3)}</span>
                         </span>
-                        <span className="text-xs text-[var(--text-muted)] capitalize shrink-0">{wallet.chain}</span>
+                        <span className="text-sm text-[var(--text-muted)] capitalize shrink-0">{wallet.chain}</span>
                       </div>
                       <button
                         onClick={() => removeWallet(wallet.address, wallet.chain)}
@@ -209,7 +209,7 @@ export default function Dashboard() {
                 </div>
 
                 {!isAuthenticated && (
-                  <p className="text-xs text-[var(--text-muted)] flex items-center gap-2 mt-4 pt-4 border-t border-[var(--border)]">
+                  <p className="text-sm text-[var(--text-muted)] flex items-center gap-3 mt-5 pt-5 border-t border-[var(--border)]">
                     <svg className="w-4 h-4 text-yellow-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
@@ -222,8 +222,8 @@ export default function Dashboard() {
             {/* Desktop Alerts Panel */}
             {showAlertsPanel && (
               <div className="hidden xl:block card p-0 overflow-hidden">
-                <div className="p-4 border-b border-[var(--border)] flex items-center justify-between">
-                  <h3 className="font-semibold text-sm">Price Alerts</h3>
+                <div className="px-6 py-5 border-b border-[var(--border)] flex items-center justify-between">
+                  <h3 className="font-semibold text-base">Price Alerts</h3>
                   <div className="flex items-center gap-2">
                     {isAuthenticated && alerts.length > 0 && (
                       <button
@@ -254,19 +254,19 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                <div className="p-4 max-h-[40vh] overflow-y-auto">
+                <div className="p-6 max-h-[40vh] overflow-y-auto">
                   {!isAuthenticated ? (
-                    <div className="text-center py-8">
-                      <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-[var(--bg-tertiary)] flex items-center justify-center">
-                        <svg className="w-6 h-6 text-[var(--text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <div className="text-center py-10">
+                      <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-[var(--bg-tertiary)] flex items-center justify-center">
+                        <svg className="w-7 h-7 text-[var(--text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                       </div>
-                      <p className="text-sm text-[var(--text-muted)]">Sign in to create alerts</p>
+                      <p className="text-base text-[var(--text-muted)]">Sign in to create alerts</p>
                     </div>
                   ) : alertsLoading ? (
-                    <div className="text-center py-8">
-                      <div className="w-6 h-6 mx-auto border-2 border-[var(--border)] border-t-[var(--text-primary)] rounded-full animate-spin" />
+                    <div className="text-center py-10">
+                      <div className="w-7 h-7 mx-auto border-2 border-[var(--border)] border-t-[var(--text-primary)] rounded-full animate-spin" />
                     </div>
                   ) : (
                     <AlertsList
@@ -287,10 +287,10 @@ export default function Dashboard() {
           </div>
 
           {/* Right Column - Holdings */}
-          <div className="xl:col-span-9 flex flex-col gap-6">
+          <div className="xl:col-span-9 flex flex-col gap-8">
             <div className="card p-0 overflow-hidden">
               {/* Tab Header */}
-              <div className="px-6 sm:px-8 py-5 border-b border-[var(--border)]">
+              <div className="px-8 sm:px-10 py-6 border-b border-[var(--border)]">
                 <div className="flex items-center justify-between gap-4">
                   <TabNav
                     tabs={[
@@ -338,7 +338,7 @@ export default function Dashboard() {
               </div>
 
               {/* Tab Content */}
-              <div className="p-6 sm:p-8">
+              <div className="p-8 sm:p-10">
                 {activeTab === 'assets' && (
                   <PortfolioTable assets={assets} isLoading={isLoading} />
                 )}

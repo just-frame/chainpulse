@@ -2,185 +2,67 @@
 
 /* ============================================
    CHAINPULSE DESIGN SYSTEM
-   Obsidian Luxe - Premium dark financial aesthetic
+   CYPHER — Terminal aesthetic for sovereign traders
+   Inspired by Cyberpunk 2077 HUD interfaces
    ============================================ */
 
-/* Typography - Premium font pairing */
-@font-face {
-  font-family: 'Geist';
-  src: local('Geist'), local('GeistVF');
-  font-display: swap;
-}
-
 /* ============================================
-   THEME: Noir (Default)
-   Pure obsidian with luminous accents
+   THEME: Cypher (Default & Only)
+   Deep black with cyan/amber terminal accents
+   Angular. Raw. Uncompromising.
    ============================================ */
 :root,
-[data-theme="noir"] {
-  /* Background - Obsidian depths */
-  --bg-primary: #050505;
-  --bg-secondary: #0a0a0a;
-  --bg-tertiary: #111111;
-  --bg-hover: #161616;
-  --bg-elevated: #0d0d0d;
-  --bg-glass: rgba(255, 255, 255, 0.02);
-  --bg-glass-hover: rgba(255, 255, 255, 0.04);
+[data-theme="cypher"] {
+  /* Background - MGS codec darkness, cool undertone */
+  --bg-primary: #08090b;
+  --bg-secondary: #0d0e12;
+  --bg-tertiary: #12141a;
+  --bg-hover: #181b22;
+  --bg-elevated: #0f1015;
+  --bg-glass: rgba(90, 160, 180, 0.02);
+  --bg-glass-hover: rgba(90, 160, 180, 0.05);
 
-  /* Text - Refined hierarchy */
-  --text-primary: #fafafa;
-  --text-secondary: #a0a0a0;
-  --text-muted: #525252;
-  --text-accent: #e0e0e0;
+  /* Text - Clean tactical display */
+  --text-primary: #e4e6eb;
+  --text-secondary: #8b919e;
+  --text-muted: #4a4f5c;
+  --text-accent: #7eb8c9;
 
-  /* Accents - Luminous indicators */
-  --accent-primary: #ffffff;
-  --accent-green: #10b981;
-  --accent-green-muted: rgba(16, 185, 129, 0.15);
-  --accent-red: #ef4444;
-  --accent-red-muted: rgba(239, 68, 68, 0.15);
-  --accent-blue: #3b82f6;
-  --accent-highlight: #f5f5f5;
-  --accent-glow: rgba(255, 255, 255, 0.08);
+  /* Accents - MGS codec teal, military precision */
+  --accent-primary: #5aabb8;
+  --accent-green: #4eba6f;
+  --accent-green-muted: rgba(78, 186, 111, 0.12);
+  --accent-red: #c45c5c;
+  --accent-red-muted: rgba(196, 92, 92, 0.12);
+  --accent-blue: #5aabb8;
+  --accent-highlight: #7ec8d6;
+  --accent-glow: rgba(90, 171, 184, 0.15);
 
-  /* Borders - Subtle definition */
-  --border: rgba(255, 255, 255, 0.06);
-  --border-hover: rgba(255, 255, 255, 0.1);
-  --border-focus: rgba(255, 255, 255, 0.2);
+  /* Borders - Clean tactical lines */
+  --border: rgba(90, 160, 180, 0.08);
+  --border-hover: rgba(90, 160, 180, 0.15);
+  --border-focus: rgba(90, 171, 184, 0.35);
 
-  /* Effects - Refined shadows */
+  /* Effects - Subtle, professional */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
-  --shadow-glow: 0 0 40px rgba(255, 255, 255, 0.03);
-  --glow: none;
+  --shadow-glow: 0 0 40px rgba(90, 171, 184, 0.06);
+  --glow: 0 0 20px rgba(90, 171, 184, 0.12);
 
-  /* Gradient overlays */
-  --gradient-radial: radial-gradient(ellipse at top, rgba(255,255,255,0.03) 0%, transparent 60%);
-  --gradient-shine: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 50%);
-}
+  /* Glow colors - Clean, not overdone */
+  --glow-primary: 0 0 20px rgba(90, 171, 184, 0.25), 0 0 40px rgba(90, 171, 184, 0.08);
+  --glow-green: 0 0 20px rgba(78, 186, 111, 0.25), 0 0 40px rgba(78, 186, 111, 0.08);
+  --glow-red: 0 0 20px rgba(196, 92, 92, 0.25), 0 0 40px rgba(196, 92, 92, 0.08);
+  --glow-amber: 0 0 20px rgba(90, 171, 184, 0.25), 0 0 40px rgba(90, 171, 184, 0.08);
 
-/* ============================================
-   THEME: Bloomberg
-   Professional terminal with amber warmth
-   ============================================ */
-[data-theme="bloomberg"] {
-  --bg-primary: #000000;
-  --bg-secondary: #080808;
-  --bg-tertiary: #101010;
-  --bg-hover: #181818;
-  --bg-elevated: #0c0c0c;
-  --bg-glass: rgba(255, 140, 0, 0.02);
-  --bg-glass-hover: rgba(255, 140, 0, 0.04);
+  /* Gradient overlays - Subtle cool wash */
+  --gradient-radial: radial-gradient(ellipse at top, rgba(90,171,184,0.02) 0%, transparent 50%);
+  --gradient-shine: linear-gradient(135deg, rgba(90,160,180,0.03) 0%, transparent 50%);
 
-  --text-primary: #ffffff;
-  --text-secondary: #ff9500;
-  --text-muted: #666666;
-  --text-accent: #ffb347;
-
-  --accent-primary: #ff8c00;
-  --accent-green: #00d26a;
-  --accent-green-muted: rgba(0, 210, 106, 0.15);
-  --accent-red: #ff3b30;
-  --accent-red-muted: rgba(255, 59, 48, 0.15);
-  --accent-blue: #ff8c00;
-  --accent-highlight: #ff8c00;
-  --accent-glow: rgba(255, 140, 0, 0.1);
-
-  --border: rgba(255, 140, 0, 0.08);
-  --border-hover: rgba(255, 140, 0, 0.15);
-  --border-focus: rgba(255, 140, 0, 0.25);
-
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.7);
-  --shadow-glow: 0 0 60px rgba(255, 140, 0, 0.05);
-  --glow: 0 0 20px rgba(255, 140, 0, 0.08);
-
-  --gradient-radial: radial-gradient(ellipse at top, rgba(255,140,0,0.04) 0%, transparent 60%);
-  --gradient-shine: linear-gradient(135deg, rgba(255,140,0,0.04) 0%, transparent 50%);
-}
-
-/* ============================================
-   THEME: Sakura
-   Elegant dark with cherry blossom luminance
-   ============================================ */
-[data-theme="sakura"] {
-  --bg-primary: #080609;
-  --bg-secondary: #0e0a0e;
-  --bg-tertiary: #150f15;
-  --bg-hover: #1c151c;
-  --bg-elevated: #100c10;
-  --bg-glass: rgba(244, 114, 182, 0.02);
-  --bg-glass-hover: rgba(244, 114, 182, 0.04);
-
-  --text-primary: #faf5f8;
-  --text-secondary: #c9a0b0;
-  --text-muted: #6b5660;
-  --text-accent: #f9a8d4;
-
-  --accent-primary: #ec4899;
-  --accent-green: #34d399;
-  --accent-green-muted: rgba(52, 211, 153, 0.15);
-  --accent-red: #fb7185;
-  --accent-red-muted: rgba(251, 113, 133, 0.15);
-  --accent-blue: #ec4899;
-  --accent-highlight: #f472b6;
-  --accent-glow: rgba(236, 72, 153, 0.1);
-
-  --border: rgba(244, 114, 182, 0.08);
-  --border-hover: rgba(244, 114, 182, 0.15);
-  --border-focus: rgba(244, 114, 182, 0.25);
-
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(236, 72, 153, 0.03);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 40px rgba(236, 72, 153, 0.04);
-  --shadow-glow: 0 0 60px rgba(236, 72, 153, 0.08);
-  --glow: 0 0 30px rgba(236, 72, 153, 0.06);
-
-  --gradient-radial: radial-gradient(ellipse at top, rgba(244,114,182,0.05) 0%, transparent 60%);
-  --gradient-shine: linear-gradient(135deg, rgba(244,114,182,0.04) 0%, transparent 50%);
-}
-
-/* ============================================
-   THEME: Ember
-   Warm coal with glowing ember accents
-   ============================================ */
-[data-theme="ember"] {
-  --bg-primary: #080605;
-  --bg-secondary: #0e0b09;
-  --bg-tertiary: #161210;
-  --bg-hover: #1e1916;
-  --bg-elevated: #100d0a;
-  --bg-glass: rgba(249, 115, 22, 0.02);
-  --bg-glass-hover: rgba(249, 115, 22, 0.04);
-
-  --text-primary: #faf8f6;
-  --text-secondary: #bfb0a0;
-  --text-muted: #6b6055;
-  --text-accent: #fbbf24;
-
-  --accent-primary: #f97316;
-  --accent-green: #2dd4bf;
-  --accent-green-muted: rgba(45, 212, 191, 0.15);
-  --accent-red: #f87171;
-  --accent-red-muted: rgba(248, 113, 113, 0.15);
-  --accent-blue: #f97316;
-  --accent-highlight: #fb923c;
-  --accent-glow: rgba(249, 115, 22, 0.1);
-
-  --border: rgba(249, 115, 22, 0.08);
-  --border-hover: rgba(249, 115, 22, 0.15);
-  --border-focus: rgba(249, 115, 22, 0.25);
-
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(249, 115, 22, 0.03);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 40px rgba(249, 115, 22, 0.04);
-  --shadow-glow: 0 0 60px rgba(249, 115, 22, 0.08);
-  --glow: 0 0 30px rgba(249, 115, 22, 0.06);
-
-  --gradient-radial: radial-gradient(ellipse at top, rgba(249,115,22,0.05) 0%, transparent 60%);
-  --gradient-shine: linear-gradient(135deg, rgba(249,115,22,0.04) 0%, transparent 50%);
+  /* Corner cut size for angular elements */
+  --corner-cut: 8px;
+  --corner-cut-sm: 4px;
 }
 
 /* ============================================
@@ -205,14 +87,34 @@ body {
 }
 
 body {
-  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', ui-monospace, monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-  letter-spacing: -0.01em;
+  font-feature-settings: 'tnum', 'zero', 'ss01';
+  letter-spacing: 0;
   background: var(--bg-primary);
   background-image: var(--gradient-radial);
   min-height: 100vh;
+  position: relative;
+}
+
+/* Scanline overlay - subtle CRT effect */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9998;
 }
 
 /* Premium monospace for numbers */
@@ -229,64 +131,75 @@ body {
 }
 
 /* ============================================
-   SCROLLBAR - Minimal & refined
+   SCROLLBAR - Minimal terminal style
    ============================================ */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--bg-secondary);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border-hover);
-  border-radius: 3px;
+  background: var(--accent-primary);
+  opacity: 0.5;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--border-focus);
+  background: var(--accent-primary);
 }
 
 /* ============================================
-   FOCUS STATES - Accessible & elegant
+   FOCUS STATES - Sharp & visible
    ============================================ */
 *:focus-visible {
-  outline: 1.5px solid var(--accent-primary);
+  outline: 1px solid var(--accent-primary);
   outline-offset: 2px;
 }
 
 /* ============================================
    TYPOGRAPHY UTILITIES
+   MGS codec: Large, commanding readouts
    ============================================ */
 .text-display {
-  font-family: var(--font-display), var(--font-sans), -apple-system, sans-serif;
-  font-size: clamp(2.25rem, 7vw, 3.5rem);
-  font-weight: 600;
-  letter-spacing: -0.035em;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: clamp(2.25rem, 6vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
   line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.text-display-xl {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: clamp(2.75rem, 8vw, 4.5rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .text-headline {
-  font-family: var(--font-display), var(--font-sans), -apple-system, sans-serif;
-  font-size: clamp(1.25rem, 4vw, 1.75rem);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: clamp(1.125rem, 3vw, 1.5rem);
   font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
 }
 
 .text-body {
   font-size: 0.9375rem;
   font-weight: 400;
   line-height: 1.6;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
 }
 
 .text-caption {
   font-size: 0.6875rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
@@ -294,8 +207,9 @@ body {
 .text-label {
   font-size: 0.8125rem;
   font-weight: 500;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.03em;
   color: var(--text-secondary);
+  text-transform: uppercase;
 }
 
 /* ============================================
@@ -303,39 +217,44 @@ body {
    ============================================ */
 .price-up {
   color: var(--accent-green);
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
 }
 
 .price-down {
   color: var(--accent-red);
+  text-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
 }
 
 .price-badge-up {
   background: var(--accent-green-muted);
   color: var(--accent-green);
+  border: 1px solid rgba(0, 255, 136, 0.2);
 }
 
 .price-badge-down {
   background: var(--accent-red-muted);
   color: var(--accent-red);
+  border: 1px solid rgba(255, 0, 85, 0.2);
 }
 
 /* ============================================
-   TRANSITIONS - Smooth & intentional
+   TRANSITIONS
    ============================================ */
 .transition-colors {
-  transition: color 200ms ease, background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+  transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
 }
 
 .transition-transform {
-  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .transition-all {
-  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ============================================
-   TABLE STYLING - Clean data presentation
+   TABLE STYLING - Data terminal
+   MGS codec: generous row height, breathing room
    ============================================ */
 table {
   border-collapse: collapse;
@@ -348,12 +267,14 @@ th {
   color: var(--text-muted);
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 14px 0;
+  letter-spacing: 0.12em;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
 }
 
 td {
-  padding: 18px 0;
+  padding: 20px 0;
+  font-size: 14px;
 }
 
 tbody tr {
@@ -369,72 +290,139 @@ tbody tr:hover {
 }
 
 /* ============================================
-   BUTTON SYSTEM
+   ANGULAR CLIP PATH - Cut corners
+   ============================================ */
+.clip-corner {
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--corner-cut)) 0,
+    100% var(--corner-cut),
+    100% 100%,
+    var(--corner-cut) 100%,
+    0 calc(100% - var(--corner-cut))
+  );
+}
+
+.clip-corner-sm {
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--corner-cut-sm)) 0,
+    100% var(--corner-cut-sm),
+    100% 100%,
+    var(--corner-cut-sm) 100%,
+    0 calc(100% - var(--corner-cut-sm))
+  );
+}
+
+.clip-corner-top {
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--corner-cut)) 0,
+    100% var(--corner-cut),
+    100% 100%,
+    0 100%
+  );
+}
+
+.clip-corner-bottom {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 100%,
+    var(--corner-cut) 100%,
+    0 calc(100% - var(--corner-cut))
+  );
+}
+
+/* ============================================
+   BUTTON SYSTEM - Terminal controls
    ============================================ */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 24px;
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: 12px;
+  padding: 10px 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
-  border: none;
+  transition: all 150ms ease;
+  border: 1px solid var(--border);
   gap: 8px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  position: relative;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.btn:hover::before {
+  opacity: 0.5;
 }
 
 .btn-primary {
-  background: var(--text-primary);
+  background: var(--accent-primary);
   color: var(--bg-primary);
-  box-shadow: var(--shadow-sm);
+  border-color: var(--accent-primary);
+  box-shadow: var(--glow-amber);
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md), 0 0 20px var(--accent-glow);
+  background: #6bbfcc;
+  box-shadow: 0 0 25px rgba(90, 171, 184, 0.3), 0 0 50px rgba(90, 171, 184, 0.1);
 }
 
 .btn-primary:active {
-  transform: translateY(0);
+  transform: scale(0.98);
 }
 
 .btn-secondary {
   background: var(--bg-glass);
   color: var(--text-primary);
   border: 1px solid var(--border);
-  backdrop-filter: blur(8px);
 }
 
 .btn-secondary:hover {
   background: var(--bg-glass-hover);
   border-color: var(--border-hover);
+  box-shadow: var(--glow-amber);
 }
 
 .btn-ghost {
   background: transparent;
   color: var(--text-secondary);
+  border: none;
   padding: 8px 12px;
 }
 
 .btn-ghost:hover {
   background: var(--bg-glass);
-  color: var(--text-primary);
+  color: var(--accent-primary);
 }
 
 /* ============================================
-   INPUT SYSTEM
+   INPUT SYSTEM - Data entry
    ============================================ */
 .input {
   width: 100%;
-  padding: 14px 18px;
-  font-size: 14px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
-  border-radius: 12px;
   color: var(--text-primary);
-  transition: all 200ms ease;
+  transition: all 150ms ease;
 }
 
 .input::placeholder {
@@ -443,26 +431,28 @@ tbody tr:hover {
 
 .input:hover {
   border-color: var(--border-hover);
-  background: var(--bg-tertiary);
 }
 
 .input:focus {
-  border-color: var(--border-focus);
-  background: var(--bg-tertiary);
+  border-color: var(--accent-primary);
   outline: none;
-  box-shadow: 0 0 0 3px var(--accent-glow);
+  box-shadow: 0 0 0 1px var(--accent-primary), var(--glow-amber);
 }
 
 /* ============================================
-   CARD SYSTEM - Glass morphism
+   CARD SYSTEM - Data panels
+   MGS codec aesthetic: generous negative space
    ============================================ */
 .card {
   background: var(--bg-secondary);
   border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 28px;
+  padding: 32px;
   position: relative;
   overflow: hidden;
+}
+
+.card-spacious {
+  padding: 40px;
 }
 
 .card::before {
@@ -472,8 +462,19 @@ tbody tr:hover {
   left: 0;
   right: 0;
   height: 1px;
-  background: var(--gradient-shine);
-  opacity: 0.5;
+  background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+  opacity: 0.3;
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+  opacity: 0.1;
 }
 
 .card-elevated {
@@ -483,17 +484,214 @@ tbody tr:hover {
 
 .card-glass {
   background: var(--bg-glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 /* ============================================
-   ANIMATIONS - Refined motion
+   CYPHER RADIO - Terminal toggle control
+   ============================================ */
+.cypher-radio {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  user-select: none;
+}
+
+.cypher-radio-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.cypher-radio-control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  transition: all 150ms ease;
+  overflow: hidden;
+}
+
+/* Corner indicators */
+.cypher-radio-control::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border-left: 2px solid var(--border);
+  border-top: 2px solid var(--border);
+  transition: all 150ms ease;
+}
+
+.cypher-radio-control::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  border-right: 2px solid var(--border);
+  border-bottom: 2px solid var(--border);
+  transition: all 150ms ease;
+}
+
+/* Hover state */
+.cypher-radio:hover .cypher-radio-control {
+  border-color: var(--border-hover);
+  background: var(--bg-hover);
+}
+
+.cypher-radio:hover .cypher-radio-control::before,
+.cypher-radio:hover .cypher-radio-control::after {
+  border-color: var(--border-hover);
+}
+
+/* Active/selected state - Green variant */
+.cypher-radio-input:checked + .cypher-radio-control.cypher-radio-green {
+  background: rgba(0, 255, 136, 0.08);
+  border-color: var(--accent-green);
+  box-shadow: var(--glow-green);
+}
+
+.cypher-radio-input:checked + .cypher-radio-control.cypher-radio-green::before,
+.cypher-radio-input:checked + .cypher-radio-control.cypher-radio-green::after {
+  border-color: var(--accent-green);
+}
+
+.cypher-radio-input:checked + .cypher-radio-control.cypher-radio-green .cypher-radio-indicator {
+  background: var(--accent-green);
+  box-shadow: 0 0 8px var(--accent-green);
+}
+
+.cypher-radio-input:checked + .cypher-radio-control.cypher-radio-green .cypher-radio-label {
+  color: var(--accent-green);
+}
+
+.cypher-radio-input:checked + .cypher-radio-control.cypher-radio-green .cypher-radio-icon {
+  color: var(--accent-green);
+}
+
+/* Active/selected state - Red variant */
+.cypher-radio-input:checked + .cypher-radio-control.cypher-radio-red {
+  background: rgba(255, 0, 85, 0.08);
+  border-color: var(--accent-red);
+  box-shadow: var(--glow-red);
+}
+
+.cypher-radio-input:checked + .cypher-radio-control.cypher-radio-red::before,
+.cypher-radio-input:checked + .cypher-radio-control.cypher-radio-red::after {
+  border-color: var(--accent-red);
+}
+
+.cypher-radio-input:checked + .cypher-radio-control.cypher-radio-red .cypher-radio-indicator {
+  background: var(--accent-red);
+  box-shadow: 0 0 8px var(--accent-red);
+}
+
+.cypher-radio-input:checked + .cypher-radio-control.cypher-radio-red .cypher-radio-label {
+  color: var(--accent-red);
+}
+
+.cypher-radio-input:checked + .cypher-radio-control.cypher-radio-red .cypher-radio-icon {
+  color: var(--accent-red);
+}
+
+/* Radio indicator dot */
+.cypher-radio-indicator {
+  width: 8px;
+  height: 8px;
+  background: var(--text-muted);
+  transition: all 150ms ease;
+}
+
+/* Radio label */
+.cypher-radio-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  transition: color 150ms ease;
+}
+
+/* Radio icon */
+.cypher-radio-icon {
+  color: var(--text-muted);
+  transition: color 150ms ease;
+}
+
+/* Scan line animation on selected */
+.cypher-radio-input:checked + .cypher-radio-control .cypher-radio-scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    currentColor 50%,
+    transparent 100%
+  );
+  opacity: 0.1;
+  animation: scanline 2s linear infinite;
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+/* ============================================
+   CYPHER TOGGLE - On/off switch
+   ============================================ */
+.cypher-toggle {
+  position: relative;
+  width: 44px;
+  height: 22px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.cypher-toggle::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  background: var(--text-muted);
+  transition: all 150ms ease;
+}
+
+.cypher-toggle.active {
+  background: rgba(0, 255, 136, 0.1);
+  border-color: var(--accent-green);
+}
+
+.cypher-toggle.active::before {
+  left: calc(100% - 17px);
+  background: var(--accent-green);
+  box-shadow: 0 0 8px var(--accent-green);
+}
+
+/* ============================================
+   ANIMATIONS
    ============================================ */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -504,11 +702,11 @@ tbody tr:hover {
 @keyframes fadeInScale {
   from {
     opacity: 0;
-    transform: scale(0.97) translateY(8px);
+    transform: scale(0.96);
   }
   to {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: scale(1);
   }
 }
 
@@ -544,7 +742,7 @@ tbody tr:hover {
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-16px);
   }
   to {
     opacity: 1;
@@ -561,12 +759,51 @@ tbody tr:hover {
   }
 }
 
+@keyframes glitch {
+  0%, 100% {
+    transform: translate(0);
+    opacity: 1;
+  }
+  20% {
+    transform: translate(-2px, 1px);
+  }
+  40% {
+    transform: translate(2px, -1px);
+    opacity: 0.8;
+  }
+  60% {
+    transform: translate(-1px, -1px);
+  }
+  80% {
+    transform: translate(1px, 1px);
+    opacity: 0.9;
+  }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.8; }
+  94% { opacity: 1; }
+  95% { opacity: 0.9; }
+  96% { opacity: 1; }
+}
+
+@keyframes borderPulse {
+  0%, 100% {
+    border-color: var(--accent-primary);
+  }
+  50% {
+    border-color: rgba(0, 255, 255, 0.3);
+  }
+}
+
 .animate-fadeIn {
-  animation: fadeIn 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: fadeIn 300ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .animate-fadeInScale {
-  animation: fadeInScale 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: fadeInScale 300ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .animate-pulse {
@@ -585,26 +822,38 @@ tbody tr:hover {
 }
 
 .animate-slideUp {
-  animation: slideUp 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: slideUp 300ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .animate-slideDown {
-  animation: slideDown 300ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: slideDown 200ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .animate-glow {
   animation: glow 3s ease-in-out infinite;
 }
 
+.animate-glitch {
+  animation: glitch 0.3s ease-in-out;
+}
+
+.animate-flicker {
+  animation: flicker 4s linear infinite;
+}
+
+.animate-borderPulse {
+  animation: borderPulse 2s ease-in-out infinite;
+}
+
 /* Stagger delays for lists */
-.stagger-1 { animation-delay: 30ms; }
-.stagger-2 { animation-delay: 60ms; }
-.stagger-3 { animation-delay: 90ms; }
-.stagger-4 { animation-delay: 120ms; }
-.stagger-5 { animation-delay: 150ms; }
-.stagger-6 { animation-delay: 180ms; }
-.stagger-7 { animation-delay: 210ms; }
-.stagger-8 { animation-delay: 240ms; }
+.stagger-1 { animation-delay: 50ms; }
+.stagger-2 { animation-delay: 100ms; }
+.stagger-3 { animation-delay: 150ms; }
+.stagger-4 { animation-delay: 200ms; }
+.stagger-5 { animation-delay: 250ms; }
+.stagger-6 { animation-delay: 300ms; }
+.stagger-7 { animation-delay: 350ms; }
+.stagger-8 { animation-delay: 400ms; }
 
 /* ============================================
    SPARKLINE CHART
@@ -618,24 +867,35 @@ tbody tr:hover {
    RESPONSIVE UTILITIES
    ============================================ */
 @media (max-width: 640px) {
-  /* Larger touch targets */
   button, a {
     min-height: 44px;
   }
 
-  /* Adjusted card padding */
   .card {
     padding: 24px;
-    border-radius: 20px;
   }
 
-  /* Tighter table */
+  .card-spacious {
+    padding: 28px;
+  }
+
   td {
-    padding: 16px 0;
+    padding: 14px 0;
   }
 
   th {
-    font-size: 11px;
+    font-size: 10px;
+  }
+}
+
+/* Large screens: even more breathing room */
+@media (min-width: 1280px) {
+  .card {
+    padding: 36px;
+  }
+
+  .card-spacious {
+    padding: 48px;
   }
 }
 
@@ -643,15 +903,24 @@ tbody tr:hover {
    SPECIAL EFFECTS
    ============================================ */
 
-/* Gradient text */
+/* Gradient text with glow */
 .gradient-text {
-  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--text-primary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Subtle noise texture overlay */
+/* Neon text glow */
+.text-glow {
+  text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+}
+
+.text-glow-subtle {
+  text-shadow: 0 0 8px currentColor;
+}
+
+/* Noise texture overlay */
 .noise-overlay::after {
   content: '';
   position: fixed;
@@ -659,8 +928,8 @@ tbody tr:hover {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.02;
   pointer-events: none;
   z-index: 9999;
 }
@@ -673,51 +942,165 @@ tbody tr:hover {
 .value-highlight::after {
   content: '';
   position: absolute;
-  bottom: -4px;
+  bottom: -2px;
   left: 0;
   right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent 0%, var(--accent-primary) 50%, transparent 100%);
-  opacity: 0.3;
+  height: 1px;
+  background: var(--accent-primary);
+  opacity: 0.5;
 }
 
 /* Glass panel effect */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 255, 255, 0.02);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
 }
 
 /* Hover lift effect */
 .hover-lift {
-  transition: transform 200ms ease, box-shadow 200ms ease;
+  transition: transform 150ms ease, box-shadow 150ms ease;
 }
 
 .hover-lift:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-md), var(--glow-amber);
 }
 
 /* Interactive row highlight */
 .interactive-row {
   position: relative;
-  transition: all 200ms ease;
+  transition: all 150ms ease;
 }
 
 .interactive-row::before {
   content: '';
   position: absolute;
-  left: -12px;
+  left: -8px;
   top: 50%;
   transform: translateY(-50%);
-  width: 3px;
+  width: 2px;
   height: 0;
   background: var(--accent-primary);
-  border-radius: 2px;
-  transition: height 200ms ease;
+  transition: height 150ms ease;
+  box-shadow: 0 0 8px var(--accent-primary);
 }
 
 .interactive-row:hover::before {
-  height: 40%;
+  height: 60%;
+}
+
+/* Status indicators */
+.status-active {
+  position: relative;
+}
+
+.status-active::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -12px;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  background: var(--accent-green);
+  box-shadow: 0 0 8px var(--accent-green);
+}
+
+/* Terminal-style input prefix */
+.terminal-input {
+  position: relative;
+}
+
+.terminal-input::before {
+  content: '>';
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent-primary);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+}
+
+/* HUD frame corners */
+.hud-frame {
+  position: relative;
+}
+
+.hud-frame::before,
+.hud-frame::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: var(--accent-primary);
+  border-style: solid;
+  opacity: 0.5;
+}
+
+.hud-frame::before {
+  top: -1px;
+  left: -1px;
+  border-width: 1px 0 0 1px;
+}
+
+.hud-frame::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 1px 1px 0;
+}
+
+/* Data label styling */
+.data-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Cyber button with animated border */
+.cyber-btn {
+  position: relative;
+  padding: 12px 24px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--accent-primary);
+  color: var(--accent-primary);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 150ms ease;
+}
+
+.cyber-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+  opacity: 0.2;
+  transition: left 300ms ease;
+}
+
+.cyber-btn:hover::before {
+  left: 100%;
+}
+
+.cyber-btn:hover {
+  background: rgba(90, 171, 184, 0.1);
+  box-shadow: var(--glow-primary);
+}
+
+/* Divider with glow */
+.divider-glow {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+  opacity: 0.3;
 }
