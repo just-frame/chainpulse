@@ -21,6 +21,9 @@ export default function AssetCard({ asset, index }: AssetCardProps) {
   const fallbackIcon = getPlaceholderIcon(asset.symbol, chainConfig.color);
 
   const formatCurrency = (value: number) => {
+    if (value >= 1000000) {
+      return `$${(value / 1000000).toFixed(2)}M`;
+    }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -50,57 +53,79 @@ export default function AssetCard({ asset, index }: AssetCardProps) {
 
   return (
     <div
-      className="bg-[var(--bg-tertiary)]/50 border border-[var(--border)] rounded-xl p-4 animate-fadeIn hover:border-[var(--border-hover)] transition-all cursor-pointer"
-      style={{ animationDelay: `${index * 30}ms` }}
+      className={`
+        relative group
+        bg-[var(--bg-secondary)] border border-[var(--border)]
+        rounded-2xl p-4
+        transition-all duration-200 ease-out
+        hover:border-[var(--border-hover)] hover:bg-[var(--bg-tertiary)]
+        cursor-pointer
+        animate-fadeIn
+      `}
+      style={{ animationDelay: `${index * 40}ms` }}
       onClick={() => setExpanded(!expanded)}
     >
-      {/* Main card content */}
-      <div className="flex items-start gap-3">
-        {/* Token icon */}
-        <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-[var(--bg-tertiary)] shrink-0">
-          {iconUrl && !imgError ? (
-            <img
-              src={iconUrl}
-              alt={asset.symbol}
-              width={40}
-              height={40}
-              className="w-full h-full object-cover"
-              onError={() => setImgError(true)}
-            />
-          ) : (
-            <img
-              src={fallbackIcon}
-              alt={asset.symbol}
-              width={40}
-              height={40}
-              className="w-full h-full"
-            />
-          )}
+      {/* Accent line indicator on hover */}
+      <div
+        className={`
+          absolute left-0 top-4 bottom-4 w-[3px] rounded-full
+          transition-all duration-200
+          ${expanded ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
+        `}
+        style={{ backgroundColor: isPositive ? 'var(--accent-green)' : 'var(--accent-red)' }}
+      />
+
+      {/* Main content */}
+      <div className="flex items-start gap-4 pl-2">
+        {/* Token icon with glow effect */}
+        <div className="relative shrink-0">
+          <div
+            className="absolute inset-0 rounded-full blur-lg opacity-20"
+            style={{ backgroundColor: chainConfig.color }}
+          />
+          <div className="relative w-11 h-11 rounded-full overflow-hidden bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center">
+            {iconUrl && !imgError ? (
+              <img
+                src={iconUrl}
+                alt={asset.symbol}
+                width={44}
+                height={44}
+                className="w-full h-full object-cover"
+                onError={() => setImgError(true)}
+              />
+            ) : (
+              <img
+                src={fallbackIcon}
+                alt={asset.symbol}
+                width={44}
+                height={44}
+                className="w-full h-full"
+              />
+            )}
+          </div>
         </div>
 
-        {/* Info */}
+        {/* Info section */}
         <div className="flex-1 min-w-0">
-          {/* Row 1: Symbol + Change */}
+          {/* Row 1: Symbol + Badge + Change */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-[var(--text-primary)]">
+              <span className="font-semibold text-[var(--text-primary)] text-base">
                 {asset.symbol}
               </span>
               {asset.isStaked && (
-                <span className="text-[9px] px-1.5 py-0.5 rounded bg-[var(--accent-green)]/10 text-[var(--accent-green)] font-medium">
-                  {asset.stakingProtocol ? `⚡ ${asset.stakingProtocol}` : '⚡'}
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--accent-green)]/10 text-[var(--accent-green)] font-medium border border-[var(--accent-green)]/20">
+                  {asset.stakingProtocol || 'Staked'}
                 </span>
               )}
             </div>
             <span
               className={`
-                inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-medium
-                ${isPositive
-                  ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)]'
-                  : 'bg-[var(--accent-red)]/10 text-[var(--accent-red)]'
-                }
+                inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono font-semibold
+                ${isPositive ? 'price-badge-up' : 'price-badge-down'}
               `}
             >
+              <span className="text-[10px]">{isPositive ? '↗' : '↘'}</span>
               {formatPercent(asset.change24h)}
             </span>
           </div>
@@ -110,9 +135,9 @@ export default function AssetCard({ asset, index }: AssetCardProps) {
             {asset.name}
           </p>
 
-          {/* Row 3: Holdings */}
-          <div className="flex items-baseline gap-2 mt-2">
-            <span className="font-mono font-semibold text-base">
+          {/* Row 3: Holdings value + balance */}
+          <div className="flex items-baseline gap-2 mt-3">
+            <span className="font-mono font-semibold text-lg text-[var(--text-primary)]">
               {formatCurrency(asset.value)}
             </span>
             <span className="font-mono text-xs text-[var(--text-muted)]">
@@ -120,45 +145,52 @@ export default function AssetCard({ asset, index }: AssetCardProps) {
             </span>
           </div>
 
-          {/* Row 4: Chain badge */}
-          <div className="flex items-center justify-between mt-2">
+          {/* Row 4: Chain + Expand indicator */}
+          <div className="flex items-center justify-between mt-3">
             <span
-              className="text-[10px] px-2 py-0.5 rounded-full"
+              className="text-[10px] px-2.5 py-1 rounded-full font-medium"
               style={{
                 backgroundColor: chainConfig.color + '15',
                 color: chainConfig.color,
+                border: `1px solid ${chainConfig.color}20`,
               }}
             >
               {chainConfig.name}
             </span>
-            <svg
-              className={`w-4 h-4 text-[var(--text-muted)] transition-transform ${expanded ? 'rotate-180' : ''}`}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+            <div
+              className={`
+                w-6 h-6 rounded-full flex items-center justify-center
+                bg-[var(--bg-tertiary)] transition-transform duration-200
+                ${expanded ? 'rotate-180' : ''}
+              `}
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
+              <svg
+                className="w-3.5 h-3.5 text-[var(--text-muted)]"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Expanded details */}
       {expanded && (
-        <div className="mt-4 pt-4 border-t border-[var(--border)] space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-[var(--text-muted)]">Price</span>
-            <span className="font-mono">{formatCurrency(asset.price)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-[var(--text-muted)]">24h Change</span>
-            <span className={`font-mono ${isPositive ? 'text-[var(--accent-green)]' : 'text-[var(--accent-red)]'}`}>
-              {isPositive ? '+' : ''}{formatCurrency(valueChange24h)}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-[var(--text-muted)]">Balance</span>
-            <span className="font-mono">{formatBalance(asset.balance, asset.symbol)}</span>
+        <div className="mt-4 pt-4 border-t border-[var(--border)] space-y-3 pl-2 animate-fadeIn">
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="flex flex-col gap-1">
+              <span className="text-[var(--text-muted)] text-xs">Price</span>
+              <span className="font-mono font-medium">{formatCurrency(asset.price)}</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-[var(--text-muted)] text-xs">24h Change</span>
+              <span className={`font-mono font-medium ${isPositive ? 'text-[var(--accent-green)]' : 'text-[var(--accent-red)]'}`}>
+                {isPositive ? '+' : ''}{formatCurrency(valueChange24h)}
+              </span>
+            </div>
           </div>
         </div>
       )}

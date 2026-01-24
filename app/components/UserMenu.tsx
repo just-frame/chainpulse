@@ -14,25 +14,21 @@ export default function UserMenu({ onAlertsClick, alertsCount = 0 }: UserMenuPro
   const [isOpen, setIsOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
-  const [homepage, setHomepage] = useState('Portfolio');
   const menuRef = useRef<HTMLDivElement>(null);
 
   const { user, loading, signOut } = useAuth();
   const { theme, setTheme, mounted } = useTheme();
 
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Handle escape key
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setIsOpen(false);
@@ -54,39 +50,36 @@ export default function UserMenu({ onAlertsClick, alertsCount = 0 }: UserMenuPro
 
   return (
     <>
-      <div className="relative" ref={menuRef}>
-        {/* Person Icon Button */}
+      <div className="relative flex items-center gap-1" ref={menuRef}>
+        {/* User Icon */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="relative p-2.5 rounded-xl hover:bg-[var(--bg-hover)] transition-colors group"
+          className="relative p-2.5 rounded-xl hover:bg-[var(--bg-glass)] border border-transparent hover:border-[var(--border)] transition-all group"
           aria-label="User menu"
         >
-          {/* Person Icon */}
           <svg
-            width="24"
-            height="24"
+            width="22"
+            height="22"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="text-white group-hover:text-[var(--accent-primary)] transition-colors"
+            className="text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors"
           >
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
             <circle cx="12" cy="7" r="4" />
           </svg>
-
-          {/* Notification dot when signed in */}
           {user && (
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[var(--accent-primary)] rounded-full" />
+            <span className="absolute top-2 right-2 w-2 h-2 bg-[var(--accent-green)] rounded-full" />
           )}
         </button>
 
-        {/* Alerts Bell - next to user icon */}
+        {/* Alerts Bell */}
         <button
           onClick={onAlertsClick}
-          className="relative p-2.5 rounded-xl hover:bg-[var(--bg-hover)] transition-colors ml-1"
+          className="relative p-2.5 rounded-xl hover:bg-[var(--bg-glass)] border border-transparent hover:border-[var(--border)] transition-all md:hidden"
           aria-label="Alerts"
         >
           <svg
@@ -95,7 +88,7 @@ export default function UserMenu({ onAlertsClick, alertsCount = 0 }: UserMenuPro
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
             className="text-[var(--text-secondary)]"
@@ -104,76 +97,52 @@ export default function UserMenu({ onAlertsClick, alertsCount = 0 }: UserMenuPro
             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
           </svg>
           {alertsCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 text-[9px] font-bold bg-[var(--accent-green)] text-black rounded-full flex items-center justify-center">
+            <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 text-[9px] font-bold bg-[var(--accent-green)] text-black rounded-full flex items-center justify-center px-1">
               {alertsCount > 9 ? '9+' : alertsCount}
             </span>
           )}
         </button>
 
-        {/* Dropdown Menu */}
+        {/* Dropdown */}
         {isOpen && (
-          <div className="absolute right-0 mt-2 w-72 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-xl shadow-2xl overflow-hidden animate-fadeIn z-50">
-            {/* Settings Section */}
-            <div className="p-4 space-y-4">
-              {/* Theme Selector */}
+          <div className="absolute right-0 top-full mt-2 w-80 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden animate-fadeInScale z-50">
+            {/* Theme Section */}
+            <div className="p-5 space-y-4">
               <div>
-                <span className="text-[var(--text-primary)] font-medium text-sm block mb-2">Theme</span>
-                <div className="grid grid-cols-2 gap-2">
+                <span className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">Appearance</span>
+                <div className="grid grid-cols-2 gap-2 mt-3">
                   {mounted && THEMES.map((t) => (
                     <button
                       key={t.id}
                       onClick={() => setTheme(t.id)}
                       className={`
-                        px-3 py-2 rounded-lg text-sm font-medium transition-all text-left
+                        relative px-4 py-3 rounded-xl text-sm font-medium transition-all text-left
                         ${theme === t.id
-                          ? 'bg-[var(--accent-primary)] text-black'
-                          : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
+                          ? 'bg-[var(--accent-primary)] text-[var(--bg-primary)]'
+                          : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] border border-[var(--border)]'
                         }
                       `}
                     >
                       {t.name}
+                      {theme === t.id && (
+                        <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-[var(--bg-primary)] rounded-full" />
+                      )}
                     </button>
                   ))}
                 </div>
               </div>
-
-              {/* Default Homepage Selector */}
-              <div className="flex items-center justify-between">
-                <span className="text-[var(--text-primary)] font-medium text-sm">Homepage</span>
-                <div className="relative">
-                  <select
-                    value={homepage}
-                    onChange={(e) => setHomepage(e.target.value)}
-                    className="appearance-none bg-[var(--bg-tertiary)] text-[var(--text-primary)] px-4 py-2 pr-8 rounded-lg text-sm font-medium cursor-pointer hover:bg-[var(--bg-hover)] transition-colors"
-                  >
-                    <option value="Portfolio">Portfolio</option>
-                    <option value="Alerts">Alerts</option>
-                    <option value="NFTs">NFTs</option>
-                    <option value="Domains">Domains</option>
-                  </select>
-                  <svg
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)] pointer-events-none"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
             </div>
 
-            {/* Divider */}
             <div className="border-t border-[var(--border)]" />
 
             {/* Auth Section */}
-            <div className="p-4">
+            <div className="p-5">
               {!loading && (
                 user ? (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3 p-3 bg-[var(--accent-primary)]/10 rounded-lg border border-[var(--accent-primary)]/20">
-                      <div className="w-8 h-8 bg-[var(--accent-primary)] rounded-full flex items-center justify-center">
-                        <span className="text-black font-bold text-sm">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 p-4 bg-[var(--bg-tertiary)] rounded-xl border border-[var(--border)]">
+                      <div className="w-10 h-10 bg-gradient-to-br from-[var(--accent-primary)] to-[var(--text-secondary)] rounded-full flex items-center justify-center">
+                        <span className="text-[var(--bg-primary)] font-bold">
                           {user.email?.[0]?.toUpperCase() || '?'}
                         </span>
                       </div>
@@ -188,25 +157,27 @@ export default function UserMenu({ onAlertsClick, alertsCount = 0 }: UserMenuPro
                     </div>
                     <button
                       onClick={handleSignOut}
-                      className="w-full py-2.5 text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] rounded-lg transition-colors"
+                      className="w-full py-3 text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] rounded-xl transition-colors border border-transparent hover:border-[var(--border)]"
                     >
                       Sign out
                     </button>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <p className="text-[var(--text-muted)] text-sm text-center">
-                      Sign in to save your portfolio
-                    </p>
+                    <div className="text-center">
+                      <p className="text-sm text-[var(--text-secondary)]">
+                        Sign in to save your portfolio
+                      </p>
+                      <p className="text-xs text-[var(--text-muted)] mt-1">
+                        Track history, create alerts, sync across devices
+                      </p>
+                    </div>
                     <button
                       onClick={handleSignIn}
-                      className="w-full py-3.5 bg-[var(--accent-primary)] text-black font-semibold rounded-xl hover:opacity-90 transition-colors"
+                      className="w-full py-3.5 bg-[var(--text-primary)] text-[var(--bg-primary)] font-semibold rounded-xl hover:opacity-90 transition-all hover:shadow-lg"
                     >
                       Sign In
                     </button>
-                    <p className="text-[var(--text-muted)] text-xs text-center">
-                      Email · Google
-                    </p>
                   </div>
                 )
               )}
@@ -215,10 +186,10 @@ export default function UserMenu({ onAlertsClick, alertsCount = 0 }: UserMenuPro
         )}
       </div>
 
-      <AuthModal 
-        isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)} 
-        initialMode={authMode} 
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        initialMode={authMode}
       />
     </>
   );

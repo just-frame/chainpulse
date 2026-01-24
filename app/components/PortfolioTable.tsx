@@ -15,7 +15,6 @@ export default function PortfolioTable({ assets, isLoading = false }: PortfolioT
   const [searchQuery, setSearchQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
 
-  // Filter assets based on search query
   const filteredAssets = useMemo(() => {
     if (!searchQuery.trim()) return assets;
     const query = searchQuery.toLowerCase();
@@ -27,39 +26,39 @@ export default function PortfolioTable({ assets, isLoading = false }: PortfolioT
     );
   }, [assets, searchQuery]);
 
-  // Limit display on mobile
   const displayAssets = showAll ? filteredAssets : filteredAssets.slice(0, 8);
   const hasMore = filteredAssets.length > 8;
 
-  // Show skeletons while loading
+  // Loading skeletons
   if (isLoading && assets.length === 0) {
     return (
       <>
-        {/* Mobile skeleton - cards */}
+        {/* Mobile skeleton */}
         <div className="md:hidden flex flex-col gap-3">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-[var(--bg-tertiary)]/50 border border-[var(--border)] rounded-xl p-4 animate-pulse">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-[var(--bg-tertiary)]" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-[var(--bg-tertiary)] rounded w-24" />
-                  <div className="h-3 bg-[var(--bg-tertiary)] rounded w-32" />
-                  <div className="h-5 bg-[var(--bg-tertiary)] rounded w-20" />
+            <div key={i} className="bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-2xl p-4 animate-shimmer">
+              <div className="flex items-start gap-4">
+                <div className="w-11 h-11 rounded-full bg-[var(--bg-hover)]" />
+                <div className="flex-1 space-y-3">
+                  <div className="h-4 bg-[var(--bg-hover)] rounded w-24" />
+                  <div className="h-3 bg-[var(--bg-hover)] rounded w-32" />
+                  <div className="h-6 bg-[var(--bg-hover)] rounded w-28" />
                 </div>
               </div>
             </div>
           ))}
         </div>
-        {/* Desktop skeleton - table */}
+
+        {/* Desktop skeleton */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-[var(--border)]">
                 <th className="py-3 pr-4 text-left w-12">#</th>
-                <th className="py-3 pr-4 text-left">Asset</th>
-                <th className="py-3 pr-4 text-left">Price</th>
-                <th className="py-3 pr-4 text-left">Holdings</th>
-                <th className="py-3 pr-4 text-left">24h</th>
+                <th className="py-3 pr-6 text-left">Asset</th>
+                <th className="py-3 pr-6 text-left">Price</th>
+                <th className="py-3 pr-6 text-left">Holdings</th>
+                <th className="py-3 pr-6 text-left">24h</th>
                 <th className="py-3 text-left hidden lg:table-cell">Chain</th>
               </tr>
             </thead>
@@ -74,25 +73,28 @@ export default function PortfolioTable({ assets, isLoading = false }: PortfolioT
     );
   }
 
+  // Empty state
   if (assets.length === 0) {
     return (
-      <div className="text-center py-12 text-[var(--text-muted)]">
-        <svg className="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <p>No assets found</p>
-        <p className="text-sm mt-1">Add a wallet to get started</p>
+      <div className="text-center py-16">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[var(--bg-tertiary)] flex items-center justify-center">
+          <svg className="w-8 h-8 text-[var(--text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <p className="text-[var(--text-secondary)] font-medium">No assets found</p>
+        <p className="text-sm text-[var(--text-muted)] mt-1">Add a wallet to start tracking</p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Search input - show when there are assets */}
+    <div className="flex flex-col gap-5">
+      {/* Search */}
       {assets.length > 0 && (
-        <div className="relative">
+        <div className="relative max-w-sm">
           <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]"
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -109,12 +111,12 @@ export default function PortfolioTable({ assets, isLoading = false }: PortfolioT
             placeholder="Search assets..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 text-sm bg-[var(--bg-secondary)] border border-[var(--border-hover)] rounded-lg text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--accent-blue)] focus:outline-none transition-colors"
+            className="w-full pl-11 pr-10 py-3 text-sm bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-xl text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--border-focus)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-glow)] transition-all"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -124,10 +126,10 @@ export default function PortfolioTable({ assets, isLoading = false }: PortfolioT
         </div>
       )}
 
-      {/* No results message */}
+      {/* No results */}
       {filteredAssets.length === 0 && searchQuery && (
-        <div className="text-center py-8 text-[var(--text-muted)]">
-          <p>No assets matching "{searchQuery}"</p>
+        <div className="text-center py-10">
+          <p className="text-[var(--text-muted)]">No assets matching "{searchQuery}"</p>
           <button
             onClick={() => setSearchQuery('')}
             className="text-[var(--accent-blue)] text-sm mt-2 hover:underline"
@@ -137,7 +139,7 @@ export default function PortfolioTable({ assets, isLoading = false }: PortfolioT
         </div>
       )}
 
-      {/* Mobile: Card layout */}
+      {/* Mobile: Cards */}
       {filteredAssets.length > 0 && (
         <div className="md:hidden flex flex-col gap-3">
           {displayAssets.map((asset, index) => (
@@ -150,7 +152,7 @@ export default function PortfolioTable({ assets, isLoading = false }: PortfolioT
           {hasMore && (
             <button
               onClick={() => setShowAll(!showAll)}
-              className="py-3 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors border border-[var(--border)] rounded-xl hover:bg-[var(--bg-hover)]"
+              className="py-3.5 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors border border-[var(--border)] rounded-2xl hover:bg-[var(--bg-glass)] hover:border-[var(--border-hover)]"
             >
               {showAll ? 'Show less' : `Show all ${filteredAssets.length} assets`}
             </button>
@@ -158,23 +160,27 @@ export default function PortfolioTable({ assets, isLoading = false }: PortfolioT
         </div>
       )}
 
-      {/* Desktop: Table layout */}
+      {/* Desktop: Table */}
       {filteredAssets.length > 0 && (
         <div className="hidden md:block overflow-x-auto -mx-6 px-6">
-          <table className="w-full min-w-[500px]">
+          <table className="w-full min-w-[600px]">
             <thead>
               <tr className="border-b border-[var(--border)]">
-                <th className="py-3 pr-4 text-left w-12">#</th>
-                <th className="py-3 pr-4 text-left">Asset</th>
-                <th className="py-3 pr-4 text-left">Price</th>
-                <th className="py-3 pr-4 text-left">Holdings</th>
-                <th className="py-3 pr-4 text-left">24h</th>
-                <th className="py-3 text-left hidden lg:table-cell">Chain</th>
+                <th className="py-4 pr-4 text-left w-12">#</th>
+                <th className="py-4 pr-6 text-left">Asset</th>
+                <th className="py-4 pr-6 text-left hidden sm:table-cell">Price</th>
+                <th className="py-4 pr-6 text-left">Holdings</th>
+                <th className="py-4 pr-6 text-left hidden md:table-cell">24h</th>
+                <th className="py-4 text-left hidden lg:table-cell">Chain</th>
               </tr>
             </thead>
             <tbody>
               {filteredAssets.map((asset, index) => (
-                <AssetRow key={`${asset.symbol}-${asset.chain}-${asset.isStaked}`} asset={asset} index={index} />
+                <AssetRow
+                  key={`${asset.symbol}-${asset.chain}-${asset.isStaked}`}
+                  asset={asset}
+                  index={index}
+                />
               ))}
             </tbody>
           </table>

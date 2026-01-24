@@ -14,13 +14,15 @@ export default function AssetRow({ asset, index }: AssetRowProps) {
   const [imgError, setImgError] = useState(false);
   const isPositive = asset.change24h >= 0;
   const chainConfig = CHAIN_CONFIG[asset.chain];
-  
-  // Icon priority: asset.icon (from Helius) > CoinGecko > placeholder
+
   const coinGeckoIcon = getIconUrl(asset.symbol);
   const iconUrl = asset.icon || coinGeckoIcon;
   const fallbackIcon = getPlaceholderIcon(asset.symbol, chainConfig.color);
 
   const formatCurrency = (value: number) => {
+    if (value >= 1000000) {
+      return `$${(value / 1000000).toFixed(2)}M`;
+    }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -46,51 +48,60 @@ export default function AssetRow({ asset, index }: AssetRowProps) {
     return `${prefix}${value.toFixed(2)}%`;
   };
 
-  // Calculate 24h value change
   const valueChange24h = asset.value * (asset.change24h / 100);
 
   return (
     <tr
-      className="group hover:bg-[var(--bg-hover)] transition-colors cursor-pointer animate-fadeIn"
+      className="group interactive-row transition-all cursor-pointer animate-fadeIn"
       style={{ animationDelay: `${index * 50}ms` }}
     >
       {/* Rank */}
-      <td className="py-4 pr-4 w-12">
-        <span className="text-[var(--text-muted)] text-sm">{index + 1}</span>
+      <td className="py-5 pr-4 w-12">
+        <span className="text-[var(--text-muted)] text-sm font-mono">{index + 1}</span>
       </td>
 
       {/* Asset */}
-      <td className="py-4 pr-4">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-[var(--bg-tertiary)] shrink-0">
-            {iconUrl && !imgError ? (
-              <img
-                src={iconUrl}
-                alt={asset.symbol}
-                width={32}
-                height={32}
-                className="w-full h-full object-cover"
-                onError={() => setImgError(true)}
-              />
-            ) : (
-              <img
-                src={fallbackIcon}
-                alt={asset.symbol}
-                width={32}
-                height={32}
-                className="w-full h-full"
-              />
-            )}
+      <td className="py-5 pr-6">
+        <div className="flex items-center gap-4">
+          {/* Icon with subtle glow */}
+          <div className="relative">
+            <div
+              className="absolute inset-0 rounded-full blur-md opacity-0 group-hover:opacity-30 transition-opacity"
+              style={{ backgroundColor: chainConfig.color }}
+            />
+            <div className="relative w-10 h-10 rounded-full overflow-hidden bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center">
+              {iconUrl && !imgError ? (
+                <img
+                  src={iconUrl}
+                  alt={asset.symbol}
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover"
+                  onError={() => setImgError(true)}
+                />
+              ) : (
+                <img
+                  src={fallbackIcon}
+                  alt={asset.symbol}
+                  width={40}
+                  height={40}
+                  className="w-full h-full"
+                />
+              )}
+            </div>
           </div>
+
           <div className="flex flex-col min-w-0">
-            <span className="font-medium truncate">{asset.name}</span>
+            <span className="font-medium text-[var(--text-primary)] truncate">
+              {asset.name}
+            </span>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[var(--text-muted)] text-xs uppercase">
+              <span className="text-[var(--text-muted)] text-xs font-mono uppercase tracking-wide">
                 {asset.symbol}
               </span>
               {asset.isStaked && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--accent-green)]/10 text-[var(--accent-green)] font-medium whitespace-nowrap">
-                  {asset.stakingProtocol ? `⚡ ${asset.stakingProtocol}` : '⚡ STAKED'}
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[var(--accent-green)]/10 text-[var(--accent-green)] font-medium border border-[var(--accent-green)]/20 whitespace-nowrap">
+                  {asset.stakingProtocol || 'Staked'}
                 </span>
               )}
             </div>
@@ -98,17 +109,17 @@ export default function AssetRow({ asset, index }: AssetRowProps) {
         </div>
       </td>
 
-      {/* Price - hidden on mobile */}
-      <td className="py-4 pr-4 hidden sm:table-cell">
-        <span className="font-mono text-sm">
+      {/* Price */}
+      <td className="py-5 pr-6 hidden sm:table-cell">
+        <span className="font-mono text-sm text-[var(--text-secondary)]">
           {formatCurrency(asset.price)}
         </span>
       </td>
 
-      {/* Holdings - combined balance + value */}
-      <td className="py-4 pr-4">
+      {/* Holdings */}
+      <td className="py-5 pr-6">
         <div className="flex flex-col">
-          <span className="font-mono font-medium text-sm sm:text-base">
+          <span className="font-mono font-semibold text-[var(--text-primary)]">
             {formatCurrency(asset.value)}
           </span>
           <span className="font-mono text-xs text-[var(--text-muted)]">
@@ -117,37 +128,34 @@ export default function AssetRow({ asset, index }: AssetRowProps) {
         </div>
       </td>
 
-      {/* 24h Change - Enhanced display */}
-      <td className="py-4 pr-4 hidden md:table-cell">
-        <div className="flex flex-col items-start gap-0.5">
-          {/* Percentage with background pill */}
+      {/* 24h Change */}
+      <td className="py-5 pr-6 hidden md:table-cell">
+        <div className="flex flex-col items-start gap-1">
           <span
             className={`
-              inline-flex items-center px-2 py-0.5 rounded-md text-sm font-mono font-medium
-              ${isPositive
-                ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)]'
-                : 'bg-[var(--accent-red)]/10 text-[var(--accent-red)]'
-              }
+              inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-mono font-semibold
+              ${isPositive ? 'price-badge-up' : 'price-badge-down'}
             `}
           >
+            <span className="text-[10px]">{isPositive ? '↗' : '↘'}</span>
             {formatPercent(asset.change24h)}
           </span>
-          {/* Dollar amount change */}
           {asset.value > 1 && Math.abs(valueChange24h) >= 0.01 && (
-            <span className={`text-[10px] font-mono ${isPositive ? 'text-[var(--accent-green)]/70' : 'text-[var(--accent-red)]/70'}`}>
+            <span className={`text-[10px] font-mono ${isPositive ? 'text-[var(--accent-green)]' : 'text-[var(--accent-red)]'} opacity-70`}>
               {isPositive ? '+' : ''}{formatCurrency(valueChange24h)}
             </span>
           )}
         </div>
       </td>
 
-      {/* Chain - hidden on smaller screens */}
-      <td className="py-4 hidden lg:table-cell">
+      {/* Chain */}
+      <td className="py-5 hidden lg:table-cell">
         <span
-          className="text-xs px-2 py-1 rounded-full whitespace-nowrap"
+          className="text-xs px-3 py-1.5 rounded-full font-medium whitespace-nowrap"
           style={{
             backgroundColor: chainConfig.color + '15',
             color: chainConfig.color,
+            border: `1px solid ${chainConfig.color}20`,
           }}
         >
           {chainConfig.name}

@@ -8,92 +8,61 @@ interface WalletInputProps {
   onAdd: (address: string, chain: Chain) => void;
 }
 
-// Chains that actually have API integration working
 const WORKING_CHAINS: Chain[] = [
-  'hyperliquid', 'solana', 'ethereum', 'bitcoin', 
+  'hyperliquid', 'solana', 'ethereum', 'bitcoin',
   'xrp', 'dogecoin', 'zcash', 'cardano', 'litecoin', 'tron'
 ];
 const COMING_SOON_CHAINS: Chain[] = [];
 
-// Detect possible chains from address format
 function detectChains(address: string): Chain[] {
   const trimmed = address.trim();
-  
   if (!trimmed) return [];
-  
-  // Ethereum/EVM addresses: 0x followed by 40 hex chars
-  // Could be Ethereum OR Hyperliquid
+
   if (/^0x[a-fA-F0-9]{40}$/.test(trimmed)) {
     return ['ethereum', 'hyperliquid'];
   }
-  
-  // Solana addresses: Base58, 32-44 chars, no 0/O/I/l
   if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(trimmed)) {
     return ['solana'];
   }
-  
-  // Bitcoin addresses
-  // Legacy (P2PKH): starts with 1
   if (/^1[a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(trimmed)) {
     return ['bitcoin'];
   }
-  // SegWit (P2SH): starts with 3
   if (/^3[a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(trimmed)) {
     return ['bitcoin'];
   }
-  // Native SegWit (Bech32): starts with bc1
   if (/^bc1[a-zA-HJ-NP-Z0-9]{39,59}$/.test(trimmed)) {
     return ['bitcoin'];
   }
-  
-  // XRP addresses: starts with 'r', 25-35 chars
   if (/^r[1-9A-HJ-NP-Za-km-z]{24,34}$/.test(trimmed)) {
     return ['xrp'];
   }
-  
-  // Dogecoin addresses: starts with 'D' or 'A', 34 chars
   if (/^[DA][1-9A-HJ-NP-Za-km-z]{33}$/.test(trimmed)) {
     return ['dogecoin'];
   }
-  
-  // Zcash transparent addresses: t1 or t3
   if (/^t[13][a-zA-Z0-9]{33}$/.test(trimmed)) {
     return ['zcash'];
   }
-  
-  // Zcash shielded Sapling addresses: zs1
   if (/^zs1[a-z0-9]{75,}$/.test(trimmed)) {
     return ['zcash'];
   }
-  
-  // Zcash unified addresses: u1
   if (/^u1[a-z0-9]{100,}$/.test(trimmed)) {
     return ['zcash'];
   }
-  
-  // Cardano Shelley addresses: addr1
   if (/^addr1[a-z0-9]{50,}$/.test(trimmed)) {
     return ['cardano'];
   }
-  
-  // Cardano stake addresses: stake1
   if (/^stake1[a-z0-9]{50,}$/.test(trimmed)) {
     return ['cardano'];
   }
-  
-  // Litecoin addresses: L (P2PKH), M (P2SH), or ltc1 (SegWit)
   if (/^[LM][a-km-zA-HJ-NP-Z1-9]{26,33}$/.test(trimmed)) {
     return ['litecoin'];
   }
   if (/^ltc1[a-z0-9]{39,59}$/.test(trimmed)) {
     return ['litecoin'];
   }
-  
-  // Tron addresses: starts with T
   if (/^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(trimmed)) {
     return ['tron'];
   }
-  
   return [];
 }
 
@@ -104,22 +73,18 @@ export default function WalletInput({ onAdd }: WalletInputProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Auto-detect chains when address changes
   useEffect(() => {
     const chains = detectChains(address);
     setDetectedChains(chains);
-    
-    // Auto-select if only one chain detected
+
     if (chains.length === 1) {
       setSelectedChain(chains[0]);
     } else if (chains.length > 1) {
-      // Multiple chains - default to first working one or null
       const workingChain = chains.find(c => WORKING_CHAINS.includes(c));
       setSelectedChain(workingChain || null);
     } else {
       setSelectedChain(null);
     }
-    
     setError(null);
   }, [address]);
 
@@ -132,7 +97,7 @@ export default function WalletInput({ onAdd }: WalletInputProps) {
     if (!address.trim() || !selectedChain) return;
 
     if (!isChainSupported) {
-      setError(`${CHAIN_CONFIG[selectedChain].name} support coming soon!`);
+      setError(`${CHAIN_CONFIG[selectedChain].name} support coming soon`);
       return;
     }
 
@@ -151,42 +116,50 @@ export default function WalletInput({ onAdd }: WalletInputProps) {
   return (
     <form onSubmit={handleSubmit} className="card">
       <div className="flex flex-col gap-4">
-        <h3 className="text-sm font-medium text-[var(--text-secondary)] uppercase tracking-wider">
-          Add Wallet
-        </h3>
-        
+        {/* Header */}
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-lg bg-[var(--bg-tertiary)] flex items-center justify-center">
+            <svg className="w-3.5 h-3.5 text-[var(--text-secondary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+          </div>
+          <h3 className="text-sm font-medium text-[var(--text-secondary)]">
+            Add Wallet
+          </h3>
+        </div>
+
+        {/* Input + Button */}
         <div className="flex flex-col sm:flex-row gap-3">
-          {/* Address input */}
           <div className="flex-1 relative">
             <input
               type="text"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="Paste any wallet address..."
-              className={`input w-full font-mono text-sm ${hasMultipleChains ? 'pr-4' : 'pr-24'}`}
+              className={`input w-full font-mono text-sm ${hasMultipleChains ? 'pr-4' : 'pr-28'}`}
             />
-            {/* Single chain badge (when not ambiguous) */}
             {!hasMultipleChains && selectedChain && (
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
                 <span
-                  className={`text-xs px-2 py-1 rounded-full ${
-                    isChainSupported
-                      ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)]'
-                      : 'bg-[var(--bg-tertiary)] text-[var(--text-muted)]'
-                  }`}
+                  className={`
+                    text-[10px] px-2.5 py-1 rounded-full font-medium
+                    ${isChainSupported
+                      ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)] border border-[var(--accent-green)]/20'
+                      : 'bg-[var(--bg-tertiary)] text-[var(--text-muted)] border border-[var(--border)]'
+                    }
+                  `}
                 >
                   {CHAIN_CONFIG[selectedChain].name}
-                  {isComingSoon && ' ⏳'}
+                  {isComingSoon && ' (soon)'}
                 </span>
               </div>
             )}
           </div>
 
-          {/* Submit button */}
           <button
             type="submit"
             disabled={!address.trim() || !selectedChain || isLoading}
-            className="btn btn-primary whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-primary whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none"
           >
             {isLoading ? (
               <span className="flex items-center gap-2">
@@ -213,49 +186,53 @@ export default function WalletInput({ onAdd }: WalletInputProps) {
                 Adding...
               </span>
             ) : (
-              'Add Wallet'
+              'Track Wallet'
             )}
           </button>
         </div>
 
-        {/* Chain selector when address is ambiguous (0x = ETH or Hyperliquid) */}
+        {/* Chain selector for ambiguous addresses */}
         {hasMultipleChains && (
-          <div className="flex gap-2 items-center">
+          <div className="flex flex-wrap gap-2 items-center">
             <span className="text-xs text-[var(--text-muted)]">Select chain:</span>
-            <div className="flex gap-2">
-              {detectedChains.map((chain) => {
-                const supported = WORKING_CHAINS.includes(chain);
-                const isSelected = selectedChain === chain;
-                return (
-                  <button
-                    key={chain}
-                    type="button"
-                    onClick={() => setSelectedChain(chain)}
-                    className={`text-xs px-3 py-1.5 rounded-full transition-all ${
-                      isSelected
-                        ? supported
-                          ? 'bg-[var(--accent-green)] text-black font-medium'
-                          : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] ring-1 ring-[var(--text-muted)]'
-                        : supported
-                          ? 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--accent-green)]/20'
-                          : 'bg-[var(--bg-tertiary)] text-[var(--text-muted)]'
-                    }`}
-                  >
-                    {CHAIN_CONFIG[chain].name}
-                    {!supported && ' ⏳'}
-                  </button>
-                );
-              })}
-            </div>
+            {detectedChains.map((chain) => {
+              const supported = WORKING_CHAINS.includes(chain);
+              const isSelected = selectedChain === chain;
+              return (
+                <button
+                  key={chain}
+                  type="button"
+                  onClick={() => setSelectedChain(chain)}
+                  className={`
+                    text-xs px-3 py-1.5 rounded-full transition-all font-medium
+                    ${isSelected
+                      ? supported
+                        ? 'bg-[var(--accent-primary)] text-[var(--bg-primary)]'
+                        : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] ring-1 ring-[var(--text-muted)]'
+                      : supported
+                        ? 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] border border-[var(--border)]'
+                        : 'bg-[var(--bg-tertiary)] text-[var(--text-muted)] border border-[var(--border)]'
+                    }
+                  `}
+                >
+                  {CHAIN_CONFIG[chain].name}
+                </button>
+              );
+            })}
           </div>
         )}
 
-        {/* Error/info message */}
+        {/* Status message */}
         {error ? (
-          <p className="text-xs text-[var(--accent-red)]">{error}</p>
+          <p className="text-xs text-[var(--accent-red)] flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {error}
+          </p>
         ) : (
           <p className="text-xs text-[var(--text-muted)]">
-            Auto-detects chain • BTC, ETH, SOL, XRP, DOGE, ZEC & more
+            Auto-detects chain from address format
           </p>
         )}
       </div>

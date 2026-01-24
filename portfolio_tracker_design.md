@@ -4,7 +4,7 @@
 
 ---
 
-## Current Status: v0.3.1-alpha (LIVE)
+## Current Status: v0.4.0-alpha (LIVE)
 
 **Production URL:** https://chainpulsetest1.vercel.app
 
@@ -43,11 +43,23 @@
 - [x] Toast notifications system
 - [x] Auto-refresh every 30s
 
+### Design System (v0.4 - "Obsidian Luxe")
+- [x] **Premium glass morphism** — backdrop-blur effects, subtle transparency layers
+- [x] **Refined color system** — luminous accents with proper opacity hierarchy
+- [x] **Enhanced CSS variables** — `--bg-glass`, `--accent-glow`, `--shadow-glow`, gradient overlays
+- [x] **Shimmer loading animation** — replaces basic pulse for skeleton states
+- [x] **Interactive row highlights** — accent line indicators on hover
+- [x] **Display typography** — large monospace numbers with tight letter-spacing (-0.03em)
+- [x] **Directional indicators** — arrows (↗/↘) with colored badges for price changes
+- [x] **Icon glow effects** — chain-colored glow on asset icons
+- [x] **Expandable cards** — mobile asset cards with smooth expand animation
+- [x] **Fade-in-scale animations** — refined motion for dropdowns and modals
+
 ### Auth & User Experience
 - [x] Email/password auth (Supabase)
 - [x] Google OAuth sign-in
 - [x] **Mert-style user menu** — dropdown with theme/homepage selectors
-- [x] **4 color themes** — Noir, Bloomberg, Sakura, Ember (with localStorage persistence)
+- [x] **4 color themes** — Noir, Bloomberg, Sakura, Ember (all with glass/glow variables)
 - [x] Wallet persistence (signed-in users)
 - [x] LocalStorage fallback (anonymous users)
 - [x] Row Level Security (RLS) — users can't see each other's data
@@ -111,7 +123,7 @@
 
 ```
 Frontend:       Next.js 14 (App Router)
-Styling:        TailwindCSS + CSS Variables (GitHub navy theme)
+Styling:        TailwindCSS + CSS Variables (Obsidian Luxe design system)
 Auth + DB:      Supabase
 Email:          Resend
 Deployment:     Vercel
@@ -228,6 +240,7 @@ portfolio-tracker/
 │   │   ├── PortfolioSummary.tsx
 │   │   ├── PortfolioTable.tsx
 │   │   ├── AssetRow.tsx
+│   │   ├── AssetCard.tsx
 │   │   ├── NFTGrid.tsx
 │   │   ├── DomainList.tsx
 │   │   ├── TabNav.tsx
@@ -236,12 +249,15 @@ portfolio-tracker/
 │   │   ├── AlertModal.tsx
 │   │   ├── AlertsList.tsx
 │   │   ├── InviteCodeModal.tsx
+│   │   ├── Sparkline.tsx
+│   │   ├── TimeRangeSelector.tsx
 │   │   └── Providers.tsx
 │   ├── hooks/
 │   │   ├── usePortfolio.ts
 │   │   ├── useAuth.ts
 │   │   ├── useWallets.ts
 │   │   ├── useAlerts.ts
+│   │   ├── useTheme.ts
 │   │   └── usePortfolioHistory.ts
 │   ├── lib/
 │   │   ├── supabase.ts

@@ -15,7 +15,6 @@ const TIME_RANGES: { value: TimeRange; label: string }[] = [
   { value: '3M', label: '3M' },
   { value: 'YTD', label: 'YTD' },
   { value: '1Y', label: '1Y' },
-  { value: 'ALL', label: 'All' },
 ];
 
 export default function TimeRangeSelector({
@@ -24,14 +23,14 @@ export default function TimeRangeSelector({
   disabled = false,
 }: TimeRangeSelectorProps) {
   return (
-    <div className="flex gap-1 p-1 bg-[var(--bg-tertiary)] rounded-lg">
+    <div className="inline-flex items-center gap-0.5 p-1 bg-[var(--bg-tertiary)] rounded-lg border border-[var(--border)]">
       {TIME_RANGES.map(({ value, label }) => (
         <button
           key={value}
           onClick={() => onChange(value)}
           disabled={disabled}
           className={`
-            px-3 py-1.5 text-xs font-medium rounded-md transition-all
+            px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200
             ${
               selected === value
                 ? 'bg-[var(--bg-primary)] text-[var(--text-primary)] shadow-sm'
