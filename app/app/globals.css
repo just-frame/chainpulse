@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 /* ============================================
-   CHAINPULSE DESIGN SYSTEM
+   VAULT DESIGN SYSTEM
    CYPHER — Terminal aesthetic for sovereign traders
-   Inspired by Cyberpunk 2077 HUD interfaces
+   Corrupted Signal philosophy: glitched, chromatic, raw
    ============================================ */
 
 /* ============================================
@@ -652,35 +652,53 @@ tbody tr:hover {
 
 /* ============================================
    CYPHER TOGGLE - On/off switch
+   Min 44px touch target with visual toggle inside
    ============================================ */
 .cypher-toggle {
   position: relative;
   width: 44px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 150ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Visual toggle track */
+.cypher-toggle::after {
+  content: '';
+  position: absolute;
+  width: 40px;
   height: 22px;
   background: var(--bg-tertiary);
   border: 1px solid var(--border);
-  cursor: pointer;
   transition: all 150ms ease;
 }
 
+/* Toggle knob */
 .cypher-toggle::before {
   content: '';
   position: absolute;
-  top: 3px;
-  left: 3px;
+  top: 50%;
+  left: 5px;
+  transform: translateY(-50%);
   width: 14px;
   height: 14px;
   background: var(--text-muted);
   transition: all 150ms ease;
+  z-index: 1;
 }
 
-.cypher-toggle.active {
+.cypher-toggle.active::after {
   background: rgba(0, 255, 136, 0.1);
   border-color: var(--accent-green);
 }
 
 .cypher-toggle.active::before {
-  left: calc(100% - 17px);
+  left: calc(100% - 19px);
   background: var(--accent-green);
   box-shadow: 0 0 8px var(--accent-green);
 }
@@ -1103,4 +1121,143 @@ tbody tr:hover {
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
   opacity: 0.3;
+}
+
+/* ============================================
+   SLIDE PANEL SYSTEM
+   Smooth slide-in panels for overlays
+   ============================================ */
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutToRight {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes panelBackdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slideInRight {
+  animation: slideInFromRight 300ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+.animate-slideOutRight {
+  animation: slideOutToRight 250ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+.animate-panelBackdrop {
+  animation: panelBackdropIn 200ms ease-out forwards;
+}
+
+/* ============================================
+   VAULT LOGO — Corrupted Signal Wordmark
+   Chromatic aberration with glitch aesthetic
+   ============================================ */
+.vault-wordmark {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  line-height: 1;
+}
+
+@media (min-width: 640px) {
+  .vault-wordmark {
+    font-size: 1.25rem;
+  }
+}
+
+.vault-wordmark-core {
+  position: relative;
+  color: var(--text-primary);
+  z-index: 3;
+}
+
+.vault-wordmark-cyan {
+  color: #00FFFF;
+  opacity: 0.6;
+  transform: translateX(-2px);
+  z-index: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.vault-wordmark-magenta {
+  color: #FF00FF;
+  opacity: 0.6;
+  transform: translateX(2px);
+  z-index: 2;
+  pointer-events: none;
+  user-select: none;
+}
+
+@media (min-width: 640px) {
+  .vault-wordmark-cyan {
+    transform: translateX(-2.5px);
+  }
+  .vault-wordmark-magenta {
+    transform: translateX(2.5px);
+  }
+}
+
+/* Subtle glow on the icon */
+.vault-icon-glow {
+  filter: drop-shadow(0 0 6px rgba(0, 255, 255, 0.3)) drop-shadow(0 0 6px rgba(255, 0, 255, 0.3));
+}
+
+/* Glitch animation on hover */
+.vault-wordmark:hover .vault-wordmark-cyan {
+  animation: glitchCyan 0.3s ease-in-out;
+}
+
+.vault-wordmark:hover .vault-wordmark-magenta {
+  animation: glitchMagenta 0.3s ease-in-out;
+}
+
+@keyframes glitchCyan {
+  0%, 100% { transform: translateX(-2px); opacity: 0.6; }
+  25% { transform: translateX(-4px) translateY(1px); opacity: 0.8; }
+  50% { transform: translateX(-1px) translateY(-1px); opacity: 0.5; }
+  75% { transform: translateX(-3px); opacity: 0.7; }
+}
+
+@keyframes glitchMagenta {
+  0%, 100% { transform: translateX(2px); opacity: 0.6; }
+  25% { transform: translateX(3px) translateY(-1px); opacity: 0.8; }
+  50% { transform: translateX(4px) translateY(1px); opacity: 0.5; }
+  75% { transform: translateX(1px); opacity: 0.7; }
+}
+
+@media (min-width: 640px) {
+  @keyframes glitchCyan {
+    0%, 100% { transform: translateX(-2.5px); opacity: 0.6; }
+    25% { transform: translateX(-5px) translateY(1px); opacity: 0.8; }
+    50% { transform: translateX(-1px) translateY(-1px); opacity: 0.5; }
+    75% { transform: translateX(-4px); opacity: 0.7; }
+  }
+
+  @keyframes glitchMagenta {
+    0%, 100% { transform: translateX(2.5px); opacity: 0.6; }
+    25% { transform: translateX(4px) translateY(-1px); opacity: 0.8; }
+    50% { transform: translateX(5px) translateY(1px); opacity: 0.5; }
+    75% { transform: translateX(1px); opacity: 0.7; }
+  }
 }
