@@ -111,7 +111,7 @@ Shows directly in dropdown (no confusing "Connect"):
 
 ## Dev Commands
 ```bash
-cd "/Users/justframe/Desktop/vibecode2026/portfolio tracker/app"
+cd app
 npm run dev
 # http://localhost:3000
 ```

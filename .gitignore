@@ -1,0 +1,7 @@
+.DS_Store
+.env*
+*.pem
+*.key
+credentials.json
+node_modules/
+.planning/codebase/CONCERNS.md
