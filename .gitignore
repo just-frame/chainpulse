@@ -5,3 +5,5 @@
 credentials.json
 node_modules/
 .planning/codebase/CONCERNS.md
+.playwright-mcp/
+security_research-agent
