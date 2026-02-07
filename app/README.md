@@ -1,46 +1,50 @@
-# Chainpulse 🔗⚡
+# Vault
 
 A chain-agnostic crypto portfolio tracker. Track spot holdings, staking, NFTs, and domains across 11 blockchains in one sleek dashboard.
 
 **Live Demo:** [chainpulsetest1.vercel.app](https://chainpulsetest1.vercel.app)
 
+**Version:** v0.6.0-alpha
+
 ---
 
 ## Features
 
-### 📊 Multi-Chain Portfolio
+### Multi-Chain Portfolio
 - **11 chains supported:** Solana, Ethereum, Bitcoin, Hyperliquid, XRP, Dogecoin, Litecoin, Cardano, Tron, Zcash
 - Auto-detects chain from wallet address
 - Aggregates balances from multiple wallets
 - Real-time USD values with 24h change
 - **Search & filter** assets by name, symbol, or chain
 
-### 💎 Assets, NFTs & Domains
+### Assets, NFTs & Domains
 - Full token holdings with exact amounts
 - NFT display with spam filtering
 - Domain support (.sol, .eth)
 - Staking detection (LSDs, native staking, delegated)
 
-### 🔔 Price Alerts
+### Price Alerts
 - Set alerts for price above/below targets
 - Percentage change alerts
 - Toggle, edit, or delete alerts
 - In-app toast notifications
 - Email notifications (Resend)
 
-### 🔐 Auth & Privacy
+### Auth & Privacy
 - Email/password authentication
 - Google OAuth sign-in
 - Wallet persistence for signed-in users
 - LocalStorage for anonymous users
 - Row Level Security — your data is private
 
-### 🎨 Modern UI
-- **4 color themes:** Noir, Bloomberg, Sakura, Ember
-- Mert-style user menu dropdown
+### Design System
+- **Cypher Theme** — MGS2/MGS4 codec aesthetic
+- JetBrains Mono typography throughout
+- Angular, terminal-style components
+- Dark mode (cool black #08090b)
 - Wide-screen 12-column layout
-- Mobile responsive
-- Smooth animations
+- Mobile responsive with 44px touch targets
+- Smooth animations (slide panels, fade transitions)
 
 ---
 
@@ -150,23 +154,28 @@ Auto-deploys on every push to `main`.
 
 ## Roadmap
 
-### ✅ Completed (v0.3.1)
+### Completed (v0.6.0)
 - Multi-chain support (11 chains)
 - NFT & domain detection
 - User authentication (email + Google)
-- Price alerts with in-app notifications
+- Price alerts with in-app + email notifications
 - Asset search & filtering
 - Wide-screen layout optimization
 - Input validation & security hardening
 - Mobile responsive
+- Cypher theme (MGS codec aesthetic)
+- Alerts slide panel UX fix
+- 44px touch targets for mobile accessibility
 
-### 📋 Next Up
+### Next Up
 - Portfolio charts (sparklines, historical)
 - P&L tracking
-- DeFi positions (LPs, lending)
-- Swap integration
+- Vercel KV price caching
+- Parallel chain fetches
+- Graceful degradation (partial data on API failures)
 
-### 🔮 Future
+### Future
+- DeFi positions (LPs, lending)
 - Telegram/Discord alerts
 - Portfolio sharing
 - Whale tracking
@@ -185,4 +194,4 @@ MIT
 
 ---
 
-Built with ☕ and crypto dreams.
+Built for sovereign traders.

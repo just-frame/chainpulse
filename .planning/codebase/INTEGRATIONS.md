@@ -95,7 +95,7 @@
   - No Redis/external cache
 
 - Browser:
-  - localStorage for anonymous user wallets (`chainpulse_wallets` key)
+  - localStorage for anonymous user wallets (`vault_wallets` key)
 
 ## Authentication & Identity
 
@@ -122,7 +122,7 @@
 ## CI/CD & Deployment
 
 **Hosting:**
-- Vercel (chainpulsetest1.vercel.app)
+- Vercel (vaulttest1.vercel.app)
 - Deployment via git push (inferred from Next.js setup)
 
 **CI Pipeline:**

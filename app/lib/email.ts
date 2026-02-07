@@ -82,14 +82,14 @@ export async function sendPriceAlertEmail({
           </div>
           
           <!-- CTA -->
-          <a href="https://chainpulsetest1.vercel.app" style="display: block; text-align: center; background-color: #ffffff; color: #000000; text-decoration: none; padding: 14px 24px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+          <a href="https://vault-portfolio.vercel.app" style="display: block; text-align: center; background-color: #ffffff; color: #000000; text-decoration: none; padding: 14px 24px; border-radius: 8px; font-weight: 600; font-size: 16px;">
             View Portfolio →
           </a>
           
           <!-- Footer -->
           <p style="margin: 24px 0 0 0; text-align: center; color: #666666; font-size: 12px;">
             You received this because you set a price alert on vault.<br>
-            <a href="https://chainpulsetest1.vercel.app" style="color: #888888;">Manage your alerts</a>
+            <a href="https://vault-portfolio.vercel.app" style="color: #888888;">Manage your alerts</a>
           </p>
           
         </div>
@@ -104,7 +104,7 @@ ${assetName} (${assetSymbol}) has ${verb} ${thresholdDisplay}.
 
 Current Price: $${currentPrice.toLocaleString()}
 
-View your portfolio: https://chainpulsetest1.vercel.app
+View your portfolio: https://vault-portfolio.vercel.app
   `.trim();
 
   try {

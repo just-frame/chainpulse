@@ -89,14 +89,14 @@ Shows directly in dropdown (no confusing "Connect"):
 
 | File | Status | Purpose |
 |------|--------|---------|
-| `/app/app/globals.css` | Updated | Theme system, all styles |
+| `/app/app/globals.css` | Updated | Theme system, slide panel animations |
+| `/app/app/page.tsx` | Updated | Main dashboard, alerts slide panel |
 | `/app/components/AlertModal.tsx` | Updated | Alert creation (radio done) |
 | `/app/components/AlertsList.tsx` | Updated | Alert list display |
 | `/app/components/UserMenu.tsx` | Updated | Auth options in dropdown |
-| `/app/components/AuthModal.tsx` | Unchanged | Full auth modal |
+| `/app/components/AuthModal.tsx` | Updated | Full auth modal (mobile fix) |
 | `/app/hooks/useTheme.ts` | Updated | Single theme |
 | `/app/app/layout.tsx` | Updated | JetBrains Mono only |
-| `/app/app/page.tsx` | Unchanged | Main dashboard |
 
 ## What's Done - Mobile Auth Modal Fix
 
@@ -108,6 +108,45 @@ Shows directly in dropdown (no confusing "Connect"):
 - `z-index: 100` for proper stacking above header
 - Darker backdrop (90% opacity)
 - Proper flex container with `min-h-full` for scroll handling
+
+## What's Done - Alerts Panel UX Fix
+
+**Issue:** Clicking "Alerts" in header showed nothing on screens < 1280px - panel rendered off-screen (bottom-left positioned)
+
+**Fix (page.tsx + globals.css):**
+
+#### New Slide Panel (Mobile/Tablet)
+- Right-side slide panel instead of bottom sheet
+- Works on all screen sizes under xl breakpoint
+- Smooth 300ms `cubic-bezier(0.32, 0.72, 0, 1)` transitions
+- Backdrop blur with click-outside dismiss
+
+#### Panel Features
+- Accent line on left edge (gradient via-accent-primary)
+- Active alerts count badge (`X ACTIVE`)
+- Dedicated action bar: New Alert button + Check Now
+- Footer hint: "Alerts checked every 30 seconds"
+- Close button (X) with proper touch target
+
+#### Desktop Sidebar Panel Updates
+- Added `animate-fadeIn` entrance
+- Close button for explicit dismissal
+- Consistent styling with mobile panel
+
+#### New CSS (globals.css)
+```css
+@keyframes slideInFromRight { ... }
+@keyframes slideOutToRight { ... }
+@keyframes panelBackdropIn { ... }
+.animate-slideInRight
+.animate-slideOutRight
+.animate-panelBackdrop
+```
+
+#### Touch Target Improvements (44px min)
+- `.cypher-toggle` now 44x44px container with visual toggle inside
+- Close buttons: `min-w-[44px] min-h-[44px]`
+- Remove wallet buttons: Always visible on mobile, hover on desktop
 
 ## Dev Commands
 ```bash

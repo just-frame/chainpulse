@@ -79,7 +79,7 @@ function checkRateLimit(ip: string, pathname: string): { allowed: boolean; retry
 
 const ALLOWED_ORIGINS = [
   process.env.NEXT_PUBLIC_APP_URL,
-  'https://chainpulsetest1.vercel.app',
+  'https://chainpulsetest1.vercel.app',  // legacy URL
   'https://vault-portfolio.vercel.app',
   'http://localhost:3000',
   'http://localhost:3001',

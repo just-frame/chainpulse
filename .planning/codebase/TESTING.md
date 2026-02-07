@@ -78,7 +78,7 @@ const hasLoadedSavedWallets = useRef(false);
 useEffect(() => {
   setHasMounted(true);
   try {
-    const saved = localStorage.getItem('chainpulse_wallets');
+    const saved = localStorage.getItem('vault_wallets');
     if (saved) {
       const parsed = JSON.parse(saved);
       // ...

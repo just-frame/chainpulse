@@ -93,8 +93,8 @@ export default function InviteCodeModal({ onSuccess }: InviteCodeModalProps) {
         inputRefs.current[0]?.focus();
       } else {
         // Store verified status
-        localStorage.setItem('chainpulse_invited', 'true');
-        localStorage.setItem('chainpulse_invite_code', fullCode);
+        localStorage.setItem('vault_invited', 'true');
+        localStorage.setItem('vault_invite_code', fullCode);
         onSuccess();
       }
     } catch (err) {

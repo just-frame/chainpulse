@@ -1,14 +1,23 @@
-# Chainpulse — Design Specification
+# Vault — Design Specification
 
 > A chain-agnostic portfolio tracker that doesn't suck.
 
 ---
 
-## Current Status: v0.5.0-alpha (LIVE)
+## Current Status: v0.6.0-alpha (LIVE)
 
 **Production URL:** https://chainpulsetest1.vercel.app
 
-### Latest Update (v0.5.0) — UI/UX Overhaul
+### Latest Update (v0.6.0) — Cypher Theme + UX Fixes
+Complete design system overhaul to "Cypher" theme (MGS codec aesthetic) plus critical UX fixes.
+
+#### v0.6.0 Changes
+- **Alerts Panel UX Fix** — Slide-in panel from right (was rendering off-screen)
+- **Touch Targets** — All interactive elements now 44px minimum
+- **Cypher Theme** — Single theme, MGS2/MGS4 codec aesthetic
+- **Mobile Auth Modal** — Fixed cut-off on iPhone (dvh units)
+
+### Previous (v0.5.0) — UI/UX Overhaul
 Major design refinements focused on typography, spacing, and component polish.
 
 ---
@@ -46,43 +55,52 @@ Major design refinements focused on typography, spacing, and component polish.
 - [x] Toast notifications system
 - [x] Auto-refresh every 30s
 
-### Design System (v0.5 - "Obsidian Luxe" Refined)
+### Design System (v0.6 - "Cypher" Theme)
+**Aesthetic:** MGS2/MGS4 codec menus — military precision, cool colors, angular elements.
 
-#### Typography (NEW)
-- [x] **Plus Jakarta Sans** — body text (replaces Inter)
-- [x] **Instrument Sans** — display/headlines
-- [x] **JetBrains Mono** — numbers and data
+#### Typography
+- [x] **JetBrains Mono** — all text (monospace terminal aesthetic)
+- [x] Large display numbers with tight letter-spacing (-0.03em)
+- [x] Uppercase labels with wide tracking (0.1-0.15em)
 
-#### Component Redesigns (NEW)
-- [x] **TimeRangeSelector** — larger touch targets, sliding indicator animation
-- [x] **AlertsList** — compact one-line format, color-coded accent bars, live pulse indicator
-- [x] **TabNav** — clean underline indicator with smooth animation, larger text
-- [x] **Theme Selector** — circular swatches with accent borders, glow effects, checkmark indicator
-- [x] **Tracked Wallets** — proper card container, green status dots, "WATCHING" header
+#### Color Palette (MGS Codec Teal)
+```css
+--accent-primary: #5aabb8   /* codec teal */
+--accent-green: #4eba6f     /* tactical green */
+--accent-red: #c45c5c       /* muted red */
+--bg-primary: #08090b       /* cool black */
+--text-primary: #e4e6eb     /* clean white-gray */
+```
 
-#### Spacing & Layout (NEW)
-- [x] **Increased padding** — cards 28px (up from 24px), mobile 24px
-- [x] **Larger border-radius** — 20px (up from 16px)
-- [x] **Table rows** — 18px padding for better scanning
-- [x] **Grid gaps** — 8-10px between major sections
+#### Component System
+- [x] **Alerts Slide Panel** — slides from right, backdrop blur, 44px touch targets
+- [x] **AlertsList** — angular cards, corner accents, glow indicators
+- [x] **Cypher Radio** — terminal toggle controls with corner brackets
+- [x] **Cypher Toggle** — 44px touch area with visual switch inside
+- [x] **cyber-btn** — sweep animation on hover, accent border
+- [x] **TabNav** — clean underline indicator with smooth animation
+- [x] **Tracked Wallets** — proper card container, green status dots
 
-#### Core Design Elements
-- [x] **Premium glass morphism** — backdrop-blur effects, subtle transparency layers
-- [x] **Refined color system** — luminous accents with proper opacity hierarchy
-- [x] **Enhanced CSS variables** — `--bg-glass`, `--accent-glow`, `--shadow-glow`, gradient overlays
-- [x] **Shimmer loading animation** — replaces basic pulse for skeleton states
-- [x] **Interactive row highlights** — accent line indicators on hover
-- [x] **Display typography** — large monospace numbers with tight letter-spacing (-0.035em)
-- [x] **Directional indicators** — arrows (↗/↘) with colored badges for price changes
-- [x] **Icon glow effects** — chain-colored glow on asset icons
-- [x] **Expandable cards** — mobile asset cards with smooth expand animation
-- [x] **Fade-in-scale animations** — refined motion for dropdowns and modals
+#### Spacing & Layout
+- [x] **Card padding** — 32px base, 36px desktop (generous negative space)
+- [x] **Angular borders** — no border-radius, sharp corners
+- [x] **Table rows** — 20px padding for breathing room
+- [x] **Grid gaps** — 10-14px between sections
+- [x] **Max-width** — 1920px for ultrawide displays
+
+#### Effects & Animations
+- [x] **Scanline overlay** — subtle CRT effect on body
+- [x] **Glow effects** — accent-colored box-shadows
+- [x] **slideInFromRight** — panel entrance animation
+- [x] **fadeIn / fadeInScale** — modal and card entrances
+- [x] **Corner accents** — border-based decorative corners
 
 ### Auth & User Experience
 - [x] Email/password auth (Supabase)
 - [x] Google OAuth sign-in
-- [x] **User menu dropdown** — compact theme swatches + auth section
-- [x] **4 color themes** — Noir, Bloomberg, Sakura, Ember (visual swatches with accent borders)
+- [x] **User menu dropdown** — auth options directly visible
+- [x] **Single Cypher theme** — consolidated from 4 themes
+- [x] **Mobile auth modal fix** — uses dvh units, proper z-index
 - [x] Wallet persistence (signed-in users)
 - [x] LocalStorage fallback (anonymous users)
 - [x] Row Level Security (RLS) — users can't see each other's data
@@ -98,6 +116,7 @@ Major design refinements focused on typography, spacing, and component polish.
 - [x] RLS security on alerts table
 - [x] **In-app toast notifications** when alerts trigger
 - [x] Email notifications via Resend (requires domain verification)
+- [x] **Alerts slide panel** — accessible from header on all screen sizes
 
 ### Security
 - [x] **Input validation** — chain-specific address regex patterns
@@ -146,8 +165,8 @@ Major design refinements focused on typography, spacing, and component polish.
 
 ```
 Frontend:       Next.js 14 (App Router)
-Styling:        TailwindCSS + CSS Variables (Obsidian Luxe design system)
-Typography:     Plus Jakarta Sans, Instrument Sans, JetBrains Mono (Google Fonts)
+Styling:        TailwindCSS + CSS Variables (Cypher design system)
+Typography:     JetBrains Mono (Google Fonts) — monospace terminal aesthetic
 Auth + DB:      Supabase
 Email:          Resend
 Deployment:     Vercel
@@ -237,7 +256,7 @@ invite_codes (
 - ✅ Alerts can only be viewed/modified by owner
 - ✅ Input validation with chain-specific regex
 - ✅ Address length limits (max 150 chars)
-- See `chainpulse_security.md` for full audit
+- See security documentation for full audit
 
 ---
 

@@ -90,7 +90,7 @@
 - API keys: Helius, Alchemy, Resend (optional for some features)
 
 **Production:**
-- Vercel (deployed to chainpulsetest1.vercel.app)
+- Vercel (deployed to vault-portfolio.vercel.app)
 - Supabase hosted instance
 - Environment variables for all integrations
 

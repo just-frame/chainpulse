@@ -1,43 +1,42 @@
-# Chainpulse
+# Vault
 
 **Multi-chain portfolio tracker** — See all your crypto in one place.
 
-`v0.1.0-alpha`
+`v0.6.0-alpha`
 
 ---
 
 ## Features
 
-### Chains Supported
+### Chains Supported (11 total)
 | Chain | Tokens | Staking | NFTs | Domains |
 |-------|--------|---------|------|---------|
-| **Hyperliquid** | ✅ Spot balances | ✅ Staked HYPE | — | — |
-| **Solana** | ✅ All SPL tokens | — | ✅ Full collection | ✅ .sol domains |
-| Ethereum | 🔜 Coming soon | | | |
-| Bitcoin | 🔜 Coming soon | | | |
+| **Hyperliquid** | Spot balances | Staked HYPE | — | — |
+| **Solana** | All SPL tokens | Native staking | Full collection | .sol domains |
+| **Ethereum** | ETH + ERC-20 | LSDs (stETH, rETH) | Full collection | ENS domains |
+| **Bitcoin** | BTC balance | — | — | — |
+| **XRP** | XRP balance | — | — | — |
+| **Dogecoin** | DOGE balance | — | — | — |
+| **Litecoin** | LTC balance | — | — | — |
+| **Cardano** | ADA balance | Staking rewards | — | — |
+| **Tron** | TRX + TRC-20 | Freeze staking | — | — |
+| **Zcash** | ZEC (transparent) | — | — | — |
 
-### What You Get
-
-**Tokens**
-- Real-time prices via DeFiLlama
-- 24h price change
+### Core Features
+- Real-time prices via DeFiLlama + CoinGecko
+- 24h price change (weighted by holdings)
 - Auto-refresh every 30 seconds
 - Dust filtering (hides tokens worth < $1)
+- Asset search (filter by name, symbol, or chain)
+- NFT display with spam filtering
+- Domain display (.sol, .eth)
+- Price alerts with in-app + email notifications
 
-**NFTs** (Solana)
-- Full collection display
-- Purchase price + date (even from 2021)
-- Collection names
-- Spam filtering (removes fake airdrops)
-
-**Domains** (Solana)
-- .sol domain detection via Bonfida
-- Registration date + cost
-
-**Icons**
-- CoinGecko for major tokens
-- DexScreener fallback for meme coins
-- Works for basically every token
+### Design
+- **Cypher Theme** — MGS2/MGS4 codec aesthetic
+- JetBrains Mono typography
+- Angular, terminal-style UI
+- Dark mode only
 
 ---
 
@@ -56,53 +55,53 @@ Open [localhost:3000](http://localhost:3000)
 Create `app/.env.local`:
 
 ```env
-# Required for Solana (get free key at helius.dev)
+# Solana (get free key at helius.dev)
 HELIUS_API_KEY=your_key_here
+
+# Ethereum (optional, for EVM chains)
+ALCHEMY_API_KEY=your_key_here
+
+# Supabase (for auth + persistence)
+NEXT_PUBLIC_SUPABASE_URL=your_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key
+SUPABASE_SERVICE_ROLE_KEY=your_key
+
+# Email notifications (optional)
+RESEND_API_KEY=your_key
 ```
 
 ---
 
 ## Usage
 
-1. **Add wallet** — Paste any address, chain auto-detects:
-   - `0x...` → Hyperliquid
-   - Base58 (32-44 chars) → Solana
-
+1. **Add wallet** — Paste any address, chain auto-detects
 2. **View portfolio** — See aggregated holdings across all wallets
-
 3. **Track multiple wallets** — Add as many as you want, balances combine
-
-4. **Auto-refresh** — Prices update every 30 seconds
+4. **Set alerts** — Get notified when prices cross your targets
+5. **Sign in** — Sync wallets across devices (Google OAuth or email)
 
 ---
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14, TailwindCSS
-- **APIs**: 
-  - Hyperliquid (native API)
-  - Helius (Solana DAS)
-  - Bonfida (SNS domains)
-  - DeFiLlama (prices)
-  - DexScreener (icons)
+- **Frontend**: Next.js 14, TailwindCSS, JetBrains Mono
+- **Auth + DB**: Supabase
+- **Email**: Resend
+- **Deployment**: Vercel
 
----
-
-## Roadmap
-
-- [ ] Ethereum + EVM chains
-- [ ] Bitcoin tracking
-- [ ] Price alerts
-- [ ] Portfolio history charts
-- [ ] User accounts (Supabase)
-- [ ] Mobile app (iOS)
+**Data Sources:**
+- Helius (Solana)
+- Alchemy (Ethereum)
+- Mempool.space (Bitcoin)
+- DeFiLlama + CoinGecko (prices)
+- DexScreener (token icons)
 
 ---
 
 ## Alpha Notice
 
-This is early software. Expect bugs. Your wallet addresses are not stored anywhere — everything runs locally in your browser.
+This is early software. Wallet addresses are **read-only** — no private keys ever.
 
 ---
 
-**v0.1.0-alpha** • January 2026
+**v0.6.0-alpha** • January 2026

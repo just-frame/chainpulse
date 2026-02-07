@@ -59,7 +59,7 @@ export function usePortfolio(): UsePortfolioReturn {
   useEffect(() => {
     setHasMounted(true);
     try {
-      const saved = localStorage.getItem('chainpulse_wallets');
+      const saved = localStorage.getItem('vault_wallets');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -213,7 +213,7 @@ export function usePortfolio(): UsePortfolioReturn {
           const updated = [...prev, { address, chain }];
           // Save to localStorage for anonymous users
           try {
-            localStorage.setItem('chainpulse_wallets', JSON.stringify(updated));
+            localStorage.setItem('vault_wallets', JSON.stringify(updated));
           } catch (e) {
             console.error('Error saving to localStorage:', e);
           }
@@ -254,7 +254,7 @@ export function usePortfolio(): UsePortfolioReturn {
         );
         // Update localStorage for anonymous users
         try {
-          localStorage.setItem('chainpulse_wallets', JSON.stringify(updated));
+          localStorage.setItem('vault_wallets', JSON.stringify(updated));
         } catch (e) {
           console.error('Error saving to localStorage:', e);
         }

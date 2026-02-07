@@ -175,9 +175,9 @@
 
 **Styling:**
 - Tailwind CSS utility classes (PostCSS plugin)
-- CSS variables for theming (4 themes: noir, bloomberg, sakura, ember)
+- CSS variables for "Cypher" theme (single theme, MGS codec aesthetic)
 - Responsive breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px)
-- Dark mode only (no light theme)
+- Dark mode only (cool black #08090b, teal accent #5aabb8)
 
 ---
 
