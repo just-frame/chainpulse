@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { getHyperliquidHoldings } from '@/lib/chains/hyperliquid';
 import { getSolanaPortfolio } from '@/lib/chains/solana';
 import { getEthereumPortfolio } from '@/lib/chains/ethereum';
@@ -168,17 +167,6 @@ async function fetchPrices(symbols: string[]): Promise<{ [key: string]: { price:
 }
 
 export async function GET(request: NextRequest) {
-  // Authentication check
-  const supabase = await createServerSupabaseClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return NextResponse.json(
-      { error: 'Authentication required' },
-      { status: 401 }
-    );
-  }
-
   const searchParams = request.nextUrl.searchParams;
   const address = searchParams.get('address');
   const chainParam = searchParams.get('chain');
@@ -207,25 +195,6 @@ export async function GET(request: NextRequest) {
   // Additional security: limit address length
   if (address.length > 150) {
     return NextResponse.json({ error: 'Address too long' }, { status: 400 });
-  }
-
-  // Verify user owns this wallet
-  const { data: userWallets } = await supabase
-    .from('wallets')
-    .select('address, chain')
-    .eq('user_id', user.id);
-
-  const normalizedAddress = address.toLowerCase();
-  const isOwnWallet = userWallets?.some(
-    w => w.address.toLowerCase() === normalizedAddress &&
-         w.chain === chain
-  );
-
-  if (!isOwnWallet) {
-    return NextResponse.json(
-      { error: 'Wallet not in your portfolio' },
-      { status: 403 }
-    );
   }
 
   try {
