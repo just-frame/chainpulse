@@ -113,6 +113,24 @@ export function useWallets() {
     return { data, error };
   }, [user, wallets]);
 
+  const updateWalletLabel = useCallback(async (id: string, label: string) => {
+    if (!user) return { error: new Error('Not authenticated') };
+
+    const supabase = createClient();
+    const { error } = await supabase
+      .from('wallets')
+      .update({ label: label || null })
+      .eq('id', id);
+
+    if (!error) {
+      setWallets((prev) =>
+        prev.map((w) => (w.id === id ? { ...w, label: label || null } : w))
+      );
+    }
+
+    return { error };
+  }, [user]);
+
   const removeWallet = useCallback(async (id: string) => {
     const supabase = createClient();
     const { error } = await supabase
@@ -132,6 +150,7 @@ export function useWallets() {
     loading,
     addWallet,
     removeWallet,
+    updateWalletLabel,
     refetch: fetchWallets,
   };
 }

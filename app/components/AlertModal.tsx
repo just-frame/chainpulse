@@ -20,9 +20,10 @@ interface AlertModalProps {
   onSave: (alert: CreateAlertData) => Promise<void>;
   assets: Asset[];
   editingAlert?: Alert | null;
+  preSelectedAsset?: string;
 }
 
-export default function AlertModal({ isOpen, onClose, onSave, assets, editingAlert }: AlertModalProps) {
+export default function AlertModal({ isOpen, onClose, onSave, assets, editingAlert, preSelectedAsset }: AlertModalProps) {
   const [selectedAsset, setSelectedAsset] = useState('');
   const [condition, setCondition] = useState<'above' | 'below'>('above');
   const [threshold, setThreshold] = useState('');
@@ -50,6 +51,10 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
         setSelectedAsset(editingAlert.asset);
         setCondition(editingAlert.condition);
         setThreshold(editingAlert.threshold.toString());
+      } else if (preSelectedAsset) {
+        setSelectedAsset(preSelectedAsset);
+        setCondition('above');
+        setThreshold('');
       } else {
         setSelectedAsset(uniqueAssets[0]?.symbol || '');
         setCondition('above');
@@ -59,7 +64,7 @@ export default function AlertModal({ isOpen, onClose, onSave, assets, editingAle
     } else if (!isOpen) {
       hasInitialized.current = false;
     }
-  }, [isOpen, editingAlert, uniqueAssets]);
+  }, [isOpen, editingAlert, uniqueAssets, preSelectedAsset]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

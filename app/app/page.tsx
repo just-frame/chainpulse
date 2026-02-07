@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Header from '@/components/Header';
 import PortfolioSummary from '@/components/PortfolioSummary';
+import AllocationBar from '@/components/AllocationBar';
 import PortfolioTable from '@/components/PortfolioTable';
 import WalletInput from '@/components/WalletInput';
 import NFTGrid from '@/components/NFTGrid';
@@ -20,6 +21,9 @@ export default function Dashboard() {
   const [showAlertModal, setShowAlertModal] = useState(false);
   const [showAlertsPanel, setShowAlertsPanel] = useState(false);
   const [editingAlert, setEditingAlert] = useState<Alert | null>(null);
+  const [preSelectedAsset, setPreSelectedAsset] = useState<string | undefined>();
+  const [editingWalletLabel, setEditingWalletLabel] = useState<string | null>(null);
+  const [labelDraft, setLabelDraft] = useState('');
   const { addToast } = useToast();
   const lastCheckRef = useRef<string>('');
 
@@ -35,6 +39,7 @@ export default function Dashboard() {
     addWallet,
     refreshAll,
     removeWallet,
+    updateWalletLabel,
   } = usePortfolio();
 
   const {
@@ -70,6 +75,13 @@ export default function Dashboard() {
       }
     }
   }, [lastCheckResult, addToast]);
+
+  // Show error as toast
+  useEffect(() => {
+    if (error) {
+      addToast(error, 'error', 5000);
+    }
+  }, [error, addToast]);
 
   const handleManualCheckAlerts = useCallback(async () => {
     const result = await checkAlerts();
@@ -109,6 +121,12 @@ export default function Dashboard() {
     setShowAlertModal(true);
   };
 
+  const handleQuickAlert = useCallback((symbol: string) => {
+    setPreSelectedAsset(symbol);
+    setEditingAlert(null);
+    setShowAlertModal(true);
+  }, []);
+
   const formatLastUpdated = (date: Date) => {
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -144,6 +162,9 @@ export default function Dashboard() {
               isAuthenticated={isAuthenticated}
             />
 
+            {/* Allocation Bar */}
+            <AllocationBar assets={assets} totalValue={totalValue} />
+
             {/* Add Wallet */}
             <WalletInput onAdd={handleAddWallet} />
 
@@ -157,11 +178,10 @@ export default function Dashboard() {
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[var(--accent-red)] text-sm font-medium">Something went wrong</p>
-                    <p className="text-[var(--text-muted)] text-xs mt-1">{error}</p>
+                    <p className="text-[var(--accent-red)] text-sm font-medium font-mono">{error}</p>
                     <button
                       onClick={refreshAll}
-                      className="text-xs text-[var(--accent-blue)] hover:underline mt-2"
+                      className="text-xs text-[var(--accent-primary)] hover:underline mt-2"
                     >
                       Try again
                     </button>
@@ -187,24 +207,79 @@ export default function Dashboard() {
                       key={wallet.id || i}
                       className="group flex items-center justify-between gap-4 py-3 px-4 -mx-4 rounded-lg hover:bg-[var(--bg-glass)] transition-all"
                     >
-                      <div className="flex items-center gap-4 min-w-0">
+                      <div
+                        className="flex items-center gap-4 min-w-0 cursor-pointer"
+                        onClick={() => {
+                          const walletKey = `${wallet.address}-${wallet.chain}`;
+                          setEditingWalletLabel(walletKey);
+                          setLabelDraft(wallet.label || '');
+                        }}
+                      >
                         <span className="w-2.5 h-2.5 bg-[var(--accent-green)] shrink-0 status-pulse" style={{ color: 'var(--accent-green)' }} />
-                        <span className="font-mono text-[var(--text-primary)] text-sm truncate">
-                          <span className="hidden sm:inline">{wallet.address.slice(0, 6)}...{wallet.address.slice(-4)}</span>
-                          <span className="sm:hidden">{wallet.address.slice(0, 4)}...{wallet.address.slice(-3)}</span>
-                        </span>
+                        <div className="flex flex-col min-w-0">
+                          {editingWalletLabel === `${wallet.address}-${wallet.chain}` ? (
+                            <input
+                              autoFocus
+                              type="text"
+                              value={labelDraft}
+                              maxLength={24}
+                              placeholder="Add label..."
+                              onChange={(e) => setLabelDraft(e.target.value)}
+                              onBlur={() => {
+                                updateWalletLabel(wallet.address, wallet.chain, labelDraft);
+                                setEditingWalletLabel(null);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  updateWalletLabel(wallet.address, wallet.chain, labelDraft);
+                                  setEditingWalletLabel(null);
+                                } else if (e.key === 'Escape') {
+                                  setEditingWalletLabel(null);
+                                }
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                              className="font-mono text-sm text-[var(--accent-primary)] bg-transparent border-b border-[var(--accent-primary)]/40 outline-none px-0 py-0.5 w-full max-w-[160px]"
+                            />
+                          ) : (
+                            <>
+                              {wallet.label && (
+                                <span className="text-xs text-[var(--accent-primary)] font-mono truncate">{wallet.label}</span>
+                              )}
+                              <span className="font-mono text-[var(--text-primary)] text-sm truncate">
+                                <span className="hidden sm:inline">{wallet.address.slice(0, 6)}...{wallet.address.slice(-4)}</span>
+                                <span className="sm:hidden">{wallet.address.slice(0, 4)}...{wallet.address.slice(-3)}</span>
+                              </span>
+                            </>
+                          )}
+                        </div>
                         <span className="text-sm text-[var(--text-muted)] capitalize shrink-0">{wallet.chain}</span>
                       </div>
-                      <button
-                        onClick={() => removeWallet(wallet.address, wallet.chain)}
-                        className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center sm:opacity-0 group-hover:opacity-100 hover:text-[var(--accent-red)] hover:bg-[var(--accent-red)]/10 rounded-lg transition-all shrink-0"
-                        title="Remove wallet"
-                        aria-label="Remove wallet"
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M18 6L6 18M6 6l12 12" />
-                        </svg>
-                      </button>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(wallet.address);
+                            addToast('Address copied', 'success', 2000);
+                          }}
+                          className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center sm:opacity-0 group-hover:opacity-100 hover:text-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/10 rounded-lg transition-all"
+                          title="Copy address"
+                          aria-label="Copy address"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="9" y="9" width="13" height="13" rx="1" />
+                            <path d="M5 15H4a1 1 0 01-1-1V4a1 1 0 011-1h10a1 1 0 011 1v1" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => removeWallet(wallet.address, wallet.chain)}
+                          className="p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center sm:opacity-0 group-hover:opacity-100 hover:text-[var(--accent-red)] hover:bg-[var(--accent-red)]/10 rounded-lg transition-all"
+                          title="Remove wallet"
+                          aria-label="Remove wallet"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M18 6L6 18M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -319,9 +394,9 @@ export default function Dashboard() {
                   />
 
                   {wallets.length > 0 && (
-                    <div className="flex items-center gap-3 shrink-0">
+                    <div className="hidden xl:flex items-center gap-3 shrink-0">
                       {lastUpdated && (
-                        <span className="text-[var(--text-muted)] text-xs font-mono hidden sm:block">
+                        <span className="text-[var(--text-muted)] text-xs font-mono">
                           {formatLastUpdated(lastUpdated)}
                         </span>
                       )}
@@ -353,10 +428,47 @@ export default function Dashboard() {
                 </div>
               </div>
 
+              {/* Mobile Refresh Strip */}
+              {wallets.length > 0 && (
+                <div className="xl:hidden flex items-center justify-between px-8 sm:px-10 py-3 border-b border-[var(--border)] bg-[var(--bg-glass)]">
+                  <span className="text-[var(--text-muted)] text-xs font-mono">
+                    {lastUpdated ? `Updated ${formatLastUpdated(lastUpdated)}` : 'Not yet updated'}
+                  </span>
+                  <button
+                    onClick={handleRefreshWithAlertCheck}
+                    disabled={isLoading}
+                    className="flex items-center gap-2 px-4 py-2 min-h-[44px] text-xs font-semibold tracking-wider uppercase text-[var(--accent-primary)] border border-[var(--border)] hover:border-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/5 transition-all disabled:opacity-50"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={isLoading ? 'animate-spin' : ''}
+                    >
+                      <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                      <path d="M3 3v5h5" />
+                      <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+                      <path d="M16 16h5v5" />
+                    </svg>
+                    Refresh
+                  </button>
+                </div>
+              )}
+
               {/* Tab Content */}
               <div className="p-8 sm:p-10">
                 {activeTab === 'assets' && (
-                  <PortfolioTable assets={assets} isLoading={isLoading} />
+                  <PortfolioTable
+                    assets={assets}
+                    isLoading={isLoading}
+                    totalValue={totalValue}
+                    onCreateAlert={isAuthenticated ? handleQuickAlert : undefined}
+                  />
                 )}
                 {activeTab === 'nfts' && (
                   <NFTGrid nfts={nfts} isLoading={isLoading} />
@@ -496,10 +608,12 @@ export default function Dashboard() {
         onClose={() => {
           setShowAlertModal(false);
           setEditingAlert(null);
+          setPreSelectedAsset(undefined);
         }}
         onSave={handleSaveAlert}
         assets={assets}
         editingAlert={editingAlert}
+        preSelectedAsset={preSelectedAsset}
       />
     </div>
   );

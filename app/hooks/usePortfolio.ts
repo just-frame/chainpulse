@@ -15,6 +15,7 @@ interface TrackedWallet {
   id?: string;
   address: string;
   chain: Chain;
+  label?: string | null;
 }
 
 interface UsePortfolioReturn {
@@ -28,6 +29,7 @@ interface UsePortfolioReturn {
   isAuthenticated: boolean;
   addWallet: (address: string, chain: Chain) => Promise<void>;
   removeWallet: (address: string, chain: Chain) => Promise<void>;
+  updateWalletLabel: (address: string, chain: Chain, label: string) => Promise<void>;
   refreshAll: () => Promise<void>;
 }
 
@@ -36,11 +38,12 @@ const getWalletKey = (address: string, chain: string) => `${address.toLowerCase(
 
 export function usePortfolio(): UsePortfolioReturn {
   const { user, loading: authLoading } = useAuth();
-  const { 
-    wallets: savedWallets, 
-    loading: walletsLoading, 
-    addWallet: dbAddWallet, 
-    removeWallet: dbRemoveWallet 
+  const {
+    wallets: savedWallets,
+    loading: walletsLoading,
+    addWallet: dbAddWallet,
+    removeWallet: dbRemoveWallet,
+    updateWalletLabel: dbUpdateWalletLabel,
   } = useWallets();
   
   // Store data per wallet - use object instead of Map for better React compatibility
@@ -72,8 +75,8 @@ export function usePortfolio(): UsePortfolioReturn {
   }, []);
 
   // Get current wallet list
-  const wallets: TrackedWallet[] = user 
-    ? savedWallets.map(w => ({ id: w.id, address: w.address, chain: w.chain as Chain }))
+  const wallets: TrackedWallet[] = user
+    ? savedWallets.map(w => ({ id: w.id, address: w.address, chain: w.chain as Chain, label: w.label }))
     : localWallets;
 
   // Aggregate data from all wallets using useMemo
@@ -110,16 +113,33 @@ export function usePortfolio(): UsePortfolioReturn {
   const fetchWalletData = useCallback(async (address: string, chain: Chain): Promise<WalletData> => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
-    
+
     try {
       const response = await fetch(
         `/api/portfolio?address=${encodeURIComponent(address)}&chain=${chain}`,
         { signal: controller.signal }
       );
       clearTimeout(timeoutId);
-      
+
       if (!response.ok) {
-        throw new Error('Failed to fetch portfolio');
+        let errorMessage: string;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || '';
+        } catch {
+          errorMessage = '';
+        }
+
+        if (errorMessage) {
+          throw new Error(errorMessage);
+        }
+
+        switch (response.status) {
+          case 400: throw new Error('Invalid address format');
+          case 429: throw new Error('Rate limited — please wait a moment');
+          case 500: throw new Error('Server error — try again later');
+          default: throw new Error(`Request failed (${response.status})`);
+        }
       }
       const data = await response.json();
       return {
@@ -129,9 +149,13 @@ export function usePortfolio(): UsePortfolioReturn {
       };
     } catch (err) {
       clearTimeout(timeoutId);
-      if (err instanceof Error && err.name === 'AbortError') {
-        console.error('[usePortfolio] Request timed out for', address);
-        return { assets: [], nfts: [], domains: [] };
+      if (err instanceof Error) {
+        if (err.name === 'AbortError') {
+          throw new Error('Request timed out — check your connection');
+        }
+        if (err.message === 'Failed to fetch') {
+          throw new Error('Network error — check your connection');
+        }
       }
       throw err;
     }
@@ -230,6 +254,32 @@ export function usePortfolio(): UsePortfolioReturn {
       setIsLoading(false);
     }
   }, [user, wallets, walletData, dbAddWallet, fetchWalletData]);
+
+  // Update wallet label
+  const updateWalletLabel = useCallback(async (address: string, chain: Chain, label: string) => {
+    const wallet = wallets.find(
+      w => w.address.toLowerCase() === address.toLowerCase() && w.chain === chain
+    );
+
+    if (user && wallet?.id) {
+      await dbUpdateWalletLabel(wallet.id, label);
+    } else {
+      // Update in localStorage for anonymous users
+      setLocalWallets(prev => {
+        const updated = prev.map(w =>
+          w.address.toLowerCase() === address.toLowerCase() && w.chain === chain
+            ? { ...w, label: label || undefined }
+            : w
+        );
+        try {
+          localStorage.setItem('vault_wallets', JSON.stringify(updated));
+        } catch (e) {
+          console.error('Error saving to localStorage:', e);
+        }
+        return updated;
+      });
+    }
+  }, [wallets, user, dbUpdateWalletLabel]);
 
   // Remove a wallet
   const removeWallet = useCallback(async (address: string, chain: Chain) => {
@@ -458,6 +508,7 @@ export function usePortfolio(): UsePortfolioReturn {
     isAuthenticated: !!user,
     addWallet,
     removeWallet,
+    updateWalletLabel,
     refreshAll,
   };
 }

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import type { Asset } from '@/types';
+import { CHAIN_CONFIG, type Chain } from '@/types';
 import AssetRow from './AssetRow';
 import AssetCard from './AssetCard';
 import { AssetRowSkeleton } from './ui/Skeleton';
@@ -9,22 +10,36 @@ import { AssetRowSkeleton } from './ui/Skeleton';
 interface PortfolioTableProps {
   assets: Asset[];
   isLoading?: boolean;
+  totalValue?: number;
+  onCreateAlert?: (symbol: string) => void;
 }
 
-export default function PortfolioTable({ assets, isLoading = false }: PortfolioTableProps) {
+export default function PortfolioTable({ assets, isLoading = false, totalValue, onCreateAlert }: PortfolioTableProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
+  const [selectedChains, setSelectedChains] = useState<Chain[]>([]);
+
+  const availableChains = useMemo(() => {
+    const chains = new Set(assets.map(a => a.chain));
+    return Array.from(chains).sort();
+  }, [assets]);
 
   const filteredAssets = useMemo(() => {
-    if (!searchQuery.trim()) return assets;
-    const query = searchQuery.toLowerCase();
-    return assets.filter(
-      (asset) =>
-        asset.name.toLowerCase().includes(query) ||
-        asset.symbol.toLowerCase().includes(query) ||
-        asset.chain.toLowerCase().includes(query)
-    );
-  }, [assets, searchQuery]);
+    let result = assets;
+    if (selectedChains.length > 0) {
+      result = result.filter(a => selectedChains.includes(a.chain));
+    }
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (asset) =>
+          asset.name.toLowerCase().includes(query) ||
+          asset.symbol.toLowerCase().includes(query) ||
+          asset.chain.toLowerCase().includes(query)
+      );
+    }
+    return result;
+  }, [assets, searchQuery, selectedChains]);
 
   const displayAssets = showAll ? filteredAssets : filteredAssets.slice(0, 8);
   const hasMore = filteredAssets.length > 8;
@@ -135,6 +150,44 @@ export default function PortfolioTable({ assets, isLoading = false }: PortfolioT
         </div>
       )}
 
+      {/* Chain filter chips */}
+      {availableChains.length > 1 && (
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setSelectedChains([])}
+            className={`px-3 py-1.5 text-xs font-mono tracking-wide transition-all border ${
+              selectedChains.length === 0
+                ? 'bg-[var(--accent-primary)]/10 border-[var(--accent-primary)]/30 text-[var(--accent-primary)]'
+                : 'border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--border-hover)] hover:text-[var(--text-secondary)]'
+            }`}
+          >
+            ALL
+          </button>
+          {availableChains.map((chain) => {
+            const config = CHAIN_CONFIG[chain];
+            const isSelected = selectedChains.includes(chain);
+            return (
+              <button
+                key={chain}
+                onClick={() => {
+                  setSelectedChains(prev =>
+                    isSelected ? prev.filter(c => c !== chain) : [...prev, chain]
+                  );
+                }}
+                className="px-3 py-1.5 text-xs font-mono tracking-wide transition-all border"
+                style={{
+                  backgroundColor: isSelected ? `${config.color}15` : 'transparent',
+                  borderColor: isSelected ? `${config.color}40` : 'var(--border)',
+                  color: isSelected ? config.color : 'var(--text-muted)',
+                }}
+              >
+                {config.name}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* No results */}
       {filteredAssets.length === 0 && searchQuery && (
         <div className="text-center py-10">
@@ -156,6 +209,8 @@ export default function PortfolioTable({ assets, isLoading = false }: PortfolioT
               key={`${asset.symbol}-${asset.chain}-${asset.isStaked}`}
               asset={asset}
               index={index}
+              totalValue={totalValue}
+              onCreateAlert={onCreateAlert}
             />
           ))}
           {hasMore && (
@@ -189,6 +244,8 @@ export default function PortfolioTable({ assets, isLoading = false }: PortfolioT
                   key={`${asset.symbol}-${asset.chain}-${asset.isStaked}`}
                   asset={asset}
                   index={index}
+                  totalValue={totalValue}
+                  onCreateAlert={onCreateAlert}
                 />
               ))}
             </tbody>

@@ -8,9 +8,11 @@ import { getIconUrl, getPlaceholderIcon } from '@/lib/icons';
 interface AssetCardProps {
   asset: Asset;
   index: number;
+  totalValue?: number;
+  onCreateAlert?: (symbol: string) => void;
 }
 
-export default function AssetCard({ asset, index }: AssetCardProps) {
+export default function AssetCard({ asset, index, totalValue, onCreateAlert }: AssetCardProps) {
   const [imgError, setImgError] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const isPositive = asset.change24h >= 0;
@@ -135,7 +137,7 @@ export default function AssetCard({ asset, index }: AssetCardProps) {
             {asset.name}
           </p>
 
-          {/* Row 3: Holdings value + balance */}
+          {/* Row 3: Holdings value + balance + portfolio % */}
           <div className="flex items-baseline gap-2 mt-3">
             <span className="font-mono font-semibold text-lg text-[var(--text-primary)]">
               {formatCurrency(asset.value)}
@@ -143,20 +145,40 @@ export default function AssetCard({ asset, index }: AssetCardProps) {
             <span className="font-mono text-xs text-[var(--text-muted)]">
               {formatBalance(asset.balance, asset.symbol)}
             </span>
+            {totalValue && totalValue > 0 && (
+              <span className="font-mono text-[10px] text-[var(--text-muted)]">
+                ({(asset.value / totalValue * 100).toFixed(1)}%)
+              </span>
+            )}
           </div>
 
-          {/* Row 4: Chain + Expand indicator */}
+          {/* Row 4: Chain + Alert + Expand indicator */}
           <div className="flex items-center justify-between mt-3">
-            <span
-              className="text-[10px] px-2.5 py-1 rounded-full font-medium"
-              style={{
-                backgroundColor: chainConfig.color + '15',
-                color: chainConfig.color,
-                border: `1px solid ${chainConfig.color}20`,
-              }}
-            >
-              {chainConfig.name}
-            </span>
+            <div className="flex items-center gap-2">
+              <span
+                className="text-[10px] px-2.5 py-1 rounded-full font-medium"
+                style={{
+                  backgroundColor: chainConfig.color + '15',
+                  color: chainConfig.color,
+                  border: `1px solid ${chainConfig.color}20`,
+                }}
+              >
+                {chainConfig.name}
+              </span>
+              {onCreateAlert && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onCreateAlert(asset.symbol); }}
+                  className="p-1.5 min-w-[44px] min-h-[44px] flex items-center justify-center hover:text-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/10 rounded-lg transition-all"
+                  title="Create alert"
+                  aria-label={`Create alert for ${asset.symbol}`}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 01-3.46 0" />
+                  </svg>
+                </button>
+              )}
+            </div>
             <div
               className={`
                 w-6 h-6 rounded-full flex items-center justify-center
